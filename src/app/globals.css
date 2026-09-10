@@ -1,0 +1,266 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── thefossclub.org Color Scheme (Pure Solid Dark, Static Colors, Zero Gradients) ───
+   Background:    #000000  (pure solid deep black)
+   Card Surface:  #0a0a0c  (solid dark card)
+   Border:        #222226  (clean solid 1px border)
+   Border Hover:  #333339  (clean solid hover border)
+   Primary Green: #22c55e  (solid authentic FOSS green)
+   Text White:    #fafafa  (solid crisp white)
+   Text Muted:    #a1a1aa  (solid neutral-400 gray)
+   Text Dim:      #71717a  (solid neutral-500 gray)
+──────────────────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --background: #000000;
+  --foreground: #fafafa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  background-color: #000000;
+  color: #fafafa;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  max-width: 100vw;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+::selection {
+  background-color: #15803d;
+  color: #ffffff;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* ─── Translucent Frosted White Glass Surfaces ────── */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.32), 0 20px 45px -10px rgba(0, 0, 0, 0.7);
+  border-radius: 16px;
+}
+
+.glass-panel-strong {
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.45), 0 24px 48px -12px rgba(0, 0, 0, 0.8);
+  border-radius: 18px;
+}
+
+.liquid-glass-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.035) 100%);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.32), 0 20px 45px -10px rgba(0, 0, 0, 0.75);
+  border-radius: 18px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.38);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%);
+  box-shadow: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.5), 0 24px 50px -10px rgba(0, 0, 0, 0.85);
+}
+
+@media (max-width: 640px) {
+  .liquid-glass-card,
+  .glass-panel,
+  .glass-panel-strong {
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+}
+
+/* ─── Static Solid Colors (No Gradients) ─────────────── */
+.gradient-text-green {
+  color: #22c55e;
+}
+
+.gradient-text-blue {
+  color: #38bdf8;
+}
+
+.gradient-text-white {
+  color: #fafafa;
+}
+
+.glow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #22c55e;
+}
+
+.section-divider {
+  height: 1px;
+  background-color: #222226;
+}
+
+/* ─── FOSS Club PNG Logo: Clean, Crisp White Contour Border (Optimized, No Overglow) ─── */
+.foss-png-shiny-border {
+  filter: 
+    drop-shadow(1px 0 0 rgba(255, 255, 255, 0.85))
+    drop-shadow(-1px 0 0 rgba(255, 255, 255, 0.85))
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.85))
+    drop-shadow(0 -1px 0 rgba(255, 255, 255, 0.85))
+    drop-shadow(0 0 2px rgba(255, 255, 255, 0.25));
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.group:hover .foss-png-shiny-border,
+.foss-png-shiny-border:hover {
+  filter: 
+    drop-shadow(1px 0 0 #ffffff)
+    drop-shadow(-1px 0 0 #ffffff)
+    drop-shadow(0 1px 0 #ffffff)
+    drop-shadow(0 -1px 0 #ffffff)
+    drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
+}
+
+/* ─── React Bits BorderGlow Component Styles ─────────── */
+.border-glow-card {
+  --edge-proximity: 0;
+  --cursor-angle: 45deg;
+  --edge-sensitivity: 25;
+  --color-sensitivity: calc(var(--edge-sensitivity) + 15);
+  --border-radius: 18px;
+  --glow-padding: 32px;
+  --cone-spread: 25;
+
+  position: relative;
+  border-radius: var(--border-radius);
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--card-bg, rgba(255, 255, 255, 0.06));
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  overflow: visible;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.32), 0 16px 36px -8px rgba(0, 0, 0, 0.7);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.border-glow-card::before,
+.border-glow-card::after,
+.border-glow-card > .edge-light {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  transition: opacity 0.25s ease-out;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.border-glow-card:not(:hover):not(.sweep-active)::before,
+.border-glow-card:not(:hover):not(.sweep-active)::after,
+.border-glow-card:not(:hover):not(.sweep-active) > .edge-light {
+  opacity: 0;
+  transition: opacity 0.75s ease-in-out;
+}
+
+.border-glow-card::before {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.05) 0 100%) padding-box,
+    linear-gradient(rgba(255, 255, 255, 0) 0% 100%) border-box,
+    var(--gradient-one, radial-gradient(at 80% 55%, hsla(142, 100%, 70%, 1) 0px, transparent 50%)) border-box,
+    var(--gradient-two, radial-gradient(at 69% 34%, hsla(199, 100%, 70%, 1) 0px, transparent 50%)) border-box,
+    var(--gradient-three, radial-gradient(at 8% 6%, hsla(270, 100%, 75%, 1) 0px, transparent 50%)) border-box,
+    var(--gradient-base, linear-gradient(#22c55e 0 100%)) border-box;
+
+  opacity: calc((var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+
+  mask-image:
+    conic-gradient(
+      from var(--cursor-angle) at center,
+      black calc(var(--cone-spread) * 1%),
+      transparent calc((var(--cone-spread) + 15) * 1%),
+      transparent calc((100 - var(--cone-spread) - 15) * 1%),
+      black calc((100 - var(--cone-spread)) * 1%)
+    );
+  -webkit-mask-image:
+    conic-gradient(
+      from var(--cursor-angle) at center,
+      black calc(var(--cone-spread) * 1%),
+      transparent calc((var(--cone-spread) + 15) * 1%),
+      transparent calc((100 - var(--cone-spread) - 15) * 1%),
+      black calc((100 - var(--cone-spread)) * 1%)
+    );
+}
+
+.border-glow-card > .edge-light {
+  inset: calc(var(--glow-padding) * -1);
+  pointer-events: none;
+  z-index: 2;
+
+  mask-image:
+    conic-gradient(
+      from var(--cursor-angle) at center, black 2.5%, transparent 10%, transparent 90%, black 97.5%
+    );
+  -webkit-mask-image:
+    conic-gradient(
+      from var(--cursor-angle) at center, black 2.5%, transparent 10%, transparent 90%, black 97.5%
+    );
+
+  opacity: calc((var(--edge-proximity) - var(--edge-sensitivity)) / (100 - var(--edge-sensitivity)));
+  mix-blend-mode: screen;
+}
+
+.border-glow-card > .edge-light::before {
+  content: "";
+  position: absolute;
+  inset: var(--glow-padding);
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px var(--glow-color, hsl(142deg 76% 45% / 100%)),
+    0 0 8px 1px var(--glow-color-60, hsl(142deg 76% 45% / 60%)),
+    0 0 16px 2px var(--glow-color-30, hsl(142deg 76% 45% / 30%));
+}
+
+.border-glow-inner {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: 3;
+}
+
