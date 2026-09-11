@@ -160,7 +160,54 @@ To access the CMS portal:
 
 ---
 
-## 📜 Available Scripts
+## 🚢 Deploying to Vercel
+
+The platform is 100% optimized and ready for zero-downtime deployment to [Vercel](https://vercel.com):
+
+### Option A: Deploy via Vercel Web Dashboard (Recommended)
+1. Push your repository to GitHub.
+2. Go to [vercel.com/new](https://vercel.com/new) and import the repository.
+3. Framework Preset will be automatically detected as **Next.js**.
+4. Configure the **Environment Variables** in the Vercel project settings:
+   - `CMS_ADMIN_USER`: Admin username for CMS (e.g., `admin`).
+   - `CMS_ADMIN_PASSWORD`: Strong password for the admin panel.
+   - `CMS_JWT_SECRET`: Random 32+ character string for signing JWT tokens.
+   - `MONGODB_URI`: (Recommended for production) MongoDB Atlas connection string `mongodb+srv://...`
+   - `NEXT_PUBLIC_SITE_URL`: (Optional) Your production URL or custom domain (e.g. `https://fossclubsrm.org`). If omitted, Vercel automatically supplies `VERCEL_URL`.
+   - `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`: (Optional) Google Search Console verification code.
+5. Click **Deploy**.
+
+### Option B: Deploy via Vercel CLI
+```bash
+# Install Vercel CLI globally
+npm i -g vercel
+
+# Deploy to preview
+vercel
+
+# Deploy to production
+vercel --prod
+```
+
+---
+
+## 🔍 SEO & Web Vitals Optimizations
+
+This platform includes a complete search engine optimization architecture:
+
+- **Dynamic Metadata & OpenGraph**: Centralized in `src/lib/siteConfig.ts` with automatic canonical domain resolution across localhost, Vercel preview, and production.
+- **Dynamic 1200x630 Social Cards**: Dynamic Edge image generation via `src/app/opengraph-image.tsx` using `@vercel/og` for rich Twitter Cards and OpenGraph previews.
+- **Structured Data (Schema.org JSON-LD)**:
+  - `Organization` & `EducationalOrganization` schema linking FOSS Club SRM to SRMIST and FOSS United.
+  - `WebSite` schema with localized English descriptors.
+  - `Event` ItemList schema on `/events` for Google Events rich search snippets.
+- **Dynamic XML Sitemap**: Generated on-demand at `/sitemap.xml` with priority weighting and change frequencies.
+- **Robots Directives**: Configured via `src/app/robots.ts` (`/robots.txt`), allowing public indexing while strictly protecting `/cms` and `/api` routes.
+- **PWA Web App Manifest**: Served at `/manifest.webmanifest` for installability and mobile SEO.
+- **Security & Caching Headers**: Managed in `vercel.json` with `SAMEORIGIN`, `nosniff`, `strict-origin-when-cross-origin`, and 1-year immutable caching for static assets.
+- **Zero-Error Serverless Fallback**: Storage in `src/lib/db.ts` uses `/tmp` and in-memory caching to eliminate `EROFS` read-only errors on serverless lambdas.
+
+---
 
 | Command | Description |
 | :--- | :--- |

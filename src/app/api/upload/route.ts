@@ -22,18 +22,33 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
+    let publicUrl = "";
+
+    // Attempt local file write in non-serverless or local development environment
+    if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+      try {
+        const uploadsDir = path.join(process.cwd(), "public", "uploads");
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+
+        const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+        const uniqueName = `${Date.now()}_${cleanName}`;
+        const filePath = path.join(uploadsDir, uniqueName);
+
+        fs.writeFileSync(filePath, buffer);
+        publicUrl = `/uploads/${uniqueName}`;
+      } catch (fsErr) {
+        console.warn("Local filesystem write failed, using data URI fallback:", fsErr);
+      }
     }
 
-    const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const uniqueName = `${Date.now()}_${cleanName}`;
-    const filePath = path.join(uploadsDir, uniqueName);
-
-    fs.writeFileSync(filePath, buffer);
-
-    const publicUrl = `/uploads/${uniqueName}`;
+    // On Vercel / serverless functions or when disk is read-only, use inline base64 Data URL
+    if (!publicUrl) {
+      const mime = file.type || "image/png";
+      const base64 = buffer.toString("base64");
+      publicUrl = `data:${mime};base64,${base64}`;
+    }
 
     return NextResponse.json({
       success: true,

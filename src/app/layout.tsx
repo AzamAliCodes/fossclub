@@ -7,37 +7,82 @@ import FloatingFOSSLogos from "@/components/3d/FloatingFOSSLogos";
 import CursorGlow from "@/components/ui/CursorGlow";
 import CursorGrid from "@/components/ui/CursorGrid";
 
+import { siteConfig } from "@/lib/siteConfig";
+import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/JsonLd";
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#000000",
+  themeColor: siteConfig.themeColor,
+  colorScheme: "dark",
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
-  title: "FOSS Club SRM",
-  description: "Official FOSS United student chapter at SRM Institute of Science and Technology, Kattankulathur. Learn, build, and collaborate with fellow open-source enthusiasts.",
-  keywords: ["FOSS Club SRM", "SRMIST", "Open Source", "FOSS United", "Kattankulathur", "Hackathon", "Linux", "Git", "Rust"],
-  authors: [{ name: "FOSS Club SRM" }],
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: `${siteConfig.name} | SRMIST Kattankulathur`,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  keywords: siteConfig.keywords,
+  authors: siteConfig.authors,
+  creator: siteConfig.creator,
+  publisher: siteConfig.publisher,
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  category: "technology",
+  alternates: {
+    canonical: siteConfig.url,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
-    title: "FOSS Club SRM",
-    description: "Learn, build, and collaborate with fellow open-source enthusiasts. Official FOSS United Chapter.",
-    url: "https://fossunited.org/c/srm-ktr",
-    siteName: "FOSS Club SRM",
+    title: `${siteConfig.name} | SRMIST Kattankulathur`,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    locale: "en_US",
+    type: "website",
     images: [
       {
         url: "/images/logo.png",
-        width: 800,
-        height: 600,
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.name} — Official FOSS United Chapter at SRMIST`,
       },
     ],
-    locale: "en_US",
-    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} | SRMIST Kattankulathur`,
+    description: siteConfig.description,
+    images: ["/images/logo.png"],
+    creator: "@fossunited",
   },
   icons: {
-    icon: "/images/logo-transparent.png",
-    apple: "/images/logo-transparent.png",
+    icon: [
+      { url: "/images/logo-transparent.png", sizes: "32x32", type: "image/png" },
+      { url: "/images/logo-transparent.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: "/images/logo.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
 };
 
@@ -49,6 +94,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth">
       <body className="bg-black text-[#fafafa] min-h-screen flex flex-col relative antialiased">
+        {/* Schema.org Structured Data for Google / Bing Rich Snippets */}
+        <OrganizationJsonLd />
+        <WebSiteJsonLd />
+
         {/* Global Particle Galaxy Starfield & Nebula (with instant 0ms pixel snow) */}
         <ParticlesBackground />
 

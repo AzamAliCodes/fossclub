@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { MongoClient, Db } from "mongodb";
 import { TeamMember, ClubEvent, RecruitmentConfig, RecruitmentSubscriber } from "@/types";
 import { initialTeamMembers, initialEvents, initialRecruitmentConfig } from "./initialData";
@@ -7,12 +8,21 @@ import { initialTeamMembers, initialEvents, initialRecruitmentConfig } from "./i
 const MONGODB_URI = process.env.MONGODB_URI;
 const DB_NAME = "foss_club_srm";
 
-let client: MongoClient | null = null;
-let mongoDb: Db | null = null;
-let mongoConnectionFailed = false;
+// In-memory cache fallback for resilient serverless execution
+let inMemoryData: LocalStoreData | null = null;
 
-// Path to local file store fallback
-const DATA_DIR = path.join(process.cwd(), ".data");
+// Safe storage directory:
+// On Vercel / serverless functions, the root filesystem is read-only.
+// /tmp is the only writable directory on AWS Lambda / Vercel Serverless.
+const isServerless = Boolean(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  process.env.NOW_REGION
+);
+
+const DATA_DIR = isServerless
+  ? path.join(os.tmpdir(), "foss_club_data")
+  : path.join(process.cwd(), ".data");
 const DATA_FILE = path.join(DATA_DIR, "foss_db.json");
 
 interface LocalStoreData {
@@ -23,6 +33,10 @@ interface LocalStoreData {
 }
 
 function ensureLocalFile(): LocalStoreData {
+  if (inMemoryData) {
+    return inMemoryData;
+  }
+
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -34,51 +48,76 @@ function ensureLocalFile(): LocalStoreData {
         recruitment: initialRecruitmentConfig,
         subscribers: [],
       };
-      fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2), "utf-8");
+      try {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2), "utf-8");
+      } catch (writeErr) {
+        console.warn("Could not write initial file (read-only filesystem fallback to memory):", writeErr);
+      }
+      inMemoryData = initial;
       return initial;
     }
     const raw = fs.readFileSync(DATA_FILE, "utf-8");
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    inMemoryData = parsed;
+    return parsed;
   } catch (error) {
-    console.error("Local store read error, falling back to memory/initial:", error);
-    return {
+    console.warn("Local store read error, falling back to memory/initial:", error);
+    const initial: LocalStoreData = {
       team: initialTeamMembers,
       events: initialEvents,
       recruitment: initialRecruitmentConfig,
       subscribers: [],
     };
+    inMemoryData = initial;
+    return initial;
   }
 }
 
 function saveLocalFile(data: LocalStoreData) {
+  // Always update in-memory state
+  inMemoryData = data;
+
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), "utf-8");
   } catch (error) {
-    console.error("Failed to write local database file:", error);
+    console.warn("Could not persist to disk, kept in memory (safe on serverless):", error);
   }
 }
+
+declare global {
+  // eslint-disable-next-line no-var
+  var _mongoClientPromise: Promise<MongoClient> | undefined;
+}
+
+let mongoConnectionFailed = false;
 
 async function getMongoDb(): Promise<Db | null> {
   if (mongoConnectionFailed || !MONGODB_URI) {
     return null;
   }
-  if (mongoDb) {
-    return mongoDb;
-  }
 
   try {
-    client = new MongoClient(MONGODB_URI, {
-      serverSelectionTimeoutMS: 2000,
-    });
-    await client.connect();
-    mongoDb = client.db(DB_NAME);
-    console.log("Connected successfully to MongoDB");
-    return mongoDb;
+    let client: MongoClient;
+    if (process.env.NODE_ENV === "development") {
+      if (!global._mongoClientPromise) {
+        const c = new MongoClient(MONGODB_URI, { serverSelectionTimeoutMS: 2000 });
+        global._mongoClientPromise = c.connect();
+      }
+      client = await global._mongoClientPromise;
+    } else {
+      if (!global._mongoClientPromise) {
+        const c = new MongoClient(MONGODB_URI, { serverSelectionTimeoutMS: 3000 });
+        global._mongoClientPromise = c.connect();
+      }
+      client = await global._mongoClientPromise;
+    }
+
+    return client.db(DB_NAME);
   } catch (err) {
-    console.warn("MongoDB connection failed or not available, using persistent local store:", err);
+    console.warn("MongoDB connection failed or not available, using local store:", err);
     mongoConnectionFailed = true;
     return null;
   }
