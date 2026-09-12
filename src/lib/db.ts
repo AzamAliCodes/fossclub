@@ -1,12 +1,16 @@
 import fs from "fs";
 import path from "path";
 import os from "os";
-import { MongoClient, Db } from "mongodb";
+import { MongoClient, Db, ObjectId } from "mongodb";
 import { TeamMember, ClubEvent, RecruitmentConfig, RecruitmentSubscriber } from "@/types";
 import { initialTeamMembers, initialEvents, initialRecruitmentConfig } from "./initialData";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 const DB_NAME = "foss_club_srm";
+
+function isObjectIdHex(id: string): boolean {
+  return /^[0-9a-fA-F]{24}$/.test(id);
+}
 
 // In-memory cache fallback for resilient serverless execution
 let inMemoryData: LocalStoreData | null = null;
@@ -166,7 +170,8 @@ export async function saveTeamMember(member: Partial<TeamMember> & { name: strin
 
   if (db) {
     try {
-      await db.collection("team").updateOne(
+      const coll = db.collection("team");
+      const res = await coll.updateOne(
         { _id: id as any },
         { 
           $set: setFields,
@@ -174,6 +179,18 @@ export async function saveTeamMember(member: Partial<TeamMember> & { name: strin
         },
         { upsert: true }
       );
+
+      // Seeded documents can have an ObjectId _id while we filter by its hex string.
+      // If nothing matched (a duplicate was inserted instead), repoint the update at
+      // the real ObjectId document and drop the accidental string-id duplicate.
+      if (res.upsertedCount > 0 && isObjectIdHex(id)) {
+        const oid = new ObjectId(id);
+        const real = await coll.findOne({ _id: oid });
+        if (real) {
+          await coll.deleteOne({ _id: id as any });
+          await coll.updateOne({ _id: oid }, { $set: setFields });
+        }
+      }
 
       // Keep local backup store in sync
       const local = ensureLocalFile();
@@ -209,7 +226,11 @@ export async function deleteTeamMember(id: string): Promise<boolean> {
   const db = await getMongoDb();
   let changed = false;
   if (db) {
-    const res = await db.collection("team").deleteOne({ _id: id as any });
+    const coll = db.collection("team");
+    let res = await coll.deleteOne({ _id: id as any });
+    if (res.deletedCount === 0 && isObjectIdHex(id)) {
+      res = await coll.deleteOne({ _id: new ObjectId(id) });
+    }
     changed = res.deletedCount > 0;
   }
 
@@ -284,7 +305,8 @@ export async function saveEvent(event: Partial<ClubEvent> & { title: string }): 
 
   if (db) {
     try {
-      await db.collection("events").updateOne(
+      const coll = db.collection("events");
+      const res = await coll.updateOne(
         { _id: id as any },
         { 
           $set: setFields,
@@ -293,6 +315,16 @@ export async function saveEvent(event: Partial<ClubEvent> & { title: string }): 
         },
         { upsert: true }
       );
+
+      // Same ObjectId-mismatch guard as saveTeamMember (seeded docs use ObjectId _id).
+      if (res.upsertedCount > 0 && isObjectIdHex(id)) {
+        const oid = new ObjectId(id);
+        const real = await coll.findOne({ _id: oid });
+        if (real) {
+          await coll.deleteOne({ _id: id as any });
+          await coll.updateOne({ _id: oid }, { $set: setFields });
+        }
+      }
 
       // Keep local backup store in sync
       const local = ensureLocalFile();
@@ -327,7 +359,11 @@ export async function saveEvent(event: Partial<ClubEvent> & { title: string }): 
 export async function deleteEvent(id: string): Promise<boolean> {
   const db = await getMongoDb();
   if (db) {
-    const res = await db.collection("events").deleteOne({ _id: id as any });
+    const coll = db.collection("events");
+    let res = await coll.deleteOne({ _id: id as any });
+    if (res.deletedCount === 0 && isObjectIdHex(id)) {
+      res = await coll.deleteOne({ _id: new ObjectId(id) });
+    }
     return res.deletedCount > 0;
   }
 
@@ -433,6 +469,41 @@ export async function getRecruitmentSubscribers(): Promise<RecruitmentSubscriber
 /* =========================================================
    SEED & RESET
 ========================================================= */
+
+export async function cleanupDuplicateIds(): Promise<{ teamRemoved: number; eventsRemoved: number }> {
+  const db = await getMongoDb();
+  let teamRemoved = 0;
+  let eventsRemoved = 0;
+  if (!db) return { teamRemoved, eventsRemoved };
+
+  const teamColl = db.collection("team");
+  const teamStringDocs = await teamColl.find({ _id: { $type: "string" } }).toArray();
+  for (const doc of teamStringDocs as any[]) {
+    const idStr = doc._id as string;
+    if (isObjectIdHex(idStr)) {
+      const real = await teamColl.findOne({ _id: new ObjectId(idStr) });
+      if (real) {
+        await teamColl.deleteOne({ _id: idStr as any });
+        teamRemoved++;
+      }
+    }
+  }
+
+  const eventsColl = db.collection("events");
+  const eventStringDocs = await eventsColl.find({ _id: { $type: "string" } }).toArray();
+  for (const doc of eventStringDocs as any[]) {
+    const idStr = doc._id as string;
+    if (isObjectIdHex(idStr)) {
+      const real = await eventsColl.findOne({ _id: new ObjectId(idStr) });
+      if (real) {
+        await eventsColl.deleteOne({ _id: idStr as any });
+        eventsRemoved++;
+      }
+    }
+  }
+
+  return { teamRemoved, eventsRemoved };
+}
 
 export async function resetDatabaseToInitial() {
   const db = await getMongoDb();
