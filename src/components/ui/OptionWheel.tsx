@@ -25,6 +25,7 @@ export interface OptionWheelProps {
   soundUrl?: string;
   soundVolume?: number;
   className?: string;
+  activeGlass?: boolean;
 }
 
 interface WheelConfig {
@@ -67,6 +68,7 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
   soundUrl = "",
   soundVolume = 0.3,
   className = "",
+  activeGlass = true,
 }) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -155,6 +157,13 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
       el.style.opacity = String(Math.max(cfg.minOpacity, 1 - dist * cfg.fade));
       el.style.filter = cfg.blur > 0 ? `blur(${(dist * cfg.blur).toFixed(2)}px)` : "none";
       el.style.setProperty("--ow-p", Math.max(0, 1 - Math.min(dist, 1)).toFixed(4));
+
+      // Highlight bold white ONLY when strictly inside the fixed glass capsule
+      const inGlass = dist < 0.28;
+      const targetState = inGlass ? "true" : "false";
+      if (el.dataset.inGlass !== targetState) {
+        el.dataset.inGlass = targetState;
+      }
     }
 
     rafRef.current = settled ? null : requestAnimationFrame(runFrame);
@@ -321,23 +330,38 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
       onPointerCancel={handlePointerEnd}
       onKeyDown={handleKeyDown}
     >
-      {items.map((label, index) => (
+      {/* Fixed Stationary Transparent Glass Capsule for Active Item */}
+      {activeGlass && (
         <div
-          key={`${label}-${index}`}
-          ref={(el) => {
-            itemRefs.current[index] = el;
-          }}
-          role="option"
-          aria-selected={selectedIndex === index}
-          title={label}
-          className={`absolute top-1/2 cursor-pointer whitespace-nowrap leading-none will-change-[transform,opacity,filter] [font-size:var(--ow-font-size)] [color:color-mix(in_srgb,var(--ow-active-color)_calc(var(--ow-p,0)*100%),var(--ow-text-color))] max-w-[85%] truncate ${
-            side === "right" ? "right-[var(--ow-inset)] origin-right" : "left-[var(--ow-inset)] origin-left"
-          } ${selectedIndex === index ? "font-bold text-[#fafafa]" : "font-normal"}`}
-          onClick={() => handleItemClick(index)}
+          aria-hidden="true"
+          className="absolute top-1/2 -translate-y-1/2 left-2 sm:left-3 right-2 sm:right-3 h-[44px] sm:h-[52px] rounded-xl sm:rounded-2xl liquid-glass-card !border-white/25 !bg-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1.5px_rgba(255,255,255,0.35)] pointer-events-none z-0"
         >
-          {label}
+          {/* Subtle top specular accent highlight */}
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
         </div>
-      ))}
+      )}
+
+      {items.map((label, index) => {
+        const isCurrentActive = index === selectedIndex;
+        return (
+          <div
+            key={`${label}-${index}`}
+            ref={(el) => {
+              itemRefs.current[index] = el;
+            }}
+            role="option"
+            aria-selected={isCurrentActive}
+            title={label}
+            data-in-glass={itemRefs.current[index]?.dataset.inGlass ?? (isCurrentActive ? "true" : "false")}
+            className={`wheel-item absolute top-1/2 cursor-pointer whitespace-nowrap leading-none will-change-[transform,opacity,filter] [font-size:var(--ow-font-size)] max-w-[88%] truncate transition-[color,font-weight] duration-150 z-10 ${
+              side === "right" ? "right-[var(--ow-inset)] origin-right" : "left-[var(--ow-inset)] origin-left"
+            } font-medium [color:color-mix(in_srgb,var(--ow-active-color)_calc(var(--ow-p,0)*100%),var(--ow-text-color))]`}
+            onClick={() => handleItemClick(index)}
+          >
+            {label}
+          </div>
+        );
+      })}
     </div>
   );
 };

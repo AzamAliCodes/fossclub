@@ -103,35 +103,30 @@ export default function FOSSTechnologyWheel() {
       {/* Main Wheel + Event Poster Inspector */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-stretch">
         
-        {/* Left Column: 3D OptionWheel (Liquid Glass Transparent Card) */}
-        <div className="lg:col-span-5 xl:col-span-5 h-[185px] xs:h-[200px] sm:h-[330px] md:h-[340px] lg:h-[350px] xl:h-[360px] relative liquid-glass-card rounded-2xl border border-white/20 overflow-hidden shadow-2xl p-2 sm:p-3 flex items-center justify-center group">
-          {/* Specular Catch-light */}
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none z-20" />
-
-          {/* Dynamic ambient glow behind active selection */}
+        {/* Left Column: Pure 3D Event Name Scroll (No window / card) */}
+        <div className="lg:col-span-5 xl:col-span-5 h-[190px] xs:h-[210px] sm:h-[330px] md:h-[340px] lg:h-[350px] xl:h-[360px] relative flex items-center justify-center overflow-hidden select-none">
+          {/* Subtle dynamic ambient green glow behind active selection */}
           <div
-            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 w-36 sm:w-44 h-14 sm:h-18 rounded-full blur-2xl pointer-events-none transition-colors duration-500 bg-[#22c55e]/20"
+            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-44 sm:w-60 h-14 sm:h-18 rounded-full blur-2xl pointer-events-none transition-colors duration-500 bg-[#22c55e]/15"
           />
-
-          {/* Center active indicator highlight frame without overlapping text */}
-          <div className="absolute left-2 right-2 top-1/2 -translate-y-1/2 h-10 sm:h-12 rounded-xl border border-white/25 bg-white/[0.06] backdrop-blur-md pointer-events-none z-10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_0_16px_rgba(34,197,94,0.15)]" />
 
           <OptionWheel
             items={wheelItems}
             defaultSelected={0}
             onChange={handleEventChange}
             textColor="#71717a"
-            activeColor="#fafafa"
+            activeColor="#ffffff"
             side="left"
-            fontSize={isMobile ? 0.95 : 1.1}
-            spacing={isMobile ? 1.2 : 1.25}
+            fontSize={isMobile ? 1.25 : 1.6}
+            spacing={isMobile ? 1.35 : 1.45}
             curve={1.15}
             tilt={isMobile ? 2.5 : 5}
-            blur={1.6}
+            blur={1.5}
             fade={0.25}
             minOpacity={0.15}
             smoothing={200}
-            inset={isMobile ? 10 : 16}
+            inset={isMobile ? 12 : 20}
+            activeGlass={true}
           />
         </div>
 
