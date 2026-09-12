@@ -74,7 +74,7 @@ export default function BorderGlow({
   glowRadius = 32,
   glowIntensity = 1.0,
   coneSpread = 25,
-  colors = ["#22c55e", "#38bdf8", "#a78bfa"],
+  colors = ["#22c55e", "#38bdf8", "#fb7185"],
   fillOpacity = 0.35,
   style,
 }: BorderGlowProps) {

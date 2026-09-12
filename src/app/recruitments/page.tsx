@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ExternalLink, Lock, CheckCircle2, Bell, Send, ChevronDown, Terminal, Globe, Palette } from "lucide-react";
+import { ExternalLink, Lock, CheckCircle2, Clock, ChevronDown, Terminal, Globe, Palette } from "lucide-react";
+import confetti from "canvas-confetti";
 import { RecruitmentConfig } from "@/types";
+import { RECRUITMENT_DOMAINS, RECRUITMENT_FAQS } from "@/lib/initialData";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 import MagneticButton from "@/components/ui/MagneticButton";
-import confetti from "canvas-confetti";
 import { playClickSound, playSuccessSound } from "@/lib/sound";
 
 let cachedRecruitmentConfig: RecruitmentConfig | null = null;
@@ -15,14 +16,6 @@ export default function RecruitmentsPage() {
   const [config, setConfig] = useState<RecruitmentConfig | null>(() => cachedRecruitmentConfig);
   const [loading, setLoading] = useState<boolean>(() => !cachedRecruitmentConfig);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-
-  // Waitlist form state when recruitment is closed
-  const [notifyForm, setNotifyForm] = useState({
-    name: "",
-    email: "",
-    domainOfInterest: "Technical",
-  });
-  const [notifyStatus, setNotifyStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   useEffect(() => {
     fetch("/api/recruitment")
@@ -36,30 +29,6 @@ export default function RecruitmentsPage() {
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);
-
-  const handleNotifySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try { playClickSound(); } catch {}
-    setNotifyStatus("loading");
-
-    try {
-      const res = await fetch("/api/recruitment/notify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(notifyForm),
-      });
-      const data = await res.json();
-      if (data.success) {
-        try { playSuccessSound(); } catch {}
-        setNotifyStatus("success");
-        confetti({ particleCount: 70, spread: 60, origin: { y: 0.8 } });
-      } else {
-        setNotifyStatus("error");
-      }
-    } catch {
-      setNotifyStatus("error");
-    }
-  };
 
   if (loading || !config) {
     return (
@@ -194,60 +163,18 @@ export default function RecruitmentsPage() {
 
       </div>
 
-      {/* If Closed: Waitlist Notification Form */}
+      {/* If Closed: Applications Closed Notice */}
       {!isOpen && (
         <div className="w-full max-w-xl mx-auto mb-20">
-          <div className="liquid-glass-card p-5 sm:p-8 rounded-2xl text-center space-y-4 relative overflow-hidden">
+          <div className="liquid-glass-card p-5 sm:p-8 rounded-2xl text-center space-y-3 relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-20" />
-            <div className="w-12 h-12 rounded-xl bg-[#0c2317] border border-[#14532d] flex items-center justify-center mx-auto text-[#22c55e]">
-              <Bell className="w-5 h-5" />
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400">
+              <Clock className="w-5 h-5" />
             </div>
-            <h3 className="text-xl font-bold text-[#fafafa]">Priority Waitlist</h3>
-            <p className="text-xs text-[#a1a1aa] max-w-sm mx-auto">
-              Get notified first the second recruitment drops for the next cycle.
+            <h3 className="text-xl font-bold text-[#fafafa]">Applications Currently Closed</h3>
+            <p className="text-xs text-[#a1a1aa] max-w-sm mx-auto font-mono leading-relaxed">
+              Recruitment is not active right now. Induction drives are announced directly via Google Form and our official channels!
             </p>
-
-            {notifyStatus === "success" ? (
-              <div className="p-3 rounded-lg bg-[#0c2317] border border-[#14532d] text-[#22c55e] text-xs font-mono">
-                ✓ You&apos;re on the priority list! We will notify your inbox.
-              </div>
-            ) : (
-              <form onSubmit={handleNotifySubmit} className="space-y-3 text-xs font-mono text-left max-w-sm mx-auto">
-                <input
-                  type="text"
-                  required
-                  value={notifyForm.name}
-                  onChange={(e) => setNotifyForm({ ...notifyForm, name: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-black/60 border border-white/10 rounded-lg text-[#fafafa] focus:outline-none focus:border-[#22c55e]"
-                  placeholder="Your Full Name"
-                />
-                <input
-                  type="email"
-                  required
-                  value={notifyForm.email}
-                  onChange={(e) => setNotifyForm({ ...notifyForm, email: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-black/60 border border-white/10 rounded-lg text-[#fafafa] focus:outline-none focus:border-[#22c55e]"
-                  placeholder="SRM NetID Email"
-                />
-                <select
-                  value={notifyForm.domainOfInterest}
-                  onChange={(e) => setNotifyForm({ ...notifyForm, domainOfInterest: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-white/[0.08] backdrop-blur-xl border border-white/20 rounded-xl text-[#22c55e] font-mono text-xs focus:outline-none focus:border-[#22c55e] cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] transition-all"
-                >
-                  <option value="Technical" className="bg-[#0c0c0e] text-[#fafafa]">Technical Domain</option>
-                  <option value="Corporate" className="bg-[#0c0c0e] text-[#fafafa]">Corporate Domain</option>
-                  <option value="Creative" className="bg-[#0c0c0e] text-[#fafafa]">Creative Domain</option>
-                </select>
-                <button
-                  type="submit"
-                  disabled={notifyStatus === "loading"}
-                  className="w-full py-3 rounded-lg bg-[#22c55e] hover:bg-[#16a34a] text-black font-bold flex items-center justify-center space-x-2 transition-colors font-mono"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>{notifyStatus === "loading" ? "Submitting..." : "Join Waitlist"}</span>
-                </button>
-              </form>
-            )}
           </div>
         </div>
       )}
@@ -262,12 +189,12 @@ export default function RecruitmentsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {config.domains?.map((d, idx) => {
+          {((config.domains && config.domains.length > 0) ? config.domains : RECRUITMENT_DOMAINS).map((d, idx) => {
             const isCorp = d.domain === "Corporate";
             const isCreat = d.domain === "Creative";
-            const color = isCorp ? "#38bdf8" : isCreat ? "#c084fc" : "#22c55e";
-            const bg = isCorp ? "rgba(56, 189, 248, 0.12)" : isCreat ? "rgba(192, 132, 252, 0.12)" : "rgba(34, 197, 94, 0.12)";
-            const border = isCorp ? "rgba(56, 189, 248, 0.35)" : isCreat ? "rgba(192, 132, 252, 0.35)" : "rgba(34, 197, 94, 0.35)";
+            const color = isCorp ? "#38bdf8" : isCreat ? "#fb7185" : "#22c55e";
+            const bg = isCorp ? "rgba(56, 189, 248, 0.12)" : isCreat ? "rgba(251, 113, 133, 0.12)" : "rgba(34, 197, 94, 0.12)";
+            const border = isCorp ? "rgba(56, 189, 248, 0.35)" : isCreat ? "rgba(251, 113, 133, 0.35)" : "rgba(34, 197, 94, 0.35)";
             const DomainIcon = isCorp ? Globe : isCreat ? Palette : Terminal;
 
             return (
@@ -328,46 +255,50 @@ export default function RecruitmentsPage() {
       </div>
 
       {/* FAQs */}
-      {config.faqs && config.faqs.length > 0 && (
-        <div className="w-full max-w-3xl">
-          <div className="text-center mb-8">
-            <p className="text-xs text-[#a1a1aa] tracking-[0.25em] uppercase mb-2 font-mono">Clarifications</p>
-            <h3 className="text-2xl font-bold text-[#fafafa] tracking-tight">Frequently Asked Questions</h3>
-          </div>
+      {(() => {
+        const faqsList = (config.faqs && config.faqs.length > 0) ? config.faqs : RECRUITMENT_FAQS;
+        if (!faqsList || faqsList.length === 0) return null;
+        return (
+          <div className="w-full max-w-3xl">
+            <div className="text-center mb-8">
+              <p className="text-xs text-[#a1a1aa] tracking-[0.25em] uppercase mb-2 font-mono">Clarifications</p>
+              <h3 className="text-2xl font-bold text-[#fafafa] tracking-tight">Frequently Asked Questions</h3>
+            </div>
 
-          <div className="space-y-3">
-            {config.faqs.map((faq, idx) => {
-              const isFaqOpen = activeFaq === idx;
-              return (
-                <div
-                  key={idx}
-                  className="rounded-xl bg-[#0a0a0c] border border-[#222226] overflow-hidden transition-colors"
-                >
-                  <button
-                    onClick={() => {
-                      try { playClickSound(); } catch {}
-                      setActiveFaq(isFaqOpen ? null : idx);
-                    }}
-                    className="w-full p-4 text-left flex items-center justify-between text-xs sm:text-sm font-semibold text-[#fafafa] hover:text-[#22c55e] transition-colors"
+            <div className="space-y-3">
+              {faqsList.map((faq, idx) => {
+                const isFaqOpen = activeFaq === idx;
+                return (
+                  <div
+                    key={idx}
+                    className="rounded-xl bg-[#0a0a0c] border border-[#222226] overflow-hidden transition-colors"
                   >
-                    <span>{faq.question}</span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-[#71717a] transition-transform duration-200 flex-shrink-0 ml-2 ${
-                        isFaqOpen ? "rotate-180 text-[#22c55e]" : ""
-                      }`}
-                    />
-                  </button>
-                  {isFaqOpen && (
-                    <div className="px-4 pb-4 text-xs text-[#a1a1aa] leading-relaxed font-sans border-t border-[#222226] pt-3">
-                      {faq.answer}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                    <button
+                      onClick={() => {
+                        try { playClickSound(); } catch {}
+                        setActiveFaq(isFaqOpen ? null : idx);
+                      }}
+                      className="w-full p-4 text-left flex items-center justify-between text-xs sm:text-sm font-semibold text-[#fafafa] hover:text-[#22c55e] transition-colors"
+                    >
+                      <span>{faq.question}</span>
+                      <ChevronDown
+                        className={`w-4 h-4 text-[#71717a] transition-transform duration-200 flex-shrink-0 ml-2 ${
+                          isFaqOpen ? "rotate-180 text-[#22c55e]" : ""
+                        }`}
+                      />
+                    </button>
+                    {isFaqOpen && (
+                      <div className="px-4 pb-4 text-xs text-[#a1a1aa] leading-relaxed font-sans border-t border-[#222226] pt-3">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
     </div>
   );

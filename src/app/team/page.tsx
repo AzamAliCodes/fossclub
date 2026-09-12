@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import { Users, ChevronDown, Award, Check } from "lucide-react";
+import { Users, ChevronDown, Award, Check, Filter, X } from "lucide-react";
 import { TeamMember, DomainType } from "@/types";
 import { playClickSound } from "@/lib/sound";
 
@@ -31,15 +31,16 @@ const InstagramIcon = ({ className }: { className?: string }) => (
 const DOMAIN_META: Record<string, { color: string; bg: string; border: string }> = {
   Technical: { color: "#22c55e", bg: "rgba(34, 197, 94, 0.15)", border: "rgba(34, 197, 94, 0.35)" },
   Corporate: { color: "#38bdf8", bg: "rgba(56, 189, 248, 0.15)", border: "rgba(56, 189, 248, 0.35)" },
-  Creative:  { color: "#c084fc", bg: "rgba(192, 132, 252, 0.15)", border: "rgba(192, 132, 252, 0.35)" },
+  Creative:  { color: "#fb7185", bg: "rgba(251, 113, 133, 0.15)", border: "rgba(251, 113, 133, 0.35)" },
 };
 
-const POSITION_ORDER = ["Head of Club", "Maintainer", "Volunteer"];
+const POSITION_ORDER = ["Head", "Maintainer", "Volunteer"];
+const DOMAIN_PRIORITY_ORDER = ["Technical", "Creative", "Corporate"];
 
 const POSITION_BADGE: Record<string, { color: string; bg: string; border: string }> = {
-  "Head of Club": { color: "#f59e0b", bg: "rgba(245, 158, 11, 0.12)", border: "rgba(245, 158, 11, 0.3)" },
-  "Maintainer":   { color: "#22c55e", bg: "rgba(34, 197, 94, 0.12)", border: "rgba(34, 197, 94, 0.28)" },
-  "Volunteer":    { color: "#a1a1aa", bg: "rgba(255, 255, 255, 0.05)", border: "rgba(255, 255, 255, 0.1)" },
+  "Head":       { color: "#f59e0b", bg: "rgba(245, 158, 11, 0.12)", border: "rgba(245, 158, 11, 0.3)" },
+  "Maintainer": { color: "#d946ef", bg: "rgba(217, 70, 239, 0.12)", border: "rgba(217, 70, 239, 0.3)" },
+  "Volunteer":  { color: "#a1a1aa", bg: "rgba(255, 255, 255, 0.05)", border: "rgba(255, 255, 255, 0.1)" },
 };
 
 /* ─── Motion Variants ─────────────────────────────────────────────────────── */
@@ -66,7 +67,7 @@ function LiquidGlassMemberCard({
   const dm = DOMAIN_META[member.domain] || DOMAIN_META.Technical;
   const pb = POSITION_BADGE[position] || POSITION_BADGE.Volunteer;
 
-  // Resolve academic year to display below the photo
+  // Resolve year to display below the photo
   const displayYear =
     activeYear !== "All"
       ? activeYear
@@ -74,9 +75,20 @@ function LiquidGlassMemberCard({
 
   return (
     <motion.div variants={fadeUp} layout className="group h-full">
-      <div className="bg-[#0c0c0e] rounded-2xl p-3 sm:p-3.5 h-full relative flex flex-col justify-between border border-white/10 hover:border-white/30 transition-colors shadow-lg overflow-hidden">
+      <div className={`bg-[#0c0c0e] rounded-2xl p-3 sm:p-3.5 h-full relative flex flex-col justify-between border transition-all duration-300 shadow-lg overflow-hidden ${
+        position === "Maintainer"
+          ? "border-[#d946ef]/25 hover:border-[#d946ef]/60 hover:shadow-[0_0_22px_rgba(217,70,239,0.35)]"
+          : "border-white/10 hover:border-white/30"
+      }`}>
         {/* Specular Catch-light */}
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-20" />
+        <div
+          className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none z-20"
+          style={{
+            background: position === "Maintainer"
+              ? "linear-gradient(to right, transparent, rgba(217, 70, 239, 0.6), transparent)"
+              : "linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent)",
+          }}
+        />
 
         <div>
           {/* Square Image Container with Rounded Corners - Clean without overlays */}
@@ -111,14 +123,19 @@ function LiquidGlassMemberCard({
               </p>
             )}
 
-            {/* Separate Badges: Position, Domain, and Academic Year */}
+            {/* Separate Badges: Position, Domain, and Year */}
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
               {/* Box 1: Position */}
               <span
                 className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-mono font-extrabold px-2 py-0.5 rounded border uppercase tracking-wider"
-                style={{ color: pb.color, background: pb.bg, borderColor: pb.border }}
+                style={{
+                  color: pb.color,
+                  background: pb.bg,
+                  borderColor: pb.border,
+                  boxShadow: position === "Maintainer" ? "0 0 10px rgba(217, 70, 239, 0.35)" : undefined,
+                }}
               >
-                {position === "Head of Club" && <Award className="w-2.5 h-2.5 shrink-0" />}
+                {position === "Head" && <Award className="w-2.5 h-2.5 shrink-0" />}
                 <span>{position}</span>
               </span>
 
@@ -130,7 +147,7 @@ function LiquidGlassMemberCard({
                 <span>{member.domain}</span>
               </span>
 
-              {/* Box 3: Academic Year */}
+              {/* Box 3: Year */}
               {displayYear && (
                 <span className="inline-flex items-center text-[9px] sm:text-[10px] font-mono font-bold text-zinc-300 px-2 py-0.5 rounded border border-white/10 bg-white/[0.04] tracking-wider">
                   <span>{displayYear}</span>
@@ -173,7 +190,7 @@ function LiquidGlassMemberCard({
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => { try { playClickSound(); } catch {} }}
-                className="w-8 h-8 rounded-lg border border-white/10 bg-white/[0.04] flex items-center justify-center text-zinc-400 hover:text-[#c084fc] hover:border-[#c084fc]/50 hover:bg-[#c084fc]/10 hover:shadow-[0_0_18px_rgba(192,132,252,0.5)] transition-all duration-200 active:scale-95"
+                className="w-8 h-8 rounded-lg border border-white/10 bg-white/[0.04] flex items-center justify-center text-zinc-400 hover:text-[#fb7185] hover:border-[#fb7185]/50 hover:bg-[#fb7185]/10 hover:shadow-[0_0_18px_rgba(251,113,133,0.5)] transition-all duration-200 active:scale-95"
                 title="Instagram Profile"
               >
                 <InstagramIcon className="w-4 h-4" />
@@ -195,6 +212,7 @@ export default function TeamPage() {
   const [members, setMembers] = useState<TeamMember[]>(() => cachedTeamMembers || []);
   const [loading, setLoading] = useState<boolean>(() => !cachedTeamMembers);
   const [filterDomain, setFilterDomain] = useState<string>("All");
+  const [filterPosition, setFilterPosition] = useState<string>("All");
   const [filterYear, setFilterYear] = useState<string>(() => cachedLatestYear);
   const [isYearOpen, setIsYearOpen] = useState(false);
   const yearDropdownRef = useRef<HTMLDivElement>(null);
@@ -218,30 +236,58 @@ export default function TeamPage() {
         if (d?.data && Array.isArray(d.data)) {
           cachedTeamMembers = d.data;
           setMembers(d.data);
-          // Auto-select latest academic year from available records
-          const s = new Set<string>();
-          d.data.forEach((m: TeamMember) => m.statusHistory?.forEach((h) => s.add(h.year)));
-          const sorted = Array.from(s).sort().reverse();
-          if (sorted.length > 0) {
-            cachedLatestYear = sorted[0];
-            setFilterYear((prev) => (prev === "2024-25" || !s.has(prev) ? sorted[0] : prev));
-          }
+
+          // Find the maximum academic year in DB
+          let maxStartYear = 2024;
+          d.data.forEach((m: TeamMember) => {
+            m.statusHistory?.forEach((h) => {
+              if (!h.year) return;
+              const match = h.year.match(/^(\d{4})/);
+              if (match) {
+                const y = parseInt(match[1], 10);
+                if (!isNaN(y) && y > maxStartYear) maxStartYear = y;
+              }
+            });
+          });
+
+          const maxYearStr = `${maxStartYear}-${String((maxStartYear + 1) % 100).padStart(2, "0")}`;
+          cachedLatestYear = maxYearStr;
+          setFilterYear(maxYearStr);
         }
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  /* Extract unique years dynamically from team members' history (latest first) */
+  /* Automatically generate all consecutive years from max year in db down to 2024-25 */
   const availableYears = useMemo(() => {
-    const s = new Set<string>();
-    members.forEach((m) => m.statusHistory?.forEach((h) => s.add(h.year)));
-    const sorted = Array.from(s).sort().reverse();
-    if (sorted.length === 0) return ["2024-25", "All"];
-    return [...sorted, "All"];
+    let maxStartYear = 2024;
+    let minStartYear = 2024;
+
+    members.forEach((m) => {
+      m.statusHistory?.forEach((h) => {
+        if (!h.year) return;
+        const match = h.year.match(/^(\d{4})/);
+        if (match) {
+          const y = parseInt(match[1], 10);
+          if (!isNaN(y)) {
+            if (y > maxStartYear) maxStartYear = y;
+            if (y < minStartYear) minStartYear = y;
+          }
+        }
+      });
+    });
+
+    const years: string[] = [];
+    for (let y = maxStartYear; y >= minStartYear; y--) {
+      const next = String((y + 1) % 100).padStart(2, "0");
+      years.push(`${y}-${next}`);
+    }
+
+    return [...years, "All"];
   }, [members]);
 
-  /* Filter by domain and academic year, and resolve exact position */
+  /* Filter by domain and year, and resolve exact position */
   const displayList = useMemo(() => {
     return members
       .filter((m) => {
@@ -262,14 +308,46 @@ export default function TeamPage() {
             : (m.statusHistory?.find((h) => h.year === filterYear)?.position || "Volunteer");
         return { member: m, position: resolvedPosition };
       })
+      .filter((item) => {
+        // Position filter
+        if (filterPosition !== "All" && item.position !== filterPosition) {
+          return false;
+        }
+        return true;
+      })
       .sort((a, b) => {
-        const orderA = POSITION_ORDER.indexOf(a.position);
-        const orderB = POSITION_ORDER.indexOf(b.position);
-        return (orderA === -1 ? 99 : orderA) - (orderB === -1 ? 99 : orderB);
-      });
-  }, [members, filterDomain, filterYear]);
+        // 1. Hierarchy ordering: Head -> Maintainer -> Volunteer
+        const rankA = POSITION_ORDER.indexOf(a.position);
+        const rankB = POSITION_ORDER.indexOf(b.position);
+        const rankDiff = (rankA === -1 ? 99 : rankA) - (rankB === -1 ? 99 : rankB);
+        if (rankDiff !== 0) return rankDiff;
 
-  /* Group by hierarchy: Head of Club -> Maintainer -> Volunteer */
+        // 2. Index / Order (optional field): lower numbers show first
+        const idxA = a.member.order ?? a.member.index;
+        const idxB = b.member.order ?? b.member.index;
+        const hasIdxA = typeof idxA === "number" && !isNaN(idxA);
+        const hasIdxB = typeof idxB === "number" && !isNaN(idxB);
+
+        if (hasIdxA && hasIdxB) {
+          if (idxA !== idxB) return idxA - idxB;
+        } else if (hasIdxA) {
+          return -1; // Member with index comes first
+        } else if (hasIdxB) {
+          return 1; // Member with index comes first
+        }
+
+        // 3. Domain Priority: Technical -> Creative -> Corporate
+        const domA = DOMAIN_PRIORITY_ORDER.indexOf(a.member.domain);
+        const domB = DOMAIN_PRIORITY_ORDER.indexOf(b.member.domain);
+        const domDiff = (domA === -1 ? 99 : domA) - (domB === -1 ? 99 : domB);
+        if (domDiff !== 0) return domDiff;
+
+        // 4. Alphabetical order by member name
+        return a.member.name.localeCompare(b.member.name, undefined, { sensitivity: "base" });
+      });
+  }, [members, filterDomain, filterYear, filterPosition]);
+
+  /* Group by hierarchy: Head -> Maintainer -> Volunteer */
   const groupedHierarchy = useMemo(() => {
     const groups: Record<string, { member: TeamMember; position: string }[]> = {};
     POSITION_ORDER.forEach((pos) => {
@@ -304,8 +382,8 @@ export default function TeamPage() {
       </section>
 
       {/* Filter Toolbar (Translucent Liquid Glass) */}
-      <section className="px-4 sm:px-6 max-w-6xl mx-auto pb-6 sm:pb-8 relative z-10">
-        <div className="p-2 sm:p-2.5 rounded-2xl border border-white/20 backdrop-blur-2xl bg-white/[0.07] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.28),0_16px_36px_-8px_rgba(0,0,0,0.7)]">
+      <section className="px-4 sm:px-6 max-w-6xl mx-auto pb-6 sm:pb-8 relative z-30">
+        <div className="relative z-30 p-2 sm:p-2.5 rounded-2xl border border-white/20 backdrop-blur-2xl bg-white/[0.07] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.28),0_16px_36px_-8px_rgba(0,0,0,0.7)]">
           
           {/* Domain Filter Pills */}
           <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
@@ -338,12 +416,12 @@ export default function TeamPage() {
             })}
           </div>
 
-          {/* Academic Year Glass Dropdown */}
+          {/* Year Glass Dropdown */}
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider hidden md:inline">
-              Academic Year:
+              Year:
             </span>
-            <div className="relative w-full sm:w-auto" ref={yearDropdownRef}>
+            <div className="relative z-40 w-full sm:w-auto" ref={yearDropdownRef}>
               <button
                 type="button"
                 onClick={() => {
@@ -352,7 +430,7 @@ export default function TeamPage() {
                 }}
                 className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2.5 px-3.5 sm:px-4 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] backdrop-blur-2xl border border-white/20 hover:border-white/35 text-[#fafafa] text-xs font-mono transition-all shadow-[0_8px_24px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.25)] cursor-pointer"
               >
-                <span>{filterYear === "All" ? "All Academic Years" : filterYear}</span>
+                <span>{filterYear === "All" ? "All Years" : filterYear}</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 ${
                     isYearOpen ? "rotate-180 text-[#22c55e]" : ""
@@ -384,7 +462,7 @@ export default function TeamPage() {
                             : "text-zinc-300 hover:text-white hover:bg-white/[0.08]"
                         }`}
                       >
-                        <span>{y === "All" ? "All Academic Years" : y}</span>
+                        <span>{y === "All" ? "All Years" : y}</span>
                         {filterYear === y && <Check className="w-3.5 h-3.5 text-[#22c55e]" />}
                       </button>
                     ))}
@@ -396,19 +474,102 @@ export default function TeamPage() {
 
         </div>
 
-        {/* Hierarchy Breadcrumb Banner */}
-        <div className="mt-3 sm:mt-4 flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] font-mono text-zinc-500">
-          <span className="text-zinc-400">Hierarchy:</span>
-          <span className="px-1.5 sm:px-2 py-0.5 rounded border border-amber-500/30 text-amber-400 bg-amber-500/10">Head of Club</span>
-          <span className="text-zinc-600">›</span>
-          <span className="px-1.5 sm:px-2 py-0.5 rounded border border-emerald-500/30 text-emerald-400 bg-emerald-500/10">Maintainer</span>
-          <span className="text-zinc-600">›</span>
-          <span className="px-1.5 sm:px-2 py-0.5 rounded border border-white/10 text-zinc-400 bg-white/5">Volunteer</span>
-          {filterYear !== "All" && (
-            <span className="w-full sm:w-auto sm:ml-auto text-emerald-400 font-bold mt-1 sm:mt-0">
-              Showing roster for {filterYear}
+        {/* Hierarchy / Rank Filter Bar */}
+        <div className="relative z-10 mt-3 sm:mt-4 p-2 sm:p-2.5 rounded-2xl border border-white/15 backdrop-blur-2xl bg-white/[0.05] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.15)]">
+          <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
+            <span className="text-[11px] font-mono text-zinc-400 font-semibold flex items-center gap-1.5 px-1 mr-0.5">
+              <Filter className="w-3.5 h-3.5 text-[#22c55e]" />
+              <span className="uppercase tracking-wider">Rank:</span>
             </span>
-          )}
+
+            {/* Head Button */}
+            <button
+              type="button"
+              onClick={() => {
+                playClickSound();
+                setFilterPosition((prev) => (prev === "Head" ? "All" : "Head"));
+              }}
+              className={`px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-mono font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                filterPosition === "Head"
+                  ? "border border-amber-400 text-amber-300 bg-amber-500/25 shadow-[0_0_18px_rgba(245,158,11,0.4)] ring-1 ring-amber-400/60"
+                  : "border border-amber-500/30 text-amber-400/90 bg-amber-500/10 hover:bg-amber-500/20 hover:border-amber-500/60 hover:text-amber-300"
+              }`}
+              title={filterPosition === "Head" ? "Filtered by Head — Click to see all ranks" : "Click to filter by Head"}
+            >
+              <Award className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>Head</span>
+              {filterPosition === "Head" && <X className="w-3 h-3 ml-0.5 text-amber-300 shrink-0" />}
+            </button>
+
+            <span className="text-zinc-600 font-mono text-xs select-none">›</span>
+
+            {/* Maintainer Button */}
+            <button
+              type="button"
+              onClick={() => {
+                playClickSound();
+                setFilterPosition((prev) => (prev === "Maintainer" ? "All" : "Maintainer"));
+              }}
+              className={`px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-mono font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                filterPosition === "Maintainer"
+                  ? "border border-[#d946ef] text-[#fae8ff] bg-[#d946ef]/20 shadow-[0_0_22px_rgba(217,70,239,0.7),inset_0_0_10px_rgba(217,70,239,0.25)] ring-1 ring-[#d946ef]"
+                  : "border border-[#d946ef]/40 text-[#f0abfc] bg-[#d946ef]/10 hover:bg-[#d946ef]/20 hover:border-[#d946ef] hover:text-white hover:shadow-[0_0_18px_rgba(217,70,239,0.55)]"
+              }`}
+              title={filterPosition === "Maintainer" ? "Filtered by Maintainer — Click to see all ranks" : "Click to filter by Maintainer"}
+            >
+              <span>Maintainer</span>
+              {filterPosition === "Maintainer" && <X className="w-3 h-3 ml-0.5 text-[#f5d0fe] shrink-0" />}
+            </button>
+
+            <span className="text-zinc-600 font-mono text-xs select-none">›</span>
+
+            {/* Volunteer Button */}
+            <button
+              type="button"
+              onClick={() => {
+                playClickSound();
+                setFilterPosition((prev) => (prev === "Volunteer" ? "All" : "Volunteer"));
+              }}
+              className={`px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-mono font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                filterPosition === "Volunteer"
+                  ? "border border-zinc-300 text-white bg-white/25 shadow-[0_0_18px_rgba(255,255,255,0.35)] ring-1 ring-white/60"
+                  : "border border-white/15 text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-white hover:border-white/30"
+              }`}
+              title={filterPosition === "Volunteer" ? "Filtered by Volunteer — Click to see all ranks" : "Click to filter by Volunteer"}
+            >
+              <span>Volunteer</span>
+              {filterPosition === "Volunteer" && <X className="w-3 h-3 ml-0.5 text-white shrink-0" />}
+            </button>
+          </div>
+
+          {/* Right Status Indicator */}
+          <div className="text-[11px] font-mono flex items-center justify-between sm:justify-end gap-2.5 px-1">
+            {filterPosition !== "All" ? (
+              <button
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  setFilterPosition("All");
+                }}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.08] hover:bg-white/[0.14] border border-white/15 hover:border-white/30 text-zinc-300 hover:text-white transition-all cursor-pointer active:scale-95 group"
+                title="Click to clear rank filter and see all ranks"
+              >
+                <span className="w-3.5 h-3.5 rounded-full bg-white/10 group-hover:bg-red-500/20 flex items-center justify-center transition-colors">
+                  <X className="w-2.5 h-2.5 text-zinc-400 group-hover:text-red-400 transition-colors" />
+                </span>
+                <span>See all ranks</span>
+              </button>
+            ) : (
+              <span className="text-zinc-500 hidden sm:inline">
+                Click rank to filter
+              </span>
+            )}
+            {filterYear !== "All" && (
+              <span className="text-zinc-500 hidden md:inline">
+                • Year {filterYear}
+              </span>
+            )}
+          </div>
         </div>
       </section>
 
@@ -427,10 +588,30 @@ export default function TeamPage() {
           <div className="text-center py-24 border border-dashed border-white/10 rounded-2xl backdrop-blur-xl bg-white/[0.02]">
             <Users className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
             <p className="text-zinc-400 text-sm font-mono">
-              {filterYear !== "All"
-                ? `No members recorded for academic year ${filterYear}.`
+              {members.length === 0
+                ? "No team members recorded yet. Add members via CMS."
+                : filterPosition !== "All" && filterYear !== "All"
+                ? `No ${filterPosition} members recorded for year ${filterYear}${filterDomain !== "All" ? ` in ${filterDomain} domain` : ""}.`
+                : filterPosition !== "All"
+                ? `No ${filterPosition} members match the selected filters.`
+                : filterYear !== "All"
+                ? `No members recorded for year ${filterYear}.`
                 : "No members match these filters."}
             </p>
+            {(filterPosition !== "All" || filterDomain !== "All" || filterYear !== "All") && (
+              <button
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  setFilterPosition("All");
+                  setFilterDomain("All");
+                  setFilterYear("All");
+                }}
+                className="mt-3 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-emerald-400 text-xs font-mono transition-all cursor-pointer"
+              >
+                Reset All Filters
+              </button>
+            )}
           </div>
         ) : (
           /* Render grouped by hierarchy */
@@ -443,9 +624,14 @@ export default function TeamPage() {
                   <div className="flex items-center gap-3 mb-6">
                     <span
                       className="inline-flex items-center gap-1.5 text-xs font-mono font-bold px-3 py-1 rounded-lg border uppercase tracking-wider backdrop-blur-md"
-                      style={{ color: pb.color, background: pb.bg, borderColor: pb.border }}
+                      style={{
+                        color: pb.color,
+                        background: pb.bg,
+                        borderColor: pb.border,
+                        boxShadow: pos === "Maintainer" ? "0 0 14px rgba(217, 70, 239, 0.45)" : undefined,
+                      }}
                     >
-                      {pos === "Head of Club" && <Award className="w-3 h-3" />}
+                      {pos === "Head" && <Award className="w-3 h-3" />}
                       {pos}
                     </span>
                     <div className="flex-1 h-px bg-white/[0.06]" />

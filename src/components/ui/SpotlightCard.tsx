@@ -6,6 +6,7 @@ interface SpotlightCardProps extends React.PropsWithChildren {
   className?: string;
   spotlightColor?: string;
   style?: React.CSSProperties;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 const SpotlightCard: React.FC<SpotlightCardProps> = ({
@@ -13,6 +14,7 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
   className = "",
   spotlightColor = "rgba(34, 197, 94, 0.12)",
   style,
+  onClick,
 }) => {
   const divRef = useRef<HTMLDivElement>(null);
   const [opacity, setOpacity] = useState<number>(0);
@@ -32,6 +34,7 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
   return (
     <div
       ref={divRef}
+      onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

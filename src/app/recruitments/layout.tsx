@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { siteConfig } from "@/lib/siteConfig";
 
 export const metadata: Metadata = {
-  title: "Join the Club | Recruitments & Waitlist",
+  title: "FOSS Club SRM",
   description:
     "Join FOSS Club SRM at SRMIST Kattankulathur. Apply for Technical, Creative, and Corporate roles or sign up for notifications on upcoming recruitment seasons.",
   alternates: {

@@ -29,7 +29,6 @@ interface LocalStoreData {
   team: TeamMember[];
   events: ClubEvent[];
   recruitment: RecruitmentConfig;
-  subscribers: RecruitmentSubscriber[];
 }
 
 function ensureLocalFile(): LocalStoreData {
@@ -46,7 +45,6 @@ function ensureLocalFile(): LocalStoreData {
         team: initialTeamMembers,
         events: initialEvents,
         recruitment: initialRecruitmentConfig,
-        subscribers: [],
       };
       try {
         fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2), "utf-8");
@@ -66,7 +64,6 @@ function ensureLocalFile(): LocalStoreData {
       team: initialTeamMembers,
       events: initialEvents,
       recruitment: initialRecruitmentConfig,
-      subscribers: [],
     };
     inMemoryData = initial;
     return initial;
@@ -92,33 +89,27 @@ declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-let mongoConnectionFailed = false;
-
 async function getMongoDb(): Promise<Db | null> {
-  if (mongoConnectionFailed || !MONGODB_URI) {
+  if (!MONGODB_URI) {
     return null;
   }
 
   try {
-    let client: MongoClient;
-    if (process.env.NODE_ENV === "development") {
-      if (!global._mongoClientPromise) {
-        const c = new MongoClient(MONGODB_URI, { serverSelectionTimeoutMS: 2000 });
-        global._mongoClientPromise = c.connect();
-      }
-      client = await global._mongoClientPromise;
-    } else {
-      if (!global._mongoClientPromise) {
-        const c = new MongoClient(MONGODB_URI, { serverSelectionTimeoutMS: 3000 });
-        global._mongoClientPromise = c.connect();
-      }
-      client = await global._mongoClientPromise;
+    if (!global._mongoClientPromise) {
+      const c = new MongoClient(MONGODB_URI, {
+        serverSelectionTimeoutMS: 8000,
+        connectTimeoutMS: 8000,
+      });
+      global._mongoClientPromise = c.connect().catch((err) => {
+        global._mongoClientPromise = undefined;
+        throw err;
+      });
     }
-
+    const client = await global._mongoClientPromise;
     return client.db(DB_NAME);
   } catch (err) {
     console.warn("MongoDB connection failed or not available, using local store:", err);
-    mongoConnectionFailed = true;
+    global._mongoClientPromise = undefined;
     return null;
   }
 }
@@ -131,19 +122,14 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
   const db = await getMongoDb();
   if (db) {
     const list = await db.collection("team").find({}).toArray();
-    if (list.length > 0) {
-      return list.map((item) => ({
-        ...item,
-        _id: item._id.toString(),
-      })) as TeamMember[];
-    }
-    // If mongo is empty, seed it
-    await db.collection("team").insertMany(initialTeamMembers as any);
-    return initialTeamMembers;
+    return list.map((item) => ({
+      ...item,
+      _id: item._id.toString(),
+    })) as TeamMember[];
   }
 
   const local = ensureLocalFile();
-  return local.team;
+  return local.team || [];
 }
 
 export async function getTeamMemberById(id: string): Promise<TeamMember | null> {
@@ -169,20 +155,46 @@ export async function saveTeamMember(member: Partial<TeamMember> & { name: strin
       ? member.statusHistory 
       : [{ position: "Volunteer", year: "2024-25" }],
     featured: member.featured ?? false,
+    order: typeof member.order === "number" ? member.order : (typeof member.index === "number" ? member.index : undefined),
+    index: typeof member.index === "number" ? member.index : (typeof member.order === "number" ? member.order : undefined),
+    regNo: member.regNo ? member.regNo.trim().toUpperCase() : undefined,
     createdAt: member.createdAt || now,
     updatedAt: now,
   };
 
+  const { _id, ...setFields } = record;
+
   if (db) {
-    await db.collection("team").updateOne(
-      { _id: id as any },
-      { $set: record },
-      { upsert: true }
-    );
-    return record;
+    try {
+      await db.collection("team").updateOne(
+        { _id: id as any },
+        { 
+          $set: setFields,
+          $setOnInsert: { _id: id as any }
+        },
+        { upsert: true }
+      );
+
+      // Keep local backup store in sync
+      const local = ensureLocalFile();
+      if (!local.team) local.team = [];
+      const index = local.team.findIndex((m) => m._id === id);
+      if (index >= 0) {
+        local.team[index] = record;
+      } else {
+        local.team.unshift(record);
+      }
+      saveLocalFile(local);
+
+      return record;
+    } catch (err) {
+      console.error("MongoDB Atlas updateOne error in saveTeamMember:", err);
+      throw err;
+    }
   }
 
   const local = ensureLocalFile();
+  if (!local.team) local.team = [];
   const index = local.team.findIndex((m) => m._id === id);
   if (index >= 0) {
     local.team[index] = record;
@@ -195,17 +207,18 @@ export async function saveTeamMember(member: Partial<TeamMember> & { name: strin
 
 export async function deleteTeamMember(id: string): Promise<boolean> {
   const db = await getMongoDb();
+  let changed = false;
   if (db) {
     const res = await db.collection("team").deleteOne({ _id: id as any });
-    return res.deletedCount > 0;
+    changed = res.deletedCount > 0;
   }
 
   const local = ensureLocalFile();
   const filtered = local.team.filter((m) => m._id !== id);
-  const changed = filtered.length !== local.team.length;
-  if (changed) {
+  if (filtered.length !== local.team.length) {
     local.team = filtered;
     saveLocalFile(local);
+    changed = true;
   }
   return changed;
 }
@@ -218,18 +231,23 @@ export async function getEvents(): Promise<ClubEvent[]> {
   const db = await getMongoDb();
   if (db) {
     const list = await db.collection("events").find({}).sort({ date: -1 }).toArray();
-    if (list.length > 0) {
-      return list.map((item) => ({
-        ...item,
+    return list.map((item) => {
+      const { category, tags, speakers, ...rest } = item as any;
+      return {
+        ...rest,
         _id: item._id.toString(),
-      })) as ClubEvent[];
-    }
-    await db.collection("events").insertMany(initialEvents as any);
-    return initialEvents;
+      };
+    }) as ClubEvent[];
   }
 
   const local = ensureLocalFile();
-  return local.events;
+  const sorted = [...(local.events || [])].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+  return sorted.map((item: any) => {
+    const { category, tags, speakers, ...rest } = item;
+    return rest as ClubEvent;
+  });
 }
 
 export async function getEventById(id: string): Promise<ClubEvent | null> {
@@ -244,34 +262,58 @@ export async function saveEvent(event: Partial<ClubEvent> & { title: string }): 
 
   const slug = event.slug || event.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
+  const cleanPosterUrl = event.posterUrl?.trim() || "https://ik.imagekit.io/SRMFOSSKTR/Logo/fossclub-horizontal-logo.png";
+  const cleanRegUrl = event.registrationUrl ? event.registrationUrl.trim() : "https://fossunited.org/c/srm-ktr";
+
   const record: ClubEvent = {
     _id: id,
-    title: event.title,
+    title: event.title.trim(),
     slug,
     description: event.description || "",
-    posterUrl: event.posterUrl || "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1000&auto=format&fit=crop&q=80",
+    posterUrl: cleanPosterUrl,
     date: event.date || new Date().toISOString().split("T")[0],
     time: event.time || "10:00 AM - 4:00 PM",
     venue: event.venue || "TP Ganesan Auditorium, SRMIST",
-    registrationUrl: event.registrationUrl || "https://fossunited.org/c/srm-ktr",
+    registrationUrl: cleanRegUrl,
     active: event.active ?? true,
-    category: event.category || "Workshop",
-    tags: event.tags || ["FOSS", "SRMIST"],
-    speakers: event.speakers || [],
     createdAt: event.createdAt || now,
     updatedAt: now,
   };
 
+  const { _id, ...setFields } = record;
+
   if (db) {
-    await db.collection("events").updateOne(
-      { _id: id as any },
-      { $set: record },
-      { upsert: true }
-    );
-    return record;
+    try {
+      await db.collection("events").updateOne(
+        { _id: id as any },
+        { 
+          $set: setFields,
+          $unset: { category: "", tags: "", speakers: "" } as any,
+          $setOnInsert: { _id: id as any }
+        },
+        { upsert: true }
+      );
+
+      // Keep local backup store in sync
+      const local = ensureLocalFile();
+      if (!local.events) local.events = [];
+      const index = local.events.findIndex((e) => e._id === id);
+      if (index >= 0) {
+        local.events[index] = record;
+      } else {
+        local.events.unshift(record);
+      }
+      saveLocalFile(local);
+
+      return record;
+    } catch (dbErr) {
+      console.error("MongoDB Atlas updateOne error in saveEvent:", dbErr);
+      throw dbErr;
+    }
   }
 
   const local = ensureLocalFile();
+  if (!local.events) local.events = [];
   const index = local.events.findIndex((e) => e._id === id);
   if (index >= 0) {
     local.events[index] = record;
@@ -323,21 +365,34 @@ export async function getRecruitmentConfig(): Promise<RecruitmentConfig> {
 
 export async function updateRecruitmentConfig(config: Partial<RecruitmentConfig>): Promise<RecruitmentConfig> {
   const current = await getRecruitmentConfig();
+  const cleanPoster = config.posterUrl !== undefined ? config.posterUrl.trim() : current.posterUrl;
+  const cleanApply = config.applyUrl !== undefined ? config.applyUrl.trim() : current.applyUrl;
+
   const updated: RecruitmentConfig = {
     ...current,
     ...config,
+    posterUrl: cleanPoster,
+    applyUrl: cleanApply,
     _id: "recruitment_config",
     updatedAt: new Date().toISOString(),
   };
 
   const db = await getMongoDb();
   if (db) {
-    await db.collection("recruitment").updateOne(
-      { _id: "recruitment_config" as any },
-      { $set: updated },
-      { upsert: true }
-    );
-    return updated;
+    try {
+      await db.collection("recruitment").updateOne(
+        { _id: "recruitment_config" as any },
+        { $set: updated },
+        { upsert: true }
+      );
+      const local = ensureLocalFile();
+      local.recruitment = updated;
+      saveLocalFile(local);
+      return updated;
+    } catch (dbErr) {
+      console.error("MongoDB Atlas updateOne error in updateRecruitmentConfig:", dbErr);
+      throw dbErr;
+    }
   }
 
   const local = ensureLocalFile();
@@ -365,31 +420,14 @@ export async function addRecruitmentSubscriber(sub: {
     createdAt: new Date().toISOString(),
   };
 
-  const db = await getMongoDb();
-  if (db) {
-    await db.collection("subscribers").insertOne(record as any);
-    return record;
-  }
-
-  const local = ensureLocalFile();
-  if (!local.subscribers) local.subscribers = [];
-  local.subscribers.unshift(record);
-  saveLocalFile(local);
+  // Applications are handled directly via external Google Form.
+  // No collection entry is saved to MongoDB Atlas.
   return record;
 }
 
 export async function getRecruitmentSubscribers(): Promise<RecruitmentSubscriber[]> {
-  const db = await getMongoDb();
-  if (db) {
-    const list = await db.collection("subscribers").find({}).sort({ createdAt: -1 }).toArray();
-    return list.map((item) => ({
-      ...item,
-      _id: item._id.toString(),
-    })) as RecruitmentSubscriber[];
-  }
-
-  const local = ensureLocalFile();
-  return local.subscribers || [];
+  // Applications are managed via Google Forms
+  return [];
 }
 
 /* =========================================================
@@ -400,10 +438,14 @@ export async function resetDatabaseToInitial() {
   const db = await getMongoDb();
   if (db) {
     await db.collection("team").deleteMany({});
-    await db.collection("team").insertMany(initialTeamMembers as any);
+    if (initialTeamMembers.length > 0) {
+      await db.collection("team").insertMany(initialTeamMembers as any);
+    }
 
     await db.collection("events").deleteMany({});
-    await db.collection("events").insertMany(initialEvents as any);
+    if (initialEvents.length > 0) {
+      await db.collection("events").insertMany(initialEvents as any);
+    }
 
     await db.collection("recruitment").deleteMany({});
     await db.collection("recruitment").insertOne(initialRecruitmentConfig as any);
@@ -413,7 +455,6 @@ export async function resetDatabaseToInitial() {
     team: initialTeamMembers,
     events: initialEvents,
     recruitment: initialRecruitmentConfig,
-    subscribers: [],
   };
   saveLocalFile(resetData);
   return resetData;

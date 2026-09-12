@@ -24,6 +24,7 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -262,5 +263,20 @@ body {
   overflow: hidden;
   border-radius: inherit;
   z-index: 3;
+}
+
+/* ─── Modal Open State: Background & Navbar Comprehensive Blur ─── */
+body.modal-open {
+  overflow: hidden;
+}
+
+body.modal-open main,
+body.modal-open nav,
+body.modal-open .pill-nav-container,
+body.modal-open #cms-layout-container {
+  filter: blur(8px) brightness(0.65);
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

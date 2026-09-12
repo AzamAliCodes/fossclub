@@ -44,20 +44,7 @@ interface WheelConfig {
   soundVolume: number;
 }
 
-const DEFAULT_ITEMS = [
-  "Linux Kernel",
-  "Rust Systems",
-  "Go Cloud",
-  "Docker & OCI",
-  "Kubernetes",
-  "eBPF Telemetry",
-  "PostgreSQL",
-  "Git & VCS",
-  "RISC-V",
-  "Arch Linux",
-  "Vim / Neovim",
-  "FreeBSD",
-];
+const DEFAULT_ITEMS: string[] = [];
 
 export const OptionWheel: React.FC<OptionWheelProps> = ({
   items = DEFAULT_ITEMS,
@@ -342,7 +329,8 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
           }}
           role="option"
           aria-selected={selectedIndex === index}
-          className={`absolute top-1/2 cursor-pointer whitespace-nowrap leading-none will-change-[transform,opacity,filter] [font-size:var(--ow-font-size)] [color:color-mix(in_srgb,var(--ow-active-color)_calc(var(--ow-p,0)*100%),var(--ow-text-color))] ${
+          title={label}
+          className={`absolute top-1/2 cursor-pointer whitespace-nowrap leading-none will-change-[transform,opacity,filter] [font-size:var(--ow-font-size)] [color:color-mix(in_srgb,var(--ow-active-color)_calc(var(--ow-p,0)*100%),var(--ow-text-color))] max-w-[85%] truncate ${
             side === "right" ? "right-[var(--ow-inset)] origin-right" : "left-[var(--ow-inset)] origin-left"
           } ${selectedIndex === index ? "font-bold text-[#fafafa]" : "font-normal"}`}
           onClick={() => handleItemClick(index)}

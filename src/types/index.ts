@@ -1,7 +1,7 @@
 export type DomainType = "Technical" | "Corporate" | "Creative";
 
 export type ClubPosition = 
-  | "Head of Club" 
+  | "Head" 
   | "Maintainer" 
   | "Volunteer";
 
@@ -21,6 +21,9 @@ export interface TeamMember {
   instagram?: string;
   statusHistory: StatusHistoryEntry[];
   featured?: boolean;
+  order?: number; // Optional priority index for ordering within hierarchy
+  index?: number; // Alias for order
+  regNo?: string; // SRM Registration Number (Internal admin identifier, omitted from public responses)
   createdAt?: string;
   updatedAt?: string;
 }
@@ -36,13 +39,6 @@ export interface ClubEvent {
   venue: string;
   registrationUrl: string;
   active: boolean; // true = upcoming, false = past
-  category?: "Hackathon" | "Workshop" | "Meetup" | "Talk" | "CTF";
-  tags?: string[];
-  speakers?: Array<{
-    name: string;
-    role: string;
-    avatar?: string;
-  }>;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -50,13 +46,13 @@ export interface ClubEvent {
 export interface RecruitmentConfig {
   _id: string;
   enabled: boolean;
-  title: string;
   subtitle: string;
   posterUrl: string;
   applyUrl: string;
+  title?: string;
   deadline?: string;
-  linkedin: string;
-  instagram: string;
+  linkedin?: string;
+  instagram?: string;
   discord?: string;
   domains?: Array<{
     domain: DomainType;

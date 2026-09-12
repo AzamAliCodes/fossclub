@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { usePathname } from "next/navigation";
 import PillNav, { PillNavItem } from "@/components/ui/PillNav";
 
 const navItems: PillNavItem[] = [
@@ -11,6 +12,9 @@ const navItems: PillNavItem[] = [
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
+  if (pathname?.startsWith("/cms")) return null;
+
   return (
     <PillNav
       logo="/images/logo-transparent.png"

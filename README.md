@@ -12,7 +12,7 @@
 
 ## 📖 Overview
 
-The **FOSS Club SRM Web Platform** is an immersive, high-performance web experience built for the open-source developer collective at SRM Institute of Science and Technology. Designed with an obsidian hacker aesthetic, terminal workflows, and interactive 3D graphics, the platform serves as the central hub for events, team roster tracking across academic years, recruitments, and club initiatives.
+The **FOSS Club SRM Web Platform** is an immersive, high-performance web experience built for the open-source developer collective at SRM Institute of Science and Technology. Designed with an obsidian hacker aesthetic, terminal workflows, and interactive 3D graphics, the platform serves as the central hub for events, team roster tracking across years, recruitments, and club initiatives.
 
 ---
 
@@ -25,9 +25,9 @@ The **FOSS Club SRM Web Platform** is an immersive, high-performance web experie
 - **Synthesized Audio**: Low-latency Web Audio API sound effects for clicks, transitions, and successful CMS operations.
 
 ### 👥 Team Hierarchy & Archive (`/team`)
-- **Multi-Year Position Tracking**: Tracks club members across academic years (e.g., Volunteer in 2024-25 → Maintainer in 2025-26).
+- **Multi-Year Position Tracking**: Tracks club members across years (e.g., Volunteer in 2024-25 → Maintainer in 2025-26).
 - **Domain Segmentation**: Filter across **Technical**, **Corporate**, and **Creative** domains.
-- **Rank Hierarchy**: Visual hierarchy ordering (**Head of Club** > **Maintainer** > **Volunteer**).
+- **Rank Hierarchy**: Visual hierarchy ordering (**Head** > **Maintainer** > **Volunteer**).
 - **Direct Socials**: Verified LinkedIn, Instagram, and GitHub profiles.
 
 ### 📅 Events Hub (`/events`)
@@ -38,13 +38,13 @@ The **FOSS Club SRM Web Platform** is an immersive, high-performance web experie
 ### 🚀 Recruitment Portal (`/recruitments`)
 - Live recruitment status switch with countdown timer.
 - Detailed domain descriptions, perks, and eligibility requirements.
-- Interactive FAQ accordion and applicant notification subscription.
+- Interactive FAQ accordion and external application workflow.
 
 ### 🛠️ Embedded Headless CMS (`/cms`)
 - Secured admin dashboard with JWT authentication in HTTP-only cookies.
 - **Team Manager**: Add/edit/delete members, paste ImageKit URLs with live preview, manage position history.
 - **Events Manager**: Create and update events, manage banner posters and registration links.
-- **Recruitment Manager**: Toggle applications, edit domains, perks, FAQs, and export email subscriber lists.
+- **Recruitment Manager**: Toggle applications, edit headline, blurb, external application URL, and poster asset.
 - **Zero-Config Fallback**: Automatic persistent local JSON database fallback when MongoDB is not connected.
 
 ---

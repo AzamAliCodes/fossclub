@@ -9,6 +9,7 @@ import CursorGrid from "@/components/ui/CursorGrid";
 
 import { siteConfig } from "@/lib/siteConfig";
 import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/JsonLd";
+import { BrowserTitleSync } from "@/components/layout/BrowserTitleSync";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -20,10 +21,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: {
-    default: `${siteConfig.name} | SRMIST Kattankulathur`,
-    template: `%s | ${siteConfig.name}`,
-  },
+  title: "FOSS Club SRM",
   description: siteConfig.description,
   keywords: siteConfig.keywords,
   authors: siteConfig.authors,
@@ -50,7 +48,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: `${siteConfig.name} | SRMIST Kattankulathur`,
+    title: "FOSS Club SRM",
     description: siteConfig.description,
     url: siteConfig.url,
     siteName: siteConfig.name,
@@ -67,7 +65,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} | SRMIST Kattankulathur`,
+    title: "FOSS Club SRM",
     description: siteConfig.description,
     images: ["/images/logo.png"],
     creator: "@fossunited",
@@ -97,6 +95,9 @@ export default function RootLayout({
         {/* Schema.org Structured Data for Google / Bing Rich Snippets */}
         <OrganizationJsonLd />
         <WebSiteJsonLd />
+
+        {/* Lock Browser Tab Header Title to FOSS Club SRM */}
+        <BrowserTitleSync />
 
         {/* Global Particle Galaxy Starfield & Nebula (with instant 0ms pixel snow) */}
         <ParticlesBackground />

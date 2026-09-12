@@ -22,11 +22,18 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const session = getSessionFromRequest(req);
+
+    // Privacy Protection: Strip regNo for unauthenticated public visitors
+    const data = session
+      ? members
+      : members.map(({ regNo, ...rest }) => rest);
+
     return NextResponse.json(
-      { success: true, data: members },
+      { success: true, data },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         },
       }
     );
@@ -37,6 +44,8 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
   const session = getSessionFromRequest(req);
@@ -54,6 +63,12 @@ export async function POST(req: NextRequest) {
     }
 
     const newMember = await saveTeamMember(body);
+
+    try {
+      revalidatePath("/team");
+      revalidatePath("/");
+    } catch {}
+
     return NextResponse.json({ success: true, data: newMember });
   } catch (error) {
     return NextResponse.json(

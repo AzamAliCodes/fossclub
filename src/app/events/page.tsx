@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   Calendar,
@@ -8,15 +9,15 @@ import {
   MapPin,
   ArrowUpRight,
   Archive,
-  ChevronRight,
-  LayoutGrid,
-  List,
+  X,
+  ExternalLink,
 } from "lucide-react";
 import { ClubEvent } from "@/types";
 import { initialEvents } from "@/lib/initialData";
 import { formatDate } from "@/lib/utils";
 import { playClickSound } from "@/lib/sound";
 import SpotlightCard from "@/components/ui/SpotlightCard";
+import EventDetailModal from "@/components/ui/EventDetailModal";
 
 /* ─── Animation Variants ─────────────────────────────────────────────────── */
 const fadeUp = {
@@ -30,39 +31,48 @@ const stagger = {
 };
 
 
-
 /* ─── Uniform 3-in-a-Row Event Card ───────────────────────────────────────── */
-function EventCard({ event, isPast }: { event: ClubEvent; isPast?: boolean }) {
+function EventCard({
+  event,
+  isPast,
+  onSelect,
+}: {
+  event: ClubEvent;
+  isPast?: boolean;
+  onSelect: (event: ClubEvent) => void;
+}) {
   return (
     <motion.div variants={fadeUp} className="group h-full">
       <SpotlightCard
         spotlightColor={isPast ? "rgba(255, 255, 255, 0.12)" : "rgba(34, 197, 94, 0.16)"}
-        className="liquid-glass-card overflow-hidden flex flex-col h-full hover:-translate-y-1 relative group rounded-2xl border border-white/15"
+        className="liquid-glass-card overflow-hidden flex flex-col h-full hover:-translate-y-1 relative group rounded-2xl border border-white/15 cursor-pointer"
+        onClick={() => {
+          try { playClickSound(); } catch {}
+          onSelect(event);
+        }}
       >
         {/* Specular Catch Light */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none z-20" />
 
         {/* Poster Media */}
-        <div className={`relative overflow-hidden bg-[#111114] shrink-0 ${
-          isPast ? "h-32 xs:h-36 sm:h-44 md:h-48" : "h-40 xs:h-44 sm:h-48"
-        }`}>
+        <div className="relative h-44 sm:h-48 overflow-hidden bg-[#111114] shrink-0">
           <img
-            src={event.posterUrl || "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&auto=format&fit=crop&q=80"}
+            src={event.posterUrl || "https://ik.imagekit.io/SRMFOSSKTR/Logo/fossclub-horizontal-logo.png"}
             alt={event.title}
             loading="lazy"
             decoding="async"
             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
           />
-          <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-14 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)" }} />
+          <div className="absolute bottom-0 left-0 right-0 h-14 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)" }} />
 
           {/* Date & Status Pill Badges */}
-          <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3 right-2.5 sm:right-3 flex items-start justify-between gap-2">
-            <span className="bg-black/75 text-[#fafafa] text-[9px] sm:text-[10px] font-mono px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-white/20 backdrop-blur-md">
+          <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
+            <span className="bg-black/75 text-[#fafafa] text-[10px] font-mono px-2.5 py-1 rounded-lg border border-white/20 backdrop-blur-md">
               {formatDate(event.date)}
             </span>
             {isPast ? (
-              <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg bg-black/80 border border-white/20 text-[#a1a1aa] text-[9px] sm:text-[10px] font-mono backdrop-blur-md">
-                <Archive className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#a1a1aa]" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/80 border border-white/20 text-[#a1a1aa] text-[10px] font-mono backdrop-blur-md">
+                <Archive className="w-3 h-3 text-[#a1a1aa]" />
                 Past Event
               </span>
             ) : (
@@ -75,112 +85,75 @@ function EventCard({ event, isPast }: { event: ClubEvent; isPast?: boolean }) {
         </div>
 
         {/* Card Body */}
-        <div className={`flex flex-col flex-1 justify-between ${
-          isPast ? "p-3 sm:p-5 gap-2.5 sm:gap-4" : "p-4 sm:p-5 gap-3 sm:gap-4"
-        }`}>
+        <div className="flex flex-col flex-1 justify-between p-4 sm:p-5 gap-3 sm:gap-4">
           <div>
-            <h3 className={`font-bold text-[#fafafa] leading-snug mb-1 sm:mb-1.5 group-hover:text-[#22c55e] transition-colors ${
-              isPast ? "text-sm sm:text-base line-clamp-1 sm:line-clamp-2" : "text-base line-clamp-2"
-            }`}>
+            <h3 className="font-bold text-[#fafafa] leading-snug mb-1.5 group-hover:text-[#22c55e] transition-colors text-base line-clamp-2">
               {event.title}
             </h3>
-            <p className={`text-xs text-[#a1a1aa] leading-relaxed ${
-              isPast ? "line-clamp-2" : "line-clamp-3"
-            }`}>{event.description}</p>
+            <p className="text-xs text-[#a1a1aa] leading-relaxed line-clamp-2 sm:line-clamp-3">
+              {event.description}
+            </p>
           </div>
 
-          <div className="space-y-2.5 sm:space-y-3 pt-2.5 sm:pt-3 border-t border-white/10">
-            <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-[#71717a] font-mono">
-              <span className="flex items-center gap-1 sm:gap-1.5">
+          <div className="space-y-3 pt-3 border-t border-white/10">
+            <div className="flex items-center justify-between text-[11px] text-[#71717a] font-mono">
+              <span className="flex items-center gap-1.5">
                 <Clock className="w-3 h-3 text-[#38bdf8]" /> {event.time}
               </span>
-              <span className="flex items-center gap-1 sm:gap-1.5 max-w-[55%] truncate">
+              <span className="flex items-center gap-1.5 max-w-[55%] truncate">
                 <MapPin className="w-3 h-3 text-[#22c55e] shrink-0" />
                 <span className="truncate">{event.venue}</span>
               </span>
             </div>
 
             {isPast ? (
-              <div className="flex items-center justify-between gap-2 pt-0.5 sm:pt-1">
-                {event.registrationUrl ? (
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    try { playClickSound(); } catch {}
+                    onSelect(event);
+                  }}
+                  className="w-full py-2.5 rounded-xl flex items-center justify-center gap-2 text-xs font-mono font-bold transition-all duration-200 border border-white/20 bg-white/[0.06] hover:bg-white/[0.12] text-[#fafafa] hover:-translate-y-px active:translate-y-0 cursor-pointer"
+                >
+                  More Info
+                  <ArrowUpRight className="w-3.5 h-3.5 text-[#a1a1aa]" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 pt-1">
+                {event.registrationUrl && (
                   <a
                     href={event.registrationUrl}
                     target="_blank"
                     rel="noreferrer"
-                    onClick={() => { try { playClickSound(); } catch {} }}
-                    className="w-full py-2 sm:py-2.5 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-mono font-bold transition-all duration-200 border border-white/20 bg-white/[0.06] hover:bg-white/[0.12] text-[#fafafa] hover:-translate-y-px active:translate-y-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      try { playClickSound(); } catch {}
+                    }}
+                    className="flex-1 py-2.5 rounded-xl flex items-center justify-center gap-2 text-xs font-mono font-bold transition-all duration-200 bg-[#22c55e] hover:bg-[#16a34a] text-black shadow-lg shadow-[#22c55e]/20 hover:-translate-y-px active:translate-y-0"
                   >
-                    Event Recap
-                    <ArrowUpRight className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-[#a1a1aa]" />
+                    Register Now <ArrowUpRight className="w-3.5 h-3.5" />
                   </a>
-                ) : (
-                  <span className="w-full py-1.5 sm:py-2 text-center text-[11px] sm:text-xs font-mono text-[#71717a] border border-white/[0.06] rounded-xl bg-white/[0.02]">
-                    Past Event
-                  </span>
                 )}
-              </div>
-            ) : (
-              event.registrationUrl && (
-                <a
-                  href={event.registrationUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={() => { try { playClickSound(); } catch {} }}
-                  className="w-full py-2.5 rounded-xl flex items-center justify-center gap-2 text-xs font-mono font-bold transition-all duration-200 bg-[#22c55e] hover:bg-[#16a34a] text-black shadow-lg shadow-[#22c55e]/20 hover:-translate-y-px active:translate-y-0"
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    try { playClickSound(); } catch {}
+                    onSelect(event);
+                  }}
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-mono font-bold border border-white/20 bg-white/[0.06] hover:bg-white/[0.12] text-white transition-all cursor-pointer"
+                  title="View full event details"
                 >
-                  Register Now <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
-              )
+                  Details
+                </button>
+              </div>
             )}
           </div>
         </div>
       </SpotlightCard>
-    </motion.div>
-  );
-}
-
-/* ─── Past Event Row (archive list style) ────────────────────────────────── */
-function PastEventRow({ event, index }: { event: ClubEvent; index: number }) {
-  return (
-    <motion.div
-      variants={fadeUp}
-      className="group flex items-center gap-3 sm:gap-4 py-2.5 sm:py-4 border-b border-white/5 last:border-0 hover:bg-white/[0.03] px-2.5 sm:px-4 rounded-xl transition-colors"
-    >
-      <span className="text-zinc-500 font-mono text-[10px] sm:text-xs w-5 sm:w-6 shrink-0 text-right select-none">
-        {String(index + 1).padStart(2, "0")}
-      </span>
-
-      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden bg-[#111114] shrink-0 border border-white/10">
-        <img
-          src={event.posterUrl || "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=200&auto=format&fit=crop&q=60"}
-          alt={event.title}
-          className="w-full h-full object-cover opacity-60 group-hover:opacity-90 transition-opacity"
-        />
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <p className="text-xs sm:text-sm font-semibold text-[#e4e4e7] group-hover:text-[#22c55e] transition-colors truncate leading-tight">
-          {event.title}
-        </p>
-        <p className="text-[10px] sm:text-[11px] font-mono text-[#71717a] mt-0.5 truncate">
-          {formatDate(event.date)}&nbsp;·&nbsp;{event.venue}
-        </p>
-      </div>
-
-      {event.registrationUrl && (
-        <a
-          href={event.registrationUrl}
-          target="_blank"
-          rel="noreferrer"
-          onClick={() => { try { playClickSound(); } catch {} }}
-          className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-lg border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] text-[#fafafa] shrink-0 transition-colors"
-        >
-          <span>Recap</span>
-          <ArrowUpRight className="w-3 h-3 text-[#a1a1aa]" />
-        </a>
-      )}
-
-      <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition-colors shrink-0" />
     </motion.div>
   );
 }
@@ -191,18 +164,18 @@ let cachedEventsData: ClubEvent[] | null = null;
 /* ─── Main Page ───────────────────────────────────────────────────────────── */
 export default function EventsPage() {
   const [events, setEvents] = useState<ClubEvent[]>(() => cachedEventsData || initialEvents);
+  const [selectedEvent, setSelectedEvent] = useState<ClubEvent | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [mainTab, setMainTab] = useState<"upcoming" | "past">(() => {
     const list = cachedEventsData || initialEvents;
     const hasUpcoming = list.some((e) => e.active);
     return hasUpcoming ? "upcoming" : "past";
   });
-  const [pastViewMode, setPastViewMode] = useState<"grid" | "list">("grid");
   const headerRef = useRef<HTMLDivElement>(null);
   const isHeaderInView = useInView(headerRef, { once: true });
 
   useEffect(() => {
-    fetch("/api/events")
+    fetch(`/api/events?t=${Date.now()}`, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data?.data && Array.isArray(data.data)) {
@@ -216,8 +189,19 @@ export default function EventsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const upcoming = events.filter((e) => e.active);
-  const past     = events.filter((e) => !e.active);
+  // Upcoming events: soonest date first
+  const upcoming = useMemo(() => {
+    return [...events]
+      .filter((e) => e.active)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [events]);
+
+  // Past events: newest date first, older events at the end
+  const past = useMemo(() => {
+    return [...events]
+      .filter((e) => !e.active)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [events]);
 
   return (
     <div className="min-h-screen bg-transparent text-[#fafafa]">
@@ -240,7 +224,7 @@ export default function EventsPage() {
       <main className="px-4 sm:px-6 max-w-6xl mx-auto pb-28 pt-4 sm:pt-8 space-y-8 sm:space-y-10">
 
         {/* PRIMARY EVENT TABS: UPCOMING EVENTS vs PAST EVENTS */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-5 sm:pb-6 border-b border-white/[0.08]">
+        <div className="flex items-center justify-start pb-5 sm:pb-6 border-b border-white/[0.08]">
           <div className="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 rounded-2xl bg-white/[0.07] border border-white/20 backdrop-blur-2xl w-full sm:w-auto shadow-[0_16px_36px_-8px_rgba(0,0,0,0.7),inset_0_1px_1px_0_rgba(255,255,255,0.28)]">
             <button
               onClick={() => {
@@ -278,40 +262,6 @@ export default function EventsPage() {
               </span>
             </button>
           </div>
-
-          {/* Past Events View Mode Switcher (Grid vs List) */}
-          {mainTab === "past" && past.length > 0 && (
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.06] border border-white/15 backdrop-blur-xl shadow-inner self-end sm:self-auto">
-              <button
-                onClick={() => {
-                  try { playClickSound(); } catch {}
-                  setPastViewMode("grid");
-                }}
-                title="Grid view (3 in a row)"
-                className={`p-2 rounded-lg transition-all ${
-                  pastViewMode === "grid"
-                    ? "bg-white/[0.16] text-white shadow-sm"
-                    : "text-[#71717a] hover:text-[#fafafa]"
-                }`}
-              >
-                <LayoutGrid className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => {
-                  try { playClickSound(); } catch {}
-                  setPastViewMode("list");
-                }}
-                title="Archive list view"
-                className={`p-2 rounded-lg transition-all ${
-                  pastViewMode === "list"
-                    ? "bg-white/[0.16] text-white shadow-sm"
-                    : "text-[#71717a] hover:text-[#fafafa]"
-                }`}
-              >
-                <List className="w-4 h-4" />
-              </button>
-            </div>
-          )}
         </div>
 
         {/* ── TAB 1: UPCOMING EVENTS (3-IN-A-ROW GRID) ── */}
@@ -356,14 +306,14 @@ export default function EventsPage() {
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
               >
                 {upcoming.map((evt) => (
-                  <EventCard key={evt._id} event={evt} />
+                  <EventCard key={evt._id} event={evt} onSelect={setSelectedEvent} />
                 ))}
               </motion.div>
             )}
           </motion.section>
         )}
 
-        {/* ── TAB 2: PAST EVENTS (3-IN-A-ROW GRID OR LIST) ── */}
+        {/* ── TAB 2: PAST EVENTS (3-IN-A-ROW GRID) ── */}
         {mainTab === "past" && (
           <motion.section
             key="past-section"
@@ -373,16 +323,11 @@ export default function EventsPage() {
             transition={{ duration: 0.25 }}
             className="space-y-6 sm:space-y-8"
           >
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5 sm:gap-3">
-                <Calendar className="w-4 sm:w-5 h-4 sm:h-5 text-[#a1a1aa]" />
-                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-mono">Past Events</h2>
-                <span className="text-[10px] sm:text-xs font-mono text-[#a1a1aa] bg-white/[0.05] border border-white/10 px-2 sm:px-2.5 py-0.5 rounded-full">
-                  {past.length} recorded
-                </span>
-              </div>
-              <span className="text-[10px] font-mono text-zinc-500 sm:hidden">
-                Swipe to scroll
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <Calendar className="w-4 sm:w-5 h-4 sm:h-5 text-[#a1a1aa]" />
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-mono">Past Events</h2>
+              <span className="text-[10px] sm:text-xs font-mono text-[#a1a1aa] bg-white/[0.05] border border-white/10 px-2 sm:px-2.5 py-0.5 rounded-full">
+                {past.length} recorded
               </span>
             </div>
 
@@ -402,36 +347,32 @@ export default function EventsPage() {
                 </p>
                 <p className="text-[#71717a] text-xs font-mono">Past workshops, hackathons, and meetups will appear here.</p>
               </div>
-            ) : pastViewMode === "list" ? (
-              <div className="liquid-glass-card rounded-2xl border border-white/15 p-2 sm:p-4 shadow-2xl divide-y divide-white/[0.08] max-h-[420px] sm:max-h-none overflow-y-auto overscroll-contain">
-                <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-1">
-                  {past.map((evt, i) => (
-                    <PastEventRow key={evt._id} event={evt} index={i} />
-                  ))}
-                </motion.div>
-              </div>
             ) : (
-              <div className="relative">
-                <div className="max-h-[480px] sm:max-h-none overflow-y-auto overscroll-contain pr-1 sm:pr-0 -mr-1 sm:mr-0 rounded-2xl">
-                  <motion.div
-                    variants={stagger}
-                    initial="hidden"
-                    animate="show"
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6 pb-6 sm:pb-0"
-                  >
-                    {past.map((evt) => (
-                      <EventCard key={evt._id} event={evt} isPast={true} />
-                    ))}
-                  </motion.div>
-                </div>
-                {/* Mobile subtle fade hint at bottom */}
-                <div className="sm:hidden pointer-events-none absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-black/80 to-transparent rounded-b-2xl" />
-              </div>
+              <motion.div
+                variants={stagger}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              >
+                {past.map((evt) => (
+                  <EventCard key={evt._id} event={evt} isPast={true} onSelect={setSelectedEvent} />
+                ))}
+              </motion.div>
             )}
           </motion.section>
         )}
 
       </main>
+
+      {/* Detail Pop-up Modal (Smoothly Animated) */}
+      <AnimatePresence>
+        {selectedEvent && (
+          <EventDetailModal
+            event={selectedEvent}
+            onClose={() => setSelectedEvent(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

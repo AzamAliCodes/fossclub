@@ -8,7 +8,6 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const active = searchParams.get("active");
-    const category = searchParams.get("category");
 
     let events = await getEvents();
 
@@ -17,15 +16,11 @@ export async function GET(req: NextRequest) {
       events = events.filter((e) => e.active === isActive);
     }
 
-    if (category && category !== "All") {
-      events = events.filter((e) => e.category === category);
-    }
-
     return NextResponse.json(
       { success: true, data: events },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         },
       }
     );
@@ -36,6 +31,8 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
   const session = getSessionFromRequest(req);
@@ -53,10 +50,17 @@ export async function POST(req: NextRequest) {
     }
 
     const newEvent = await saveEvent(body);
+
+    try {
+      revalidatePath("/events");
+      revalidatePath("/");
+    } catch {}
+
     return NextResponse.json({ success: true, data: newEvent });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Error in POST /api/events:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to create event" },
+      { success: false, error: error?.message || "Failed to create event" },
       { status: 500 }
     );
   }

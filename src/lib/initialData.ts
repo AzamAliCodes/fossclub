@@ -1,265 +1,85 @@
-import { TeamMember, ClubEvent, RecruitmentConfig } from "@/types";
+import { TeamMember, ClubEvent, RecruitmentConfig, DomainType } from "@/types";
 
-export const initialTeamMembers: TeamMember[] = [
+export const initialTeamMembers: TeamMember[] = [];
+
+export const initialEvents: ClubEvent[] = [];
+
+export interface RecruitmentDomainInfo {
+  domain: DomainType;
+  roles: string[];
+  perks: string[];
+  description: string;
+}
+
+export interface RecruitmentFaqInfo {
+  question: string;
+  answer: string;
+}
+
+export const RECRUITMENT_DOMAINS: RecruitmentDomainInfo[] = [
   {
-    _id: "mem_1",
-    name: "Mohamed Azam",
-    imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80",
     domain: "Technical",
-    caption: "Linux kernel enthusiast, Rust evangelist, breaking prod since 2022.",
-    github: "https://github.com/azam-srm",
-    linkedin: "https://linkedin.com/in/azam-srm",
-    instagram: "https://instagram.com/azam.foss",
-    featured: true,
-    statusHistory: [
-      { position: "Head of Club", year: "2025-26" },
-      { position: "Maintainer", year: "2024-25" },
-      { position: "Volunteer", year: "2023-24" },
+    roles: ["Full-Stack Web/App", "Cyber Security", "AI/ML", "DevOps & Cloud"],
+    perks: [
+      "Commit access to club repos and upstream projects",
+      "Mentorship from GSoC scholars and core maintainers",
+      "Dedicated cloud infrastructure for hosting student projects",
+      "Direct access to FOSS United grants and project bounties",
     ],
+    description: "You'll build open-source utilities, maintain club infra, mentor junior developers, and drive code sprints.",
   },
   {
-    _id: "mem_2",
-    name: "Aditya Sharma",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80",
-    domain: "Technical",
-    caption: "Distributed systems nerd, Arch Linux user (btw), container orchestrator.",
-    github: "https://github.com/aditya-foss",
-    linkedin: "https://linkedin.com/in/aditya-sharma",
-    instagram: "https://instagram.com/aditya.dev",
-    featured: true,
-    statusHistory: [
-      { position: "Head of Club", year: "2024-25" },
-      { position: "Maintainer", year: "2023-24" },
-    ],
-  },
-  {
-    _id: "mem_3",
-    name: "Sneha Ramanathan",
-    imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop&q=80",
-    domain: "Creative",
-    caption: "Crafting visual identities for free software. Figma fanatic & open-source blender artist.",
-    github: "https://github.com/sneha-design",
-    linkedin: "https://linkedin.com/in/sneha-ramanathan",
-    instagram: "https://instagram.com/sneha.creative",
-    featured: true,
-    statusHistory: [
-      { position: "Maintainer", year: "2025-26" },
-      { position: "Volunteer", year: "2024-25" },
-    ],
-  },
-  {
-    _id: "mem_4",
-    name: "Kavya Menon",
-    imageUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&auto=format&fit=crop&q=80",
     domain: "Corporate",
-    caption: "FOSS United liaison, sponsorship wizard & hackathon director.",
-    linkedin: "https://linkedin.com/in/kavya-menon",
-    instagram: "https://instagram.com/kavya.menon",
-    featured: true,
-    statusHistory: [
-      { position: "Head of Club", year: "2025-26" },
-      { position: "Maintainer", year: "2024-25" },
-      { position: "Volunteer", year: "2023-24" },
+    roles: ["Sponsorship & Partnerships", "Event Operations", "PR & Outreach", "Finance & Logistics"],
+    perks: [
+      "Network directly with founders, CTOs, and tech recruiters",
+      "Manage five-figure budgets and large-scale hackathons",
+      "Official FOSS United chapter coordination credential",
+      "Public speaking and stage management opportunities",
     ],
+    description: "You'll represent FOSS Club SRM to tech companies, manage sponsors, organize flagship hackathons, and spearhead outreach.",
   },
   {
-    _id: "mem_5",
-    name: "Rohan Varma",
-    imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80",
-    domain: "Technical",
-    caption: "DevOps & cloud native. Automates coffee brewing with Kubernetes.",
-    github: "https://github.com/rohan-varma",
-    linkedin: "https://linkedin.com/in/rohan-varma",
-    instagram: "https://instagram.com/rohan.k8s",
-    statusHistory: [
-      { position: "Maintainer", year: "2025-26" },
-      { position: "Volunteer", year: "2024-25" },
-    ],
-  },
-  {
-    _id: "mem_6",
-    name: "Ananya Iyer",
-    imageUrl: "https://images.unsplash.com/photo-1534751516642-a171ed2e4a64?w=500&auto=format&fit=crop&q=80",
     domain: "Creative",
-    caption: "Directing films and motion graphics for FOSS Club. Blender & DaVinci Resolve devotee.",
-    linkedin: "https://linkedin.com/in/ananya-iyer",
-    instagram: "https://instagram.com/ananya.art",
-    statusHistory: [
-      { position: "Maintainer", year: "2024-25" },
-      { position: "Volunteer", year: "2023-24" },
+    roles: ["UI/UX Design", "VFX", "GFX", "Video Editing", "Graphic Design"],
+    perks: [
+      "Design production-grade interfaces seen by thousands",
+      "Build a high-impact design portfolio with real launched products",
+      "Open source design credits and showcase on FOSS channels",
+      "Access to collaborative licenses and creative tools",
     ],
-  },
-  {
-    _id: "mem_7",
-    name: "Devanshu Patel",
-    imageUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&auto=format&fit=crop&q=80",
-    domain: "Corporate",
-    caption: "Public relations, outreach & logistics. Connecting SRM devs with global FOSS maintainers.",
-    linkedin: "https://linkedin.com/in/devanshu-patel",
-    instagram: "https://instagram.com/devanshu.patel",
-    statusHistory: [
-      { position: "Maintainer", year: "2024-25" },
-      { position: "Volunteer", year: "2023-24" },
-    ],
-  },
-  {
-    _id: "mem_8",
-    name: "Tanmay Bansal",
-    imageUrl: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=500&auto=format&fit=crop&q=80",
-    domain: "Technical",
-    caption: "Compilers, systems programming & Neovim config wizard. Tabs > Spaces.",
-    github: "https://github.com/tanmay-bansal",
-    linkedin: "https://linkedin.com/in/tanmay-bansal",
-    instagram: "https://instagram.com/tanmay.nvim",
-    statusHistory: [
-      { position: "Volunteer", year: "2024-25" },
-    ],
+    description: "You'll craft our visual soul—from hacker-chic cyberpunk design systems to event trailers, sticker packs, and web aesthetics.",
   },
 ];
 
-export const initialEvents: ClubEvent[] = [
+export const RECRUITMENT_FAQS: RecruitmentFaqInfo[] = [
   {
-    _id: "evt_1",
-    title: "FOSS Hack 2025 — SRM KTR Chapter",
-    slug: "foss-hack-2025",
-    description: "The flagship 36-hour national open source hackathon in partnership with FOSS United. Build meaningful open source software, contribute to thriving public repositories, and win bounties up to ₹1,00,000.",
-    posterUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1000&auto=format&fit=crop&q=80",
-    date: "2025-10-18",
-    time: "09:00 AM - 08:00 PM",
-    venue: "TP Ganesan Auditorium, SRMIST KTR",
-    registrationUrl: "https://fossunited.org/c/srm-ktr",
-    active: true,
-    category: "Hackathon",
-    tags: ["Hackathon", "FOSS United", "Open Source", "Cash Prizes"],
-    speakers: [
-      { name: "Kailash Nadh", role: "CTO, Zerodha & FOSS United Trustee" },
-      { name: "Rushabh Mehta", role: "Founder, Frappe & ERPNext" },
-    ],
+    question: "Who is eligible to apply for FOSS Club SRM?",
+    answer: "All students enrolled at SRMIST (1st and 2nd years only, from any branch or campus) with a passion for free and open source software are welcome to apply. No prior club experience is required!",
   },
   {
-    _id: "evt_2",
-    title: "Linux Kernel & Systems Deep Dive",
-    slug: "linux-kernel-deep-dive",
-    description: "A hands-on technical workshop exploring how Linux handles system calls, memory management, eBPF tracing, and kernel module writing. Bring your laptops with a working Linux environment.",
-    posterUrl: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=1000&auto=format&fit=crop&q=80",
-    date: "2025-11-05",
-    time: "02:00 PM - 05:30 PM",
-    venue: "Tech Park Lab 802, SRMIST",
-    registrationUrl: "https://fossunited.org/c/srm-ktr",
-    active: true,
-    category: "Workshop",
-    tags: ["Linux", "Kernel", "eBPF", "Systems"],
+    question: "Do I need to be an expert programmer to join the Technical domain?",
+    answer: "Not at all! We look for curiosity, grit, problem-solving mindset, and eagerness to learn. If you're willing to tinker with Linux, build projects, and read documentation, you belong here.",
   },
   {
-    _id: "evt_3",
-    title: "FOSS Meetup #12: Chennai FOSS Guild",
-    slug: "foss-meetup-12",
-    description: "A community gathering of open source maintainers, developers, and designers from across Chennai. Lightning talks on self-hosting, local-first software, and privacy-preserving AI.",
-    posterUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1000&auto=format&fit=crop&q=80",
-    date: "2025-08-20",
-    time: "10:30 AM - 01:30 PM",
-    venue: "Mini Hall 2, Dr. TP Ganesan Auditorium",
-    registrationUrl: "https://fossunited.org/c/srm-ktr",
-    active: false,
-    category: "Meetup",
-    tags: ["Meetup", "FOSS United", "Lightning Talks", "Networking"],
+    question: "What is the recruitment selection process?",
+    answer: "The process has 3 phases: 1) Online Application with your background and interests, 2) Domain Task / Mini-Project (designed to be fun and educational), and 3) An informal in-person or online interview conversation.",
   },
   {
-    _id: "evt_4",
-    title: "Git, GitHub & The First PR Workshop",
-    slug: "git-github-first-pr",
-    description: "SRM's biggest beginner-friendly workshop on version control, branch rebasing, open-source etiquette, and making your very first pull request to an upstream repository.",
-    posterUrl: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=1000&auto=format&fit=crop&q=80",
-    date: "2025-07-14",
-    time: "03:00 PM - 06:00 PM",
-    venue: "BEL Ground Floor Seminar Hall",
-    registrationUrl: "https://fossunited.org/c/srm-ktr",
-    active: false,
-    category: "Workshop",
-    tags: ["Git", "GitHub", "Beginners", "FOSS 101"],
+    question: "What is the relation between FOSS Club SRM and FOSS United?",
+    answer: "FOSS Club SRM is the official university student chapter under FOSS United (a registered non-profit organization promoting free and open source software in India founded by Zerodha and Frappe). Members get direct access to community grants, national meetups, and conferences.",
   },
   {
-    _id: "evt_5",
-    title: "FOSS CTF: Capture The Flag - Reverse Engineering",
-    slug: "foss-ctf-reverse-engineering",
-    description: "A 12-hour cyber-security and open source CTF featuring challenges in binary exploitation, reverse engineering open source daemons, and cryptography.",
-    posterUrl: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1000&auto=format&fit=crop&q=80",
-    date: "2025-05-10",
-    time: "10:00 AM - 10:00 PM",
-    venue: "Online & SRMIST Lab Complex",
-    registrationUrl: "https://fossunited.org/c/srm-ktr",
-    active: false,
-    category: "CTF",
-    tags: ["CTF", "Security", "Crypto", "Reverse Engineering"],
+    question: "Can I apply for multiple domains?",
+    answer: "Yes, you can mention your primary domain and secondary interest on the application form. We frequently have members who cross-collaborate between Technical and Creative or Corporate.",
   },
 ];
 
 export const initialRecruitmentConfig: RecruitmentConfig = {
   _id: "recruitment_config",
   enabled: true,
-  title: "FOSS Club SRM Recruitment Drive 2025-26",
   subtitle: "Join the premier open source initiative at SRMIST. Build real public software, organize India's top hackathons, and become part of the FOSS United network.",
-  posterUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&auto=format&fit=crop&q=80",
+  posterUrl: "",
   applyUrl: "https://fossunited.org/c/srm-ktr",
-  deadline: "2025-10-30T23:59:59",
-  linkedin: "https://linkedin.com/company/foss-club-srm",
-  instagram: "https://www.instagram.com/fossclubsrm",
-  discord: "https://discord.gg/foss-srm",
-  domains: [
-    {
-      domain: "Technical",
-      roles: ["Full-Stack Web/App", "Cyber Security", "AI/ML", "DevOps & Cloud"],
-      perks: [
-        "Commit access to club repos and upstream projects",
-        "Mentorship from GSoC scholars and core maintainers",
-        "Dedicated cloud infrastructure for hosting student projects",
-        "Direct access to FOSS United grants and project bounties",
-      ],
-      description: "You'll build open-source utilities, maintain club infra, mentor junior developers, and drive code sprints.",
-    },
-    {
-      domain: "Corporate",
-      roles: ["Sponsorship & Partnerships", "Event Operations", "PR & Outreach", "Finance & Logistics"],
-      perks: [
-        "Network directly with founders, CTOs, and tech recruiters",
-        "Manage five-figure budgets and large-scale hackathons",
-        "Official FOSS United chapter coordination credential",
-        "Public speaking and stage management opportunities",
-      ],
-      description: "You'll represent FOSS Club SRM to tech companies, manage sponsors, organize flagship hackathons, and spearhead outreach.",
-    },
-    {
-      domain: "Creative",
-      roles: ["UI/UX Design", "VFX", "GFX", "Video Editing", "Graphic Design"],
-      perks: [
-        "Design production-grade interfaces seen by thousands",
-        "Build a high-impact design portfolio with real launched products",
-        "Open source design credits and showcase on FOSS channels",
-        "Access to collaborative licenses and creative tools",
-      ],
-      description: "You'll craft our visual soul—from hacker-chic cyberpunk design systems to event trailers, sticker packs, and web aesthetics.",
-    },
-  ],
-  faqs: [
-    {
-      question: "Who is eligible to apply for FOSS Club SRM?",
-      answer: "All students enrolled at SRMIST (1st and 2nd years only, from any branch or campus) with a passion for free and open source software are welcome to apply. No prior club experience is required!",
-    },
-    {
-      question: "Do I need to be an expert programmer to join the Technical domain?",
-      answer: "Not at all! We look for curiosity, grit, problem-solving mindset, and eagerness to learn. If you're willing to tinker with Linux, build projects, and read documentation, you belong here.",
-    },
-    {
-      question: "What is the recruitment selection process?",
-      answer: "The process has 3 phases: 1) Online Application with your background and interests, 2) Domain Task / Mini-Project (designed to be fun and educational), and 3) An informal in-person or online interview conversation.",
-    },
-    {
-      question: "What is the relation between FOSS Club SRM and FOSS United?",
-      answer: "FOSS Club SRM is the official university student chapter under FOSS United (a registered non-profit organization promoting free and open source software in India founded by Zerodha and Frappe). Members get direct access to community grants, national meetups, and conferences.",
-    },
-    {
-      question: "Can I apply for multiple domains?",
-      answer: "Yes, you can mention your primary domain and secondary interest on the application form. We frequently have members who cross-collaborate between Technical and Creative or Corporate.",
-    },
-  ],
 };
+

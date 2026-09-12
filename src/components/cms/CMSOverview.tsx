@@ -6,14 +6,15 @@ import {
   CheckCircle2, ArrowUpRight, ShieldCheck, HardDrive, Terminal 
 } from "lucide-react";
 import { playClickSound, playSuccessSound } from "@/lib/sound";
+import { useGlassToast } from "@/components/ui/GlassToast";
 
 export function CMSOverview({ onSwitchTab }: { onSwitchTab: (tab: string) => void }) {
+  const toast = useGlassToast();
   const [stats, setStats] = useState({
     membersCount: 0,
     activeEventsCount: 0,
     pastEventsCount: 0,
     recruitmentEnabled: false,
-    subscribersCount: 0,
   });
   const [loading, setLoading] = useState(true);
   const [resetting, setResetting] = useState(false);
@@ -21,17 +22,15 @@ export function CMSOverview({ onSwitchTab }: { onSwitchTab: (tab: string) => voi
 
   const fetchStats = async () => {
     try {
-      const [teamRes, eventRes, recRes, subRes] = await Promise.all([
+      const [teamRes, eventRes, recRes] = await Promise.all([
         fetch("/api/team"),
         fetch("/api/events"),
         fetch("/api/recruitment"),
-        fetch("/api/recruitment/notify"),
       ]);
 
       const team = await teamRes.json();
       const events = await eventRes.json();
       const rec = await recRes.json();
-      const subs = await subRes.json();
 
       const allEvents = events.data || [];
       setStats({
@@ -39,7 +38,6 @@ export function CMSOverview({ onSwitchTab }: { onSwitchTab: (tab: string) => voi
         activeEventsCount: allEvents.filter((e: any) => e.active).length,
         pastEventsCount: allEvents.filter((e: any) => !e.active).length,
         recruitmentEnabled: rec.data?.enabled ?? true,
-        subscribersCount: subs.data?.length || 0,
       });
     } catch (err) {
       console.error(err);
@@ -52,26 +50,33 @@ export function CMSOverview({ onSwitchTab }: { onSwitchTab: (tab: string) => voi
     fetchStats();
   }, []);
 
-  const handleResetData = async () => {
-    if (!confirm("Reset database to initial realistic FOSS SRM sample data? Any recent manual additions will be reset.")) return;
-    setResetting(true);
-    setResetMessage(null);
-    playClickSound();
-
-    try {
-      const res = await fetch("/api/cms/seed", { method: "POST" });
-      const data = await res.json();
-      if (data.success) {
-        playSuccessSound();
-        setResetMessage("Database reset to factory seed data!");
-        fetchStats();
-        setTimeout(() => setResetMessage(null), 3000);
-      }
-    } catch {
-      alert("Failed to reset database");
-    } finally {
-      setResetting(false);
-    }
+  const handleResetData = () => {
+    toast.confirmDelete({
+      title: "Reset Database Seed?",
+      message: "Reset database to initial realistic FOSS SRM sample data? Any recent manual additions will be permanently reset.",
+      confirmLabel: "Reset Seed Data",
+      onConfirm: async () => {
+        setResetting(true);
+        setResetMessage(null);
+        try {
+          const res = await fetch("/api/cms/seed", { method: "POST" });
+          const data = await res.json();
+          if (data.success) {
+            playSuccessSound();
+            setResetMessage("Database reset to factory seed data!");
+            toast.success("Database Reset", "All collections restored to initial seed data.");
+            fetchStats();
+            setTimeout(() => setResetMessage(null), 3000);
+          } else {
+            toast.error("Reset Failed", data.error || "Failed to reset database");
+          }
+        } catch {
+          toast.error("Reset Failed", "Network error during database reset");
+        } finally {
+          setResetting(false);
+        }
+      },
+    });
   };
 
   return (
@@ -136,7 +141,7 @@ export function CMSOverview({ onSwitchTab }: { onSwitchTab: (tab: string) => voi
             {stats.recruitmentEnabled ? "ACTIVE (OPEN)" : "PAUSED (CLOSED)"}
           </div>
           <p className="text-[11px] text-zinc-400 mt-1 flex items-center justify-between font-mono">
-            <span>{stats.subscribersCount} on waitlist</span>
+            <span>Managed via Google Form</span>
             <span className="text-purple-400 group-hover:underline">Configure →</span>
           </p>
         </div>

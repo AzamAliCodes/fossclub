@@ -33,7 +33,7 @@ const socialLinks = [
     icon: InstagramIcon,
     href: "https://www.instagram.com/fossclubsrm",
     label: "Instagram",
-    hoverStyle: "hover:text-[#c084fc] hover:border-[#c084fc]/60 hover:shadow-[0_0_24px_rgba(192,132,252,0.45)] hover:bg-[#c084fc]/10",
+    hoverStyle: "hover:text-[#fb7185] hover:border-[#fb7185]/60 hover:shadow-[0_0_24px_rgba(251,113,133,0.45)] hover:bg-[#fb7185]/10",
   },
   {
     icon: LinkedinIcon,

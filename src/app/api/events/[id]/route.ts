@@ -17,6 +17,8 @@ export async function GET(
   }
 }
 
+import { revalidatePath } from "next/cache";
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -32,9 +34,19 @@ export async function PUT(
       ...body,
       _id: params.id,
     });
+
+    try {
+      revalidatePath("/events");
+      revalidatePath("/");
+    } catch {}
+
     return NextResponse.json({ success: true, data: updated });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: "Failed to update event" }, { status: 500 });
+  } catch (error: any) {
+    console.error(`Error in PUT /api/events/${params?.id}:`, error);
+    return NextResponse.json(
+      { success: false, error: error?.message || "Failed to update event" },
+      { status: 500 }
+    );
   }
 }
 

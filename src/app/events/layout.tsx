@@ -4,7 +4,7 @@ import { initialEvents } from "@/lib/initialData";
 import { EventsJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
-  title: "Events & Hackathons",
+  title: "FOSS Club SRM",
   description:
     "Explore upcoming national hackathons, open source workshops, Linux bootcamps, and developer sprints hosted by FOSS Club SRM at SRMIST Kattankulathur.",
   alternates: {

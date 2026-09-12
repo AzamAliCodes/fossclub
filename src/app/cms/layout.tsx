@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { GlassToastProvider } from "@/components/ui/GlassToast";
 
 export const metadata: Metadata = {
-  title: "CMS Dashboard",
+  title: "FOSS Club SRM",
   description: "FOSS Club SRM Content Management Portal",
   robots: {
     index: false,
@@ -16,5 +17,5 @@ export default function CMSLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return <GlassToastProvider>{children}</GlassToastProvider>;
 }

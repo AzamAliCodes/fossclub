@@ -11,7 +11,7 @@ export async function GET() {
       { success: true, data: config },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120",
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         },
       }
     );
@@ -23,6 +23,8 @@ export async function GET() {
   }
 }
 
+import { revalidatePath } from "next/cache";
+
 export async function PUT(req: NextRequest) {
   const session = getSessionFromRequest(req);
   if (!session) {
@@ -32,6 +34,12 @@ export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
     const updated = await updateRecruitmentConfig(body);
+
+    try {
+      revalidatePath("/recruitments");
+      revalidatePath("/");
+    } catch {}
+
     return NextResponse.json({ success: true, data: updated });
   } catch (error) {
     return NextResponse.json(

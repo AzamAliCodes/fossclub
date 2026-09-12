@@ -268,7 +268,7 @@ export default function PillNav({
   }, [isMobileMenuOpen]);
 
   return (
-    <div className={`fixed top-3 sm:top-4 left-0 right-0 z-[100] flex justify-center px-3 sm:px-4 pointer-events-none ${className}`}>
+    <div className={`fixed top-3 sm:top-4 left-0 right-0 z-[100] flex justify-center px-3 sm:px-4 pointer-events-none pill-nav-container ${className}`}>
       <nav
         className="pointer-events-auto flex items-center justify-between gap-3 box-border w-full max-w-5xl md:w-auto md:max-w-none"
         aria-label="Primary"

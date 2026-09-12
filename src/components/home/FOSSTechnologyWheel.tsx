@@ -8,7 +8,6 @@ import {
   Calendar,
   Clock,
   MapPin,
-  ExternalLink,
   ArrowRight,
   Archive,
 } from "lucide-react";
@@ -17,16 +16,10 @@ import { initialEvents } from "@/lib/initialData";
 import { formatDate } from "@/lib/utils";
 import { playClickSound } from "@/lib/sound";
 
-/* ─── Short Display Titles for Wheel ─────────────────────────────────────── */
-function getShortTitle(title: string): string {
-  if (title.includes("FOSS Meetup") || title.includes("Chennai")) return "Chennai FOSS Guild";
-  if (title.includes("Git") || title.includes("First PR")) return "Git & First PR Sprint";
-  if (title.includes("CTF") || title.includes("Capture The Flag")) return "FOSS CTF 2025";
-  return title.length > 25 ? title.slice(0, 22) + "..." : title;
-}
+let cachedWheelEvents: ClubEvent[] | null = null;
 
 export default function FOSSTechnologyWheel() {
-  const [eventsList, setEventsList] = useState<ClubEvent[]>(initialEvents);
+  const [eventsList, setEventsList] = useState<ClubEvent[]>(() => cachedWheelEvents || initialEvents);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -39,24 +32,28 @@ export default function FOSSTechnologyWheel() {
 
   // Fetch real-time CMS events in background
   useEffect(() => {
-    fetch("/api/events")
+    fetch(`/api/events?t=${Date.now()}`, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data?.data && Array.isArray(data.data) && data.data.length > 0) {
+          cachedWheelEvents = data.data;
           setEventsList(data.data);
         }
       })
       .catch(() => {});
   }, []);
 
-  // Filter strictly past events (no upcoming flagship hackathons in past events)
+  // Filter strictly past events (newest first, older events at the end)
   const pastEvents = useMemo(() => {
-    const filtered = eventsList.filter((e) => !e.active);
+    const filtered = eventsList
+      .filter((e) => !e.active)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return filtered.length > 0 ? filtered : eventsList;
   }, [eventsList]);
 
+  // Strictly real event names — no random hardcoded titles or template text
   const wheelItems = useMemo(
-    () => pastEvents.map((e) => getShortTitle(e.title)),
+    () => pastEvents.map((e) => e.title.trim()),
     [pastEvents]
   );
 
@@ -69,12 +66,16 @@ export default function FOSSTechnologyWheel() {
     setSelectedIndex(index);
   };
 
+  if (pastEvents.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="w-full max-w-6xl mx-auto px-3 sm:px-6 py-10 sm:py-16">
+    <section className="w-full max-w-6xl mx-auto px-3 sm:px-6 py-8 sm:py-12">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 gap-4 border-b border-white/[0.08] pb-5 sm:pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-4 sm:mb-6 gap-3 border-b border-white/[0.08] pb-4 sm:pb-5">
         <div>
-          <h2 className="text-2xl sm:text-4xl font-black text-[#fafafa] tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-black text-[#fafafa] tracking-tight">
             Past <span className="text-[#22c55e]">Events</span>
           </h2>
           <p className="text-xs sm:text-sm text-[#a1a1aa] mt-1 max-w-xl">
@@ -82,10 +83,15 @@ export default function FOSSTechnologyWheel() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <Link
             href="/events"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] text-xs font-mono text-[#fafafa] transition-all hover:border-[#22c55e]/50 group"
+            onClick={() => {
+              try {
+                playClickSound();
+              } catch {}
+            }}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-white/15 bg-white/[0.04] hover:bg-white/[0.08] text-xs font-mono text-[#fafafa] transition-all hover:border-[#22c55e]/50 group"
           >
             <span>Browse All Events</span>
             <ArrowRight className="w-3.5 h-3.5 text-[#22c55e] group-hover:translate-x-0.5 transition-transform" />
@@ -94,17 +100,17 @@ export default function FOSSTechnologyWheel() {
       </div>
 
       {/* Main Wheel + Event Poster Inspector */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-stretch">
         
-        {/* Left Column: 3D OptionWheel */}
-        <div className="lg:col-span-5 xl:col-span-5 h-[195px] xs:h-[215px] sm:h-auto sm:min-h-[460px] relative rounded-2xl border border-white/[0.08] bg-[#060608]/90 backdrop-blur-xl overflow-hidden shadow-2xl p-2 flex items-center justify-center">
+        {/* Left Column: 3D OptionWheel (Sole scroll source) */}
+        <div className="lg:col-span-5 xl:col-span-5 h-[175px] xs:h-[190px] sm:h-[330px] md:h-[340px] lg:h-[340px] xl:h-[350px] relative rounded-2xl border border-white/[0.08] bg-[#060608]/90 backdrop-blur-xl overflow-hidden shadow-2xl p-2 flex items-center justify-center">
           {/* Dynamic ambient glow behind active selection */}
           <div
-            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 w-36 sm:w-48 h-14 sm:h-20 rounded-full blur-2xl pointer-events-none transition-colors duration-500 bg-[#22c55e]/15"
+            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 w-32 sm:w-40 h-12 sm:h-16 rounded-full blur-2xl pointer-events-none transition-colors duration-500 bg-[#22c55e]/15"
           />
 
           {/* Center active indicator highlight frame without overlapping text */}
-          <div className="absolute left-2 right-2 top-1/2 -translate-y-1/2 h-11 sm:h-14 rounded-xl border border-white/20 bg-white/[0.04] pointer-events-none z-10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]" />
+          <div className="absolute left-2 right-2 top-1/2 -translate-y-1/2 h-10 sm:h-12 rounded-xl border border-white/20 bg-white/[0.04] pointer-events-none z-10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]" />
 
           <OptionWheel
             items={wheelItems}
@@ -113,123 +119,141 @@ export default function FOSSTechnologyWheel() {
             textColor="#52525b"
             activeColor="#fafafa"
             side="left"
-            fontSize={isMobile ? 1.15 : 1.65}
-            spacing={isMobile ? 1.22 : 1.3}
-            curve={1.2}
-            tilt={isMobile ? 3 : 7}
+            fontSize={isMobile ? 0.95 : 1.1}
+            spacing={isMobile ? 1.2 : 1.25}
+            curve={1.15}
+            tilt={isMobile ? 2.5 : 5}
             blur={1.6}
             fade={0.25}
             minOpacity={0.15}
             smoothing={200}
-            inset={isMobile ? 10 : 20}
+            inset={isMobile ? 10 : 16}
           />
         </div>
 
-        {/* Right Column: Dynamic Event Card & Poster Preview */}
+        {/* Right Column: Dynamic Event Card & Square Poster Preview */}
         <div className="lg:col-span-7 xl:col-span-7 flex flex-col">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeEvent?._id || activeEvent?.title}
-              initial={{ opacity: 0, y: 15, scale: 0.98 }}
+              initial={{ opacity: 0, y: 12, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -15, scale: 0.98 }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
-              className="liquid-glass-card p-5 sm:p-7 rounded-2xl border border-white/10 relative overflow-hidden shadow-2xl flex flex-col justify-between flex-1"
+              exit={{ opacity: 0, y: -12, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="liquid-glass-card p-3 sm:p-4 md:p-4.5 rounded-2xl border border-white/10 relative overflow-hidden shadow-2xl flex flex-col justify-center flex-1"
             >
               {/* Specular Catch-light */}
               <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none z-20" />
 
-              <div>
-                {/* Header: Status */}
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/15 text-zinc-300 text-[10px] font-mono font-semibold">
-                    <Archive className="w-3 h-3 text-zinc-400" />
-                    PAST EVENT
-                  </span>
-                  <span className="text-[10px] font-mono text-zinc-500">
-                    FOSS Club SRM Archive
-                  </span>
-                </div>
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-5 flex-1">
+                {/* Left: Pure 1:1 Square Poster Preview linking to /events */}
+                <Link
+                  href="/events"
+                  onClick={() => {
+                    try {
+                      playClickSound();
+                    } catch {}
+                  }}
+                  style={{ aspectRatio: "1 / 1" }}
+                  className="relative w-[200px] h-[200px] xs:w-[220px] xs:h-[220px] sm:w-[240px] sm:h-[240px] md:w-[260px] md:h-[260px] lg:w-[265px] lg:h-[265px] xl:w-[285px] xl:h-[285px] aspect-square shrink-0 self-center rounded-xl sm:rounded-2xl overflow-hidden bg-[#070a14] border border-white/15 hover:border-[#22c55e]/50 shadow-2xl group cursor-pointer transition-all duration-300 block select-none"
+                  title="View all events on the Events page"
+                >
+                  {/* Blurred ambient glow backdrop from image */}
+                  <div
+                    className="absolute inset-0 bg-cover bg-center blur-md opacity-25 scale-110 pointer-events-none"
+                    style={{
+                      backgroundImage: `url(${
+                        activeEvent?.posterUrl ||
+                        "https://ik.imagekit.io/SRMFOSSKTR/Logo/fossclub-horizontal-logo.png"
+                      })`,
+                    }}
+                  />
 
-                {/* Event Title */}
-                <h3 className="text-xl sm:text-2xl font-black text-[#fafafa] tracking-tight leading-tight mb-4">
-                  {activeEvent?.title}
-                </h3>
-
-                {/* Event Poster Showcase */}
-                <div className="relative h-44 sm:h-52 w-full rounded-xl overflow-hidden bg-[#111114] border border-white/10 mb-4 group shrink-0">
+                  {/* High-res Square Poster Preview */}
                   <img
                     src={
                       activeEvent?.posterUrl ||
-                      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1000&auto=format&fit=crop&q=80"
+                      "https://ik.imagekit.io/SRMFOSSKTR/Logo/fossclub-horizontal-logo.png"
                     }
                     alt={activeEvent?.title || "Event Poster"}
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-85 group-hover:opacity-100"
+                    className="relative z-10 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-95 group-hover:opacity-100"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-                  <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-[11px] font-mono text-zinc-300 pointer-events-none">
-                    <span className="flex items-center gap-1.5 truncate max-w-[80%]">
-                      <MapPin className="w-3 h-3 text-[#22c55e] shrink-0" />
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none z-20" />
+
+                  {/* Hover Overlay Hint */}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none z-30">
+                    <span className="px-3 py-1.5 rounded-xl bg-black/90 border border-[#22c55e]/40 text-xs font-mono text-white flex items-center gap-1.5 shadow-2xl backdrop-blur-md font-semibold group-hover:scale-105 transition-transform">
+                      <span>Explore Events</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-[#22c55e]" />
+                    </span>
+                  </div>
+
+                  {/* Poster Bottom Badge: Venue */}
+                  <div className="absolute bottom-2 left-2 right-2 flex items-center text-[10px] font-mono text-zinc-300 pointer-events-none z-30">
+                    <span className="flex items-center gap-1 truncate max-w-full bg-black/75 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/10 shadow-md">
+                      <MapPin className="w-2.5 h-2.5 text-[#22c55e] shrink-0" />
                       <span className="truncate">{activeEvent?.venue || "SRMIST Kattankulathur"}</span>
                     </span>
                   </div>
-                </div>
-
-                {/* Metadata Row */}
-                <div className="flex flex-wrap gap-4 text-xs text-[#a1a1aa] font-mono mb-4 pb-3 border-b border-white/[0.06]">
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-[#22c55e]" />
-                    {formatDate(activeEvent?.date || "")}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-[#38bdf8]" />
-                    {activeEvent?.time || "TBA"}
-                  </span>
-                </div>
-
-                {/* Description */}
-                <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed mb-4 line-clamp-3">
-                  {activeEvent?.description}
-                </p>
-
-                {/* Tags */}
-                {activeEvent?.tags && activeEvent.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mb-5">
-                    {activeEvent.tags.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="px-2 py-0.5 rounded-md bg-white/[0.03] border border-white/[0.08] text-[10px] font-mono text-zinc-400"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Actions Row */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 pt-3 border-t border-white/[0.08] mt-auto">
-                <Link
-                  href="/events"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-black text-xs font-mono font-bold transition-all duration-200 bg-[#22c55e] hover:bg-[#16a34a] active:scale-95 shadow-lg shadow-[#22c55e]/20 text-center"
-                >
-                  <span>View Event Archive</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
 
-                {activeEvent?.registrationUrl && (
-                  <a
-                    href={activeEvent.registrationUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-white/15 bg-white/[0.03] hover:bg-white/[0.08] text-xs font-mono text-zinc-300 hover:text-white transition-colors text-center"
-                  >
-                    <span>FOSS United Page</span>
-                    <ExternalLink className="w-3 h-3 text-zinc-400" />
-                  </a>
-                )}
+                {/* Right / Beside: Event Info & About Description */}
+                <div className="flex-1 min-w-0 flex flex-col justify-center space-y-2 py-0.5">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    {/* Header: Status Pill & Archive Tag */}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/15 text-zinc-300 text-[10px] font-mono font-semibold">
+                        <Archive className="w-3 h-3 text-zinc-400" />
+                        PAST EVENT
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-500 truncate">
+                        FOSS SRM Archive
+                      </span>
+                    </div>
+
+                    {/* Event Title linking to /events */}
+                    <Link
+                      href="/events"
+                      onClick={() => {
+                        try {
+                          playClickSound();
+                        } catch {}
+                      }}
+                      className="group/title block"
+                      title="View all events"
+                    >
+                      <h3 className="text-base sm:text-lg md:text-xl font-black text-[#fafafa] group-hover/title:text-[#22c55e] transition-colors tracking-tight leading-snug line-clamp-2">
+                        {activeEvent?.title}
+                      </h3>
+                    </Link>
+
+                    {/* Metadata Badges */}
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono text-[#a1a1aa] pb-1 border-b border-white/[0.06]">
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/10">
+                        <Calendar className="w-3.5 h-3.5 text-[#22c55e]" />
+                        {formatDate(activeEvent?.date || "")}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/10">
+                        <Clock className="w-3.5 h-3.5 text-[#38bdf8]" />
+                        {activeEvent?.time || "TBA"}
+                      </span>
+                    </div>
+
+                    {/* About Section */}
+                    <div>
+                      <div className="text-[9.5px] font-mono font-semibold uppercase tracking-wider text-[#22c55e] mb-0.5 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+                        About Event
+                      </div>
+                      <p className="text-zinc-300 text-xs sm:text-[13px] leading-relaxed line-clamp-3 sm:line-clamp-4">
+                        {activeEvent?.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </AnimatePresence>
