@@ -5,12 +5,9 @@ import Link from "next/link";
 import { motion, useScroll, useTransform, Variants } from "framer-motion";
 import { ArrowUpRight, Zap, ArrowRight, Calendar, Code2, GitBranch, Terminal, Shield, GitPullRequest, Trophy, Globe, Users, BookOpen, Briefcase, Palette, UserPlus } from "lucide-react";
 import RotatingText from "@/components/ui/RotatingText";
-import DecryptedText from "@/components/ui/DecryptedText";
-import SpotlightCard from "@/components/ui/SpotlightCard";
-import MagneticButton from "@/components/ui/MagneticButton";
 import TiltCard from "@/components/ui/TiltCard";
 import AnimatedGrid from "@/components/3d/AnimatedGrid";
-import FOSSTechnologyWheel from "@/components/home/FOSSTechnologyWheel";
+import WheelLazy from "@/components/home/WheelLazy";
 import { playClickSound } from "@/lib/sound";
 
 const stagger: Variants = {
@@ -226,7 +223,7 @@ export default function HomePage() {
       </div>
 
       {/* ── INTERACTIVE FOSS 3D OPTION WHEEL (React Bits OptionWheel) ── */}
-      <FOSSTechnologyWheel />
+      <WheelLazy />
 
       {/* ── TRACKS SECTION ── */}
       <div className="w-full px-6 py-16">
