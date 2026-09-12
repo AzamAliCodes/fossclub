@@ -38,11 +38,11 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
         <AnimatePresence mode="wait">
           <motion.span
             key={index}
-            initial={{ y: "60%", opacity: 0, filter: "blur(8px)" }}
-            animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-            exit={{ y: "-60%", opacity: 0, filter: "blur(6px)" }}
+            initial={{ y: "60%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "-60%", opacity: 0 }}
             transition={{ type: "spring", damping: 24, stiffness: 200, mass: 0.9 }}
-            className={`inline-block ${className}`}
+            className={`inline-block will-change-transform ${className}`}
           >
             {texts[index]}
           </motion.span>

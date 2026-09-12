@@ -27,7 +27,31 @@ export default function AnimatedGrid() {
     resize();
     window.addEventListener("resize", resize);
 
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
     const draw = () => {
+      if (isMobile) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const spacing = 80;
+        const cols = Math.ceil(canvas.width / spacing) + 1;
+        const rows = Math.ceil(canvas.height / spacing) + 1;
+        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = "rgba(34, 34, 38, 0.4)";
+        ctx.beginPath();
+        for (let i = 0; i <= rows; i++) {
+          const y = i * spacing;
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+        }
+        for (let j = 0; j <= cols; j++) {
+          const x = j * spacing;
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+        }
+        ctx.stroke();
+        return; // Pure static grid on mobile, zero rAF loop
+      }
+
       time += 0.003;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 

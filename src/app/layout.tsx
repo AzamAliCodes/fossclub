@@ -102,12 +102,12 @@ export default function RootLayout({
         {/* Global Particle Galaxy Starfield & Nebula (with instant 0ms pixel snow) */}
         <ParticlesBackground />
 
-        {/* Global React Bits Green Cursor Grid Matrix */}
+        {/* Global React Bits Green Cursor Grid Matrix (Desktop Only) */}
         <CursorGrid
           color="#22c55e"
           cellSize={64}
           radius={180}
-          className="fixed inset-0 pointer-events-none z-0"
+          className="fixed inset-0 pointer-events-none z-0 hidden md:block"
         />
 
         {/* Global 3D Floating FOSS Logos */}

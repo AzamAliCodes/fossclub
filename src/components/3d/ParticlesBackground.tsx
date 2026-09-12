@@ -62,9 +62,11 @@ export default function ParticlesBackground() {
     let galaxyCore1: CanvasGradient | null = null;
     let galaxyCore2: CanvasGradient | null = null;
 
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
     // Handle high DPI and resizing
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width * dpr;
@@ -93,8 +95,8 @@ export default function ParticlesBackground() {
     // Pure White & Silver Celestial Star Shades
     const WHITE_STAR_PALETTE = ["#ffffff", "#fafafa", "#f4f4f5", "#e4e4e7", "#ffffff"];
 
-    // 1. White Twinkling Galaxy Starfield (Optimized count for 120 FPS performance)
-    const starCount = Math.min(130, Math.floor((width * height) / 8000));
+    // 1. White Twinkling Galaxy Starfield (Optimized count: 32 on mobile, 130 on desktop)
+    const starCount = isMobile ? 32 : Math.min(130, Math.floor((width * height) / 8000));
     const stars: Star[] = Array.from({ length: starCount }, () => {
       const baseAlpha = Math.random() * 0.6 + 0.15;
       return {
@@ -109,8 +111,8 @@ export default function ParticlesBackground() {
       };
     });
 
-    // 2. Interactive White Constellation Mesh Nodes (Optimized for minimal pairwise loop)
-    const nodeCount = Math.min(26, Math.floor((width * height) / 36000));
+    // 2. Interactive White Constellation Mesh Nodes (Desktop only to save mobile GPU)
+    const nodeCount = isMobile ? 0 : Math.min(26, Math.floor((width * height) / 36000));
     const nodes: GalacticNode[] = Array.from({ length: nodeCount }, () => {
       const baseAlpha = Math.random() * 0.35 + 0.25;
       return {
@@ -125,7 +127,7 @@ export default function ParticlesBackground() {
       };
     });
 
-    // 3. Pure Diamond White Meteors (Shooting Stars)
+    // 3. Pure Diamond White Meteors (Shooting Stars - Desktop only)
     const meteors: Meteor[] = [];
     const createMeteor = () => {
       if (meteors.length >= 2) return;
@@ -140,12 +142,15 @@ export default function ParticlesBackground() {
       });
     };
 
-    const meteorTimer = setInterval(() => {
-      if (Math.random() > 0.3) createMeteor();
-    }, 4000);
+    let meteorTimer: ReturnType<typeof setInterval> | null = null;
+    if (!isMobile) {
+      meteorTimer = setInterval(() => {
+        if (Math.random() > 0.3) createMeteor();
+      }, 4000);
+    }
 
-    // 4. Crisp Falling Pixel Snow (React Bits style, instant 0ms native canvas rendering)
-    const snowCount = Math.min(80, Math.floor((width * height) / 14000));
+    // 4. Crisp Falling Pixel Snow (Optimized count: 20 on mobile, 80 on desktop)
+    const snowCount = isMobile ? 20 : Math.min(80, Math.floor((width * height) / 14000));
     const snowFlakes: PixelSnowFlake[] = Array.from({ length: snowCount }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
@@ -179,9 +184,25 @@ export default function ParticlesBackground() {
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
 
+    // Pause particle canvas during active touch scrolling on mobile to keep 60/120fps native scroll
+    let isScrolling = false;
+    let scrollTimer: ReturnType<typeof setTimeout> | null = null;
+    const onScroll = () => {
+      if (!isMobile) return;
+      isScrolling = true;
+      if (scrollTimer) clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        isScrolling = false;
+        animId = requestAnimationFrame(render);
+      }, 100);
+    };
+    if (isMobile) {
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
+
     // Render loop
     const render = () => {
-      if (!isTabVisible) return;
+      if (!isTabVisible || (isMobile && isScrolling)) return;
 
       ctx.clearRect(0, 0, width, height);
 
@@ -340,7 +361,9 @@ export default function ParticlesBackground() {
 
     return () => {
       cancelAnimationFrame(animId);
-      clearInterval(meteorTimer);
+      if (meteorTimer) clearInterval(meteorTimer);
+      if (scrollTimer) clearTimeout(scrollTimer);
+      if (isMobile) window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseleave", onMouseLeave);

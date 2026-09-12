@@ -251,7 +251,9 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
       const drag = dragRef.current;
       if (!drag) return;
       const dy = e.clientY - drag.y;
-      if (!dragMovedRef.current && Math.abs(dy) > 4) {
+      const isTouch = e.pointerType === "touch";
+      const threshold = isTouch ? 14 : 4;
+      if (!dragMovedRef.current && Math.abs(dy) > threshold) {
         dragMovedRef.current = true;
         rootRef.current?.setPointerCapture(drag.id);
       }

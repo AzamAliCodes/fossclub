@@ -26,6 +26,14 @@ const up: Variants = {
 export default function HomePage() {
   const { scrollY } = useScroll();
 
+  const [isMobile, setIsMobile] = React.useState(false);
+  React.useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   const heroY = useTransform(scrollY, [0, 800], [0, 200]);
   const heroOpacity = useTransform(scrollY, [0, 600], [1, 0]);
   const indicatorOpacity = useTransform(scrollY, [0, 200], [1, 0]);
@@ -111,7 +119,7 @@ export default function HomePage() {
 
         {/* Developer Hero Content */}
         <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
+          style={{ y: isMobile ? 0 : heroY, opacity: isMobile ? 1 : heroOpacity }}
           variants={stagger}
           initial="hidden"
           animate="show"

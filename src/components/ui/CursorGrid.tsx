@@ -98,8 +98,14 @@ export default function CursorGrid({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 2);
+    const isMobile =
+      typeof window !== "undefined" &&
+      (window.innerWidth < 768 ||
+        window.matchMedia("(pointer: coarse)").matches ||
+        "ontouchstart" in window);
+    if (isMobile) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     let cols = 0;
     let rows = 0;

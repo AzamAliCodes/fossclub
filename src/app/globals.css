@@ -109,8 +109,10 @@ body {
   .liquid-glass-card,
   .glass-panel,
   .glass-panel-strong {
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    background: rgba(14, 15, 20, 0.88);
+    transform: translateZ(0);
   }
 }
 

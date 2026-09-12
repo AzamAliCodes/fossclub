@@ -516,19 +516,23 @@ export default function FloatingFOSSLogos() {
               item.mobileVisible ? "flex" : "hidden md:flex"
             } items-center justify-center`}
           >
-            {/* Dynamic, gentle organic zero-g floating motion tuned for free spaces */}
+            {/* Dynamic, gentle organic floating motion (lightweight GPU translateY on mobile) */}
             <motion.div
-              animate={{
-                x: isMobile ? drift.x.map((v) => Math.round(v * 0.12)) : drift.x,
-                y: isMobile ? drift.y.map((v) => Math.round(v * 0.12)) : drift.y,
-                rotateZ: isMobile ? drift.rot.map((v) => Math.round(v * 0.35)) : drift.rot,
-                scale: drift.scale,
-              }}
+              animate={
+                isMobile
+                  ? { y: [0, -5, 0] }
+                  : {
+                      x: drift.x,
+                      y: drift.y,
+                      rotateZ: drift.rot,
+                      scale: drift.scale,
+                    }
+              }
               transition={{
-                duration: item.floatDuration * (isMobile ? 1.05 : 1.25),
+                duration: isMobile ? 5.5 : item.floatDuration * 1.25,
                 repeat: Infinity,
                 ease: "easeInOut",
-                delay: item.floatDelay,
+                delay: isMobile ? idx * 0.35 : item.floatDelay,
               }}
               whileHover={{
                 scale: 1.25,
@@ -554,17 +558,23 @@ export default function FloatingFOSSLogos() {
                 } catch {}
                 setTimeout(() => setActiveHoverId((cur) => (cur === item.id ? null : cur)), 1500);
               }}
-              className="pointer-events-auto cursor-pointer relative group touch-manipulation"
+              className="pointer-events-auto cursor-pointer relative group touch-manipulation will-change-transform"
             >
-              {/* Vibrant glass coin badge with ambient brand glow and shiny specular catch-light */}
+              {/* Vibrant coin badge with brand glow (backdrop-blur disabled on mobile for 120fps) */}
               <div
-                className="w-9 h-9 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center border backdrop-blur-xl transition-all duration-300 relative overflow-hidden"
+                className="w-9 h-9 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center border backdrop-blur-none sm:backdrop-blur-xl transition-all duration-300 relative overflow-hidden"
                 style={{
                   opacity: isHovered ? 1 : baseOpacity,
                   transform: `scale(${baseScale})`,
-                  backgroundColor: isHovered ? "rgba(9, 9, 11, 0.95)" : "rgba(10, 10, 14, 0.85)",
+                  backgroundColor: isHovered
+                    ? "rgba(9, 9, 11, 0.95)"
+                    : isMobile
+                    ? "rgba(14, 15, 20, 0.95)"
+                    : "rgba(10, 10, 14, 0.85)",
                   borderColor: isHovered ? item.accentColor : "rgba(255, 255, 255, 0.28)",
-                  boxShadow: isHovered
+                  boxShadow: isMobile
+                    ? `0 4px 12px rgba(0,0,0,0.6), 0 0 10px ${item.accentColor}30`
+                    : isHovered
                     ? `0 0 28px ${item.accentColor}80, 0 8px 24px rgba(0,0,0,0.8), inset 0 1px 0 0 rgba(255,255,255,0.6)`
                     : `0 8px 24px rgba(0,0,0,0.7), 0 0 16px ${item.accentColor}38, inset 0 1px 0 0 rgba(255,255,255,0.22)`,
                 }}
