@@ -58,35 +58,21 @@ const stagger = {
 function LiquidGlassMemberCard({
   member,
   position,
-  activeYear,
 }: {
   member: TeamMember;
   position: string;
-  activeYear: string;
 }) {
   const dm = DOMAIN_META[member.domain] || DOMAIN_META.Technical;
   const pb = POSITION_BADGE[position] || POSITION_BADGE.Volunteer;
 
-  // Resolve year to display below the photo
-  const displayYear =
-    activeYear !== "All"
-      ? activeYear
-      : (member.statusHistory?.[0]?.year || null);
-
   return (
     <motion.div variants={fadeUp} layout className="group h-full">
-      <div className={`bg-[#0c0c0e] rounded-2xl p-3 sm:p-3.5 h-full relative flex flex-col justify-between border transition-all duration-300 shadow-lg overflow-hidden ${
-        position === "Maintainer"
-          ? "border-[#d946ef]/25 hover:border-[#d946ef]/60 hover:shadow-[0_0_22px_rgba(217,70,239,0.35)]"
-          : "border-white/10 hover:border-white/30"
-      }`}>
+      <div className={`bg-[#0c0c0e] rounded-2xl p-3 sm:p-3.5 h-full relative flex flex-col justify-between border border-white/10 transition-all duration-300 shadow-lg overflow-hidden hover:border-white/30 hover:shadow-[0_0_22px_rgba(255,255,255,0.35)]`}>
         {/* Specular Catch-light */}
         <div
           className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none z-20"
           style={{
-            background: position === "Maintainer"
-              ? "linear-gradient(to right, transparent, rgba(217, 70, 239, 0.6), transparent)"
-              : "linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent)",
+            background: "linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent)",
           }}
         />
 
@@ -117,13 +103,7 @@ function LiquidGlassMemberCard({
               {member.name}
             </h3>
 
-            {member.caption && (
-              <p className="text-[#71717a] text-[11px] font-sans mt-0.5 truncate leading-tight">
-                {member.caption}
-              </p>
-            )}
-
-            {/* Separate Badges: Position, Domain, and Year */}
+            {/* Separate Badges: Position and Domain */}
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
               {/* Box 1: Position */}
               <span
@@ -132,7 +112,6 @@ function LiquidGlassMemberCard({
                   color: pb.color,
                   background: pb.bg,
                   borderColor: pb.border,
-                  boxShadow: position === "Maintainer" ? "0 0 10px rgba(217, 70, 239, 0.35)" : undefined,
                 }}
               >
                 {position === "Head" && <Award className="w-2.5 h-2.5 shrink-0" />}
@@ -146,13 +125,6 @@ function LiquidGlassMemberCard({
               >
                 <span>{member.domain}</span>
               </span>
-
-              {/* Box 3: Year */}
-              {displayYear && (
-                <span className="inline-flex items-center text-[9px] sm:text-[10px] font-mono font-bold text-zinc-300 px-2 py-0.5 rounded border border-white/10 bg-white/[0.04] tracking-wider">
-                  <span>{displayYear}</span>
-                </span>
-              )}
             </div>
           </div>
         </div>
@@ -160,18 +132,6 @@ function LiquidGlassMemberCard({
         {/* Social Links (LinkedIn, Instagram, GitHub ONLY) with prominent glowing buttons */}
         {(member.github || member.linkedin || member.instagram) && (
           <div className="flex items-center gap-2 pt-3 border-t border-white/[0.08] mt-3">
-            {member.github && (
-              <a
-                href={member.github}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => { try { playClickSound(); } catch {} }}
-                className="w-8 h-8 rounded-lg border border-white/10 bg-white/[0.04] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/40 hover:bg-white/10 hover:shadow-[0_0_18px_rgba(255,255,255,0.45)] transition-all duration-200 active:scale-95"
-                title="GitHub Profile"
-              >
-                <GithubIcon className="w-4 h-4" />
-              </a>
-            )}
             {member.linkedin && (
               <a
                 href={member.linkedin}
@@ -182,6 +142,18 @@ function LiquidGlassMemberCard({
                 title="LinkedIn Profile"
               >
                 <LinkedinIcon className="w-4 h-4" />
+              </a>
+            )}
+            {member.github && (
+              <a
+                href={member.github}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => { try { playClickSound(); } catch {} }}
+                className="w-8 h-8 rounded-lg border border-white/10 bg-white/[0.04] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/40 hover:bg-white/10 hover:shadow-[0_0_18px_rgba(255,255,255,0.45)] transition-all duration-200 active:scale-95"
+                title="GitHub Profile"
+              >
+                <GithubIcon className="w-4 h-4" />
               </a>
             )}
             {member.instagram && (
@@ -544,26 +516,9 @@ export default function TeamPage() {
 
           {/* Right Status Indicator */}
           <div className="text-[11px] font-mono flex items-center justify-between sm:justify-end gap-2.5 px-1">
-            {filterPosition !== "All" ? (
-              <button
-                type="button"
-                onClick={() => {
-                  playClickSound();
-                  setFilterPosition("All");
-                }}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.08] hover:bg-white/[0.14] border border-white/15 hover:border-white/30 text-zinc-300 hover:text-white transition-all cursor-pointer active:scale-95 group"
-                title="Click to clear rank filter and see all ranks"
-              >
-                <span className="w-3.5 h-3.5 rounded-full bg-white/10 group-hover:bg-red-500/20 flex items-center justify-center transition-colors">
-                  <X className="w-2.5 h-2.5 text-zinc-400 group-hover:text-red-400 transition-colors" />
-                </span>
-                <span>See all ranks</span>
-              </button>
-            ) : (
-              <span className="text-zinc-500 hidden sm:inline">
-                Click rank to filter
-              </span>
-            )}
+            <span className="text-zinc-500 hidden sm:inline">
+              Click rank to filter
+            </span>
             {filterYear !== "All" && (
               <span className="text-zinc-500 hidden md:inline">
                 • Year {filterYear}
@@ -651,7 +606,6 @@ export default function TeamPage() {
                           key={member._id}
                           member={member}
                           position={position}
-                          activeYear={filterYear}
                         />
                       ))}
                     </AnimatePresence>

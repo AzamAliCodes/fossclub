@@ -426,7 +426,7 @@ export function CMSEventsManager() {
 
                 {/* Poster URL (ImageKit) */}
                 <div className="space-y-1.5">
-                  <label className="block text-[#71717a] text-[10px] uppercase font-mono tracking-wider">Poster Image URL (from ImageKit)</label>
+                  <label className="block text-[#71717a] text-[10px] uppercase font-mono tracking-wider">Poster Image URL (from ImageKit) *</label>
                   <div className="flex items-center space-x-3">
                     <div className="relative w-16 h-12 rounded-lg overflow-hidden bg-[#111114] border border-[#222226] flex-shrink-0">
                       {editingEvent.posterUrl ? (
@@ -441,6 +441,7 @@ export function CMSEventsManager() {
                     </div>
                     <input
                       type="url"
+                      required
                       value={editingEvent.posterUrl}
                       onChange={(e) => setEditingEvent({ ...editingEvent, posterUrl: e.target.value })}
                       className="flex-1 px-3 py-2 bg-[#060608] border border-[#222226] rounded-lg text-[#fafafa] text-xs font-mono focus:outline-none focus:border-[#22c55e]"
@@ -475,9 +476,10 @@ export function CMSEventsManager() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-400 mb-1">Time Range</label>
+                    <label className="block text-gray-400 mb-1">Time Range *</label>
                     <input
                       type="text"
+                      required
                       value={editingEvent.time}
                       onChange={(e) => setEditingEvent({ ...editingEvent, time: e.target.value })}
                       className="w-full px-3 py-2 bg-black/50 border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-500"
@@ -486,9 +488,10 @@ export function CMSEventsManager() {
                   </div>
 
                   <div>
-                    <label className="block text-gray-400 mb-1">Venue Location</label>
+                    <label className="block text-gray-400 mb-1">Venue Location *</label>
                     <input
                       type="text"
+                      required
                       value={editingEvent.venue}
                       onChange={(e) => setEditingEvent({ ...editingEvent, venue: e.target.value })}
                       className="w-full px-3 py-2 bg-black/50 border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-500 font-sans"

@@ -68,6 +68,21 @@ export function CMSTeamManager() {
 
   useEffect(() => { fetchMembers(); }, []);
 
+  const getMaxYearStr = (): string => {
+    let maxStartYear = 2024;
+    members.forEach((m) => {
+      m.statusHistory?.forEach((h) => {
+        if (!h.year) return;
+        const match = h.year.match(/^(\d{4})/);
+        if (match) {
+          const y = parseInt(match[1], 10);
+          if (!isNaN(y) && y > maxStartYear) maxStartYear = y;
+        }
+      });
+    });
+    return `${maxStartYear}-${String((maxStartYear + 1) % 100).padStart(2, "0")}`;
+  };
+
   const blankMember = (): TeamMember => ({
     _id: "",
     name: "",
@@ -77,7 +92,7 @@ export function CMSTeamManager() {
     github: "",
     linkedin: "",
     instagram: "",
-    statusHistory: [{ position: "Volunteer", year: "2024-25" }],
+    statusHistory: [{ position: "Volunteer", year: getMaxYearStr() }],
     featured: false,
     order: undefined,
     index: undefined,
@@ -126,6 +141,17 @@ export function CMSTeamManager() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingMember) return;
+
+    const hasValidStatusHistory = (editingMember.statusHistory || []).some(
+      (h) => h.position && h.position.trim() && h.year && h.year.trim()
+    );
+    if (!hasValidStatusHistory) {
+      setSaveStatus("err");
+      setSaveMsg("Position by Year is required — add at least one year entry.");
+      toast.error("Validation Error", "Position by Year is required. Click \"Add Year\".");
+      return;
+    }
+
     setSaveStatus("saving");
     setSaveMsg("Saving...");
     try {
@@ -168,7 +194,7 @@ export function CMSTeamManager() {
     if (!editingMember) return;
     setEditingMember({
       ...editingMember,
-      statusHistory: [...(editingMember.statusHistory || []), { position: "Volunteer", year: "2024-25" }],
+      statusHistory: [...(editingMember.statusHistory || []), { position: "Volunteer", year: getMaxYearStr() }],
     });
   };
 
@@ -655,7 +681,7 @@ export function CMSTeamManager() {
                 <div className="space-y-2 pt-3 border-t border-white/10">
                   <div className="flex items-center justify-between">
                     <label className="text-[10px] font-mono text-[#22c55e] uppercase tracking-wider flex items-center gap-1.5">
-                      <Award className="w-3 h-3" /> Position by Year
+                      <Award className="w-3 h-3" /> Position by Year *
                     </label>
                     <button type="button" onClick={handleAddStatusRow}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#0c2317] border border-[#14532d] text-[#22c55e] text-[10px] font-mono hover:bg-[#112b1c] transition-colors cursor-pointer">
@@ -685,7 +711,7 @@ export function CMSTeamManager() {
 
                           {/* Numeric Year Stepper (like Index input) */}
                           <div className="w-full sm:w-36">
-                            <p className="text-[9px] text-zinc-400 mb-1 uppercase tracking-wider font-mono">Year (Min: 2024)</p>
+                            <p className="text-[9px] text-zinc-400 mb-1 uppercase tracking-wider font-mono">Year</p>
                             <div className="relative flex items-center h-[40px] bg-white/[0.07] backdrop-blur-2xl border border-white/20 hover:border-white/35 rounded-xl px-2.5 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/50 transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
                               <input
                                 type="number"
