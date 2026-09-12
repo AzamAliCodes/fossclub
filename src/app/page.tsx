@@ -361,16 +361,16 @@ export default function HomePage() {
       </div>
 
       {/* ── JOIN US / RECRUITMENT CTA ── */}
-      <div className="w-full flex items-center justify-center px-6 py-20 pb-28">
+      <div className="w-full flex items-center justify-center px-6 py-12 md:py-16">
         <div className="w-full max-w-2xl text-center">
-          <div className="liquid-glass-card p-6 sm:p-10 md:p-14 relative overflow-hidden rounded-2xl">
+          <div className="liquid-glass-card p-6 sm:p-8 md:p-10 relative overflow-hidden rounded-2xl">
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
             <div className="relative z-10">
-              <p className="text-[#a1a1aa] text-xs tracking-[0.25em] uppercase mb-3 sm:mb-4 font-mono">Join Us</p>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#fafafa] mb-3 sm:mb-4 tracking-tight">
+              <p className="text-[#a1a1aa] text-xs tracking-[0.25em] uppercase mb-2 sm:mb-3 font-mono">Join Us</p>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#fafafa] mb-2 sm:mb-3 tracking-tight">
                 Be a Part of the <span className="text-[#22c55e]">Team</span>
               </h2>
-              <p className="text-[#a1a1aa] text-xs sm:text-sm mb-6 sm:mb-8 max-w-md mx-auto leading-relaxed font-sans">
+              <p className="text-[#a1a1aa] text-xs sm:text-sm mb-4 sm:mb-6 max-w-md mx-auto leading-relaxed font-sans">
                 Join our technical, corporate, or creative domains. Build real software, organize hackathons, and become part of FOSS United.
               </p>
 

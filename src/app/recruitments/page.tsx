@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ExternalLink, Lock, CheckCircle2, Clock, ChevronDown, Terminal, Globe, Palette } from "lucide-react";
-import confetti from "canvas-confetti";
+import { Lock, CheckCircle2, ChevronDown, Terminal, Globe, Palette, Github, Instagram, Linkedin, Mail, ExternalLink } from "lucide-react";
 import { RecruitmentConfig } from "@/types";
 import { RECRUITMENT_DOMAINS, RECRUITMENT_FAQS } from "@/lib/initialData";
+import { siteConfig } from "@/lib/siteConfig";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 import MagneticButton from "@/components/ui/MagneticButton";
-import { playClickSound, playSuccessSound } from "@/lib/sound";
+import TerminalApplyModal from "@/components/ui/TerminalApplyModal";
+import { playClickSound } from "@/lib/sound";
 
 let cachedRecruitmentConfig: RecruitmentConfig | null = null;
 
@@ -16,6 +17,14 @@ export default function RecruitmentsPage() {
   const [config, setConfig] = useState<RecruitmentConfig | null>(() => cachedRecruitmentConfig);
   const [loading, setLoading] = useState<boolean>(() => !cachedRecruitmentConfig);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [applyOpen, setApplyOpen] = useState(false);
+
+  const socials = [
+    { icon: Instagram, label: "Instagram", handle: "@fossclubsrm", href: siteConfig.social.instagram },
+    { icon: Linkedin, label: "LinkedIn", handle: "FOSS Club SRM", href: siteConfig.social.linkedin },
+    { icon: Github, label: "GitHub", handle: "fossclubsrm", href: siteConfig.social.github },
+    { icon: Mail, label: "Email", handle: siteConfig.email, href: `mailto:${siteConfig.email}` },
+  ];
 
   useEffect(() => {
     fetch("/api/recruitment")
@@ -51,7 +60,7 @@ export default function RecruitmentsPage() {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-28 pb-20 overflow-hidden w-full max-w-5xl mx-auto z-10">
       
-      {/* Top 2-Column Hero: Poster + Info Card */}
+      {/* Top 2-Column Hero: Poster + [Join Our Team + Socials] */}
       <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mb-20">
         
         {/* POSTER SLOT */}
@@ -87,17 +96,17 @@ export default function RecruitmentsPage() {
           </div>
         </motion.div>
 
-        {/* INFO CARD */}
+        {/* RIGHT COLUMN: Join Our Team + Socials cards */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="w-full max-w-lg mx-auto lg:mx-0 lg:mr-auto"
+          className="w-full max-w-lg mx-auto lg:mx-0 lg:mr-auto flex flex-col gap-6"
         >
-          <div className="liquid-glass-card p-5 sm:p-8 md:p-10 h-full flex flex-col justify-center relative overflow-hidden">
+          <div className="liquid-glass-card p-4 sm:p-5 md:p-6 h-full flex flex-col justify-center relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-20" />
-            <div className="flex flex-col gap-8 relative z-10">
-              <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-4 relative z-10">
+              <div className="flex flex-col gap-3">
                 {/* Status Pill */}
                 <div
                   className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-semibold tracking-wider uppercase w-fit border font-mono ${
@@ -117,7 +126,7 @@ export default function RecruitmentsPage() {
                 </div>
 
                 <div>
-                  <h1 className="text-3xl md:text-5xl font-bold text-[#fafafa] tracking-tight leading-tight mb-4">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#fafafa] tracking-tight leading-tight mb-2">
                     Join Our <span className="text-[#22c55e]">Team</span>
                   </h1>
                   <p className="text-[#a1a1aa] text-sm leading-relaxed">
@@ -129,28 +138,26 @@ export default function RecruitmentsPage() {
                 </div>
               </div>
 
-              <div className="w-full h-px bg-[#222226] my-1" />
+              <div className="w-full h-px bg-[#222226] my-0.5" />
 
               {/* Action area */}
               <div>
                 {isOpen ? (
-                  <a
-                    href={config.applyUrl || "https://fossunited.org/c/srm-ktr"}
-                    target="_blank"
-                    rel="noreferrer"
+                  <button
+                    type="button"
                     onClick={() => {
                       try { playClickSound(); } catch {}
-                      confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
+                      setApplyOpen(true);
                     }}
-                    className="w-full py-3.5 px-6 rounded-xl text-sm font-bold tracking-wide transition-all bg-[#22c55e] hover:bg-[#16a34a] text-black flex items-center justify-center space-x-2 font-mono shadow-lg shadow-[#22c55e]/20"
+                    className="w-full py-3 px-6 rounded-xl text-sm font-bold tracking-wide transition-all bg-[#22c55e] hover:bg-[#16a34a] text-black flex items-center justify-center space-x-2 font-mono shadow-lg shadow-[#22c55e]/20 active:scale-[0.98]"
                   >
                     <span>Apply Now</span>
                     <ExternalLink className="w-4 h-4" />
-                  </a>
+                  </button>
                 ) : (
                   <button
                     disabled
-                    className="w-full py-3.5 px-6 rounded-xl text-sm font-mono font-bold tracking-wide bg-[#111114] border border-[#222226] text-[#71717a] cursor-not-allowed flex items-center justify-center space-x-2"
+                    className="w-full py-3 px-6 rounded-xl text-sm font-mono font-bold tracking-wide bg-[#111114] border border-[#222226] text-[#71717a] cursor-not-allowed flex items-center justify-center space-x-2"
                   >
                     <Lock className="w-4 h-4" />
                     <span>Applications Closed</span>
@@ -159,25 +166,37 @@ export default function RecruitmentsPage() {
               </div>
             </div>
           </div>
+
+          {/* FOSS Socials Card (below Join Our Team in the right column) */}
+          <div className="liquid-glass-card p-5 rounded-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-20" />
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <p className="text-[10px] text-[#a1a1aa] tracking-[0.25em] uppercase font-mono">FOSS Socials</p>
+              <Terminal className="w-4 h-4 text-[#22c55e]/60" />
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3">
+              {socials.map((s) => {
+                const Icon = s.icon;
+                return (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => { try { playClickSound(); } catch {} }}
+                    title={s.label}
+className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3.5 sm:py-4 transition-all duration-300 hover:border-[#22c55e]/60 hover:bg-[#22c55e]/5 hover:shadow-[0_0_24px_rgba(34,197,94,0.15)] active:scale-[0.97]"
+                  >
+                    <Icon className="w-5 h-5 text-[#a1a1aa] group-hover:text-[#22c55e] transition-colors" />
+                    <span className="text-xs font-semibold text-[#fafafa]">{s.label}</span>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
         </motion.div>
 
       </div>
-
-      {/* If Closed: Applications Closed Notice */}
-      {!isOpen && (
-        <div className="w-full max-w-xl mx-auto mb-20">
-          <div className="liquid-glass-card p-5 sm:p-8 rounded-2xl text-center space-y-3 relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-20" />
-            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400">
-              <Clock className="w-5 h-5" />
-            </div>
-            <h3 className="text-xl font-bold text-[#fafafa]">Applications Currently Closed</h3>
-            <p className="text-xs text-[#a1a1aa] max-w-sm mx-auto font-mono leading-relaxed">
-              Recruitment is not active right now. Induction drives are announced directly via Google Form and our official channels!
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* 3 Domain Tracks Breakdown */}
       <div className="w-full mb-20">
@@ -299,6 +318,13 @@ export default function RecruitmentsPage() {
           </div>
         );
       })()}
+
+      {/* Terminal Styled Application Modal */}
+      <TerminalApplyModal
+        open={applyOpen}
+        onClose={() => setApplyOpen(false)}
+        applyUrl={config.applyUrl || "https://fossunited.org/c/srm-ktr"}
+      />
 
     </div>
   );

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import { Users, ChevronDown, Award, Check, X } from "lucide-react";
+import { Users, ChevronDown, Check, X } from "lucide-react";
 import { TeamMember, DomainType } from "@/types";
 import { playClickSound } from "@/lib/sound";
 
@@ -110,20 +110,19 @@ function LiquidGlassMemberCard({
             <div className="mt-2 flex items-center gap-1">
               {/* Box 1: Position */}
               <span
-                className="inline-flex items-center gap-1 text-[10px] xs:text-[11.5px] font-mono font-extrabold px-1.5 py-0.5 rounded border uppercase tracking-wider whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-mono font-extrabold px-1 py-0.5 rounded border uppercase tracking-wide whitespace-nowrap shrink-0"
                 style={{
                   color: pb.color,
                   background: pb.bg,
                   borderColor: pb.border,
                 }}
               >
-                {position === "Head" && <Award className="w-2.5 h-2.5 shrink-0" />}
                 <span>{POSITION_LABEL(position)}</span>
               </span>
 
               {/* Box 2: Domain */}
               <span
-                className="inline-flex items-center text-[10px] xs:text-[11.5px] font-mono font-extrabold px-1.5 py-0.5 rounded border uppercase tracking-wider whitespace-nowrap shrink-0"
+                className="inline-flex items-center text-[9px] sm:text-[10px] font-mono font-extrabold px-1 py-0.5 rounded border uppercase tracking-wide whitespace-nowrap shrink-0"
                 style={{ color: dm.color, background: dm.bg, borderColor: dm.border }}
               >
                 <span>{member.domain}</span>
@@ -465,7 +464,6 @@ export default function TeamPage() {
               }`}
               title={filterPosition === "Head" ? "Filtered by Head — Click to see all ranks" : "Click to filter by Head"}
             >
-              <Award className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span>CLUB HEAD</span>
               {filterPosition === "Head" && <X className="w-3 h-3 ml-0.5 text-amber-300 shrink-0" />}
             </button>
@@ -579,7 +577,6 @@ export default function TeamPage() {
                         boxShadow: pos === "Maintainer" ? "0 0 14px rgba(217, 70, 239, 0.45)" : undefined,
                       }}
                     >
-                      {pos === "Head" && <Award className="w-3 h-3" />}
                       {POSITION_LABEL(pos)}
                     </span>
                     <div className="flex-1 h-px bg-white/[0.06]" />

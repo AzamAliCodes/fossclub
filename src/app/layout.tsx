@@ -6,6 +6,7 @@ import ParticlesBackground from "@/components/3d/ParticlesBackground";
 import FloatingFOSSLogos from "@/components/3d/FloatingFOSSLogos";
 import CursorGlow from "@/components/ui/CursorGlow";
 import CursorGrid from "@/components/ui/CursorGrid";
+import TopLoader from "@/components/ui/TopLoader";
 
 import { siteConfig } from "@/lib/siteConfig";
 import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/JsonLd";
@@ -94,10 +95,13 @@ export default function RootLayout({
       <body className="bg-black text-[#fafafa] min-h-screen flex flex-col relative antialiased">
         {/* Schema.org Structured Data for Google / Bing Rich Snippets */}
         <OrganizationJsonLd />
-        <WebSiteJsonLd />
+<WebSiteJsonLd />
 
         {/* Lock Browser Tab Header Title to FOSS Club SRM */}
         <BrowserTitleSync />
+
+        {/* Global top browser-style loading bar (site load / route navigation) */}
+        <TopLoader />
 
         {/* Global Particle Galaxy Starfield & Nebula (with instant 0ms pixel snow) */}
         <ParticlesBackground />
