@@ -12,7 +12,7 @@ import { useGlassToast } from "@/components/ui/GlassToast";
 import { GlassSelect } from "@/components/ui/GlassSelect";
 
 const DOMAINS: DomainType[] = ["Technical", "Corporate", "Creative"];
-const DOMAIN_PRIORITY_ORDER: DomainType[] = ["Technical", "Creative", "Corporate"];
+const DOMAIN_PRIORITY_ORDER: DomainType[] = ["Technical", "Corporate", "Creative"];
 const POSITIONS = ["Head", "Maintainer", "Volunteer"];
 
 const DOMAIN_META: Record<string, { color: string; bg: string; border: string }> = {
@@ -194,7 +194,7 @@ export function CMSTeamManager() {
     if (!editingMember) return;
     setEditingMember({
       ...editingMember,
-      statusHistory: [...(editingMember.statusHistory || []), { position: "Volunteer", year: getMaxYearStr() }],
+      statusHistory: [{ position: "Volunteer", year: getMaxYearStr() }, ...(editingMember.statusHistory || [])],
     });
   };
 

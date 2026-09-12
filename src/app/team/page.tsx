@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import { Users, ChevronDown, Award, Check, Filter, X } from "lucide-react";
+import { Users, ChevronDown, Award, Check, X } from "lucide-react";
 import { TeamMember, DomainType } from "@/types";
 import { playClickSound } from "@/lib/sound";
 
@@ -35,7 +35,10 @@ const DOMAIN_META: Record<string, { color: string; bg: string; border: string }>
 };
 
 const POSITION_ORDER = ["Head", "Maintainer", "Volunteer"];
-const DOMAIN_PRIORITY_ORDER = ["Technical", "Creative", "Corporate"];
+const DOMAIN_PRIORITY_ORDER = ["Technical", "Corporate", "Creative"];
+
+// Frontend-only display label. DB/logic keep the raw position name ("Head").
+const POSITION_LABEL = (p: string) => (p === "Head" ? "CLUB HEAD" : p);
 
 const POSITION_BADGE: Record<string, { color: string; bg: string; border: string }> = {
   "Head":       { color: "#f59e0b", bg: "rgba(245, 158, 11, 0.12)", border: "rgba(245, 158, 11, 0.3)" },
@@ -67,7 +70,7 @@ function LiquidGlassMemberCard({
 
   return (
     <motion.div variants={fadeUp} layout className="group h-full">
-      <div className={`bg-[#0c0c0e] rounded-2xl p-3 sm:p-3.5 h-full relative flex flex-col justify-between border border-white/10 transition-all duration-300 shadow-lg overflow-hidden hover:border-white/30 hover:shadow-[0_0_22px_rgba(255,255,255,0.35)]`}>
+      <div className={`bg-[#0c0c0e] rounded-2xl p-3 sm:p-3.5 h-full relative flex flex-col justify-between border border-white/10 transition-all duration-300 shadow-lg overflow-hidden hover:border-white/30 hover:shadow-[0_0_22px_rgba(255,255,255,0.35)] isolate [transform:translateZ(0)]`}>
         {/* Specular Catch-light */}
         <div
           className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none z-20"
@@ -104,10 +107,10 @@ function LiquidGlassMemberCard({
             </h3>
 
             {/* Separate Badges: Position and Domain */}
-            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <div className="mt-2 flex items-center gap-1">
               {/* Box 1: Position */}
               <span
-                className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-mono font-extrabold px-2 py-0.5 rounded border uppercase tracking-wider"
+                className="inline-flex items-center gap-1 text-[10px] xs:text-[11.5px] font-mono font-extrabold px-1.5 py-0.5 rounded border uppercase tracking-wider whitespace-nowrap shrink-0"
                 style={{
                   color: pb.color,
                   background: pb.bg,
@@ -115,12 +118,12 @@ function LiquidGlassMemberCard({
                 }}
               >
                 {position === "Head" && <Award className="w-2.5 h-2.5 shrink-0" />}
-                <span>{position}</span>
+                <span>{POSITION_LABEL(position)}</span>
               </span>
 
               {/* Box 2: Domain */}
               <span
-                className="inline-flex items-center text-[9px] sm:text-[10px] font-mono font-extrabold px-2 py-0.5 rounded border uppercase tracking-wider"
+                className="inline-flex items-center text-[10px] xs:text-[11.5px] font-mono font-extrabold px-1.5 py-0.5 rounded border uppercase tracking-wider whitespace-nowrap shrink-0"
                 style={{ color: dm.color, background: dm.bg, borderColor: dm.border }}
               >
                 <span>{member.domain}</span>
@@ -231,7 +234,7 @@ export default function TeamPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  /* Automatically generate all consecutive years from max year in db down to 2025-26 */
+  /* Generate all consecutive years from max year in db down to 2025-26 */
   const availableYears = useMemo(() => {
     let maxStartYear = 2025;
     let minStartYear = 2025;
@@ -251,12 +254,12 @@ export default function TeamPage() {
     });
 
     const years: string[] = [];
-    for (let y = maxStartYear; y >= Math.max(minStartYear, 2025); y--) {
+    for (let y = maxStartYear; y >= minStartYear; y--) {
       const next = String((y + 1) % 100).padStart(2, "0");
       years.push(`${y}-${next}`);
     }
 
-    return [...years, "All"];
+    return years;
   }, [members]);
 
   /* Filter by domain and year, and resolve exact position */
@@ -266,18 +269,13 @@ export default function TeamPage() {
         // Domain filter
         if (filterDomain !== "All" && m.domain !== filterDomain) return false;
 
-        // Year filter: if a specific year is selected, MUST have an entry for that year
-        if (filterYear !== "All") {
-          return m.statusHistory?.some((h) => h.year === filterYear);
-        }
-        return true;
+        // Year filter: member MUST have an entry for the selected year
+        return m.statusHistory?.some((h) => h.year === filterYear);
       })
       .map((m) => {
-        // Position resolution
+        // Position resolution for the selected year
         const resolvedPosition =
-          filterYear === "All"
-            ? (m.statusHistory?.[0]?.position || "Volunteer")
-            : (m.statusHistory?.find((h) => h.year === filterYear)?.position || "Volunteer");
+          m.statusHistory?.find((h) => h.year === filterYear)?.position || "Volunteer";
         return { member: m, position: resolvedPosition };
       })
       .filter((item) => {
@@ -402,7 +400,7 @@ export default function TeamPage() {
                 }}
                 className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2.5 px-3.5 sm:px-4 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] backdrop-blur-2xl border border-white/20 hover:border-white/35 text-[#fafafa] text-xs font-mono transition-all shadow-[0_8px_24px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.25)] cursor-pointer"
               >
-                <span>{filterYear === "All" ? "All Years" : filterYear}</span>
+                <span>{filterYear}</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 ${
                     isYearOpen ? "rotate-180 text-[#22c55e]" : ""
@@ -434,7 +432,7 @@ export default function TeamPage() {
                             : "text-zinc-300 hover:text-white hover:bg-white/[0.08]"
                         }`}
                       >
-                        <span>{y === "All" ? "All Years" : y}</span>
+                        <span>{y}</span>
                         {filterYear === y && <Check className="w-3.5 h-3.5 text-[#22c55e]" />}
                       </button>
                     ))}
@@ -449,8 +447,7 @@ export default function TeamPage() {
         {/* Hierarchy / Rank Filter Bar */}
         <div className="relative z-10 mt-3 sm:mt-4 p-2 sm:p-2.5 rounded-2xl border border-white/15 backdrop-blur-2xl bg-white/[0.05] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.15)]">
           <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
-            <span className="text-[11px] font-mono text-zinc-400 font-semibold flex items-center gap-1.5 px-1 mr-0.5">
-              <Filter className="w-3.5 h-3.5 text-[#22c55e]" />
+            <span className="text-[9.5px] font-mono text-zinc-400 font-semibold flex items-center gap-1.5 px-1 mr-0.5">
               <span className="uppercase tracking-wider">Rank:</span>
             </span>
 
@@ -469,7 +466,7 @@ export default function TeamPage() {
               title={filterPosition === "Head" ? "Filtered by Head — Click to see all ranks" : "Click to filter by Head"}
             >
               <Award className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>Head</span>
+              <span>CLUB HEAD</span>
               {filterPosition === "Head" && <X className="w-3 h-3 ml-0.5 text-amber-300 shrink-0" />}
             </button>
 
@@ -519,7 +516,7 @@ export default function TeamPage() {
             <span className="text-zinc-500 hidden sm:inline">
               Click rank to filter
             </span>
-            {filterYear !== "All" && (
+            {filterYear && (
               <span className="text-zinc-500 hidden md:inline">
                 • Year {filterYear}
               </span>
@@ -545,22 +542,18 @@ export default function TeamPage() {
             <p className="text-zinc-400 text-sm font-mono">
               {members.length === 0
                 ? "No team members recorded yet. Add members via CMS."
-                : filterPosition !== "All" && filterYear !== "All"
-                ? `No ${filterPosition} members recorded for year ${filterYear}${filterDomain !== "All" ? ` in ${filterDomain} domain` : ""}.`
                 : filterPosition !== "All"
-                ? `No ${filterPosition} members match the selected filters.`
-                : filterYear !== "All"
-                ? `No members recorded for year ${filterYear}.`
-                : "No members match these filters."}
+                ? `No ${filterPosition} members recorded for year ${filterYear}${filterDomain !== "All" ? ` in ${filterDomain} domain` : ""}.`
+                : `No members recorded for year ${filterYear}.`}
             </p>
-            {(filterPosition !== "All" || filterDomain !== "All" || filterYear !== "All") && (
+            {(filterPosition !== "All" || filterDomain !== "All") && (
               <button
                 type="button"
                 onClick={() => {
                   playClickSound();
                   setFilterPosition("All");
                   setFilterDomain("All");
-                  setFilterYear("All");
+                  setFilterYear(cachedLatestYear);
                 }}
                 className="mt-3 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-emerald-400 text-xs font-mono transition-all cursor-pointer"
               >
@@ -587,7 +580,7 @@ export default function TeamPage() {
                       }}
                     >
                       {pos === "Head" && <Award className="w-3 h-3" />}
-                      {pos}
+                      {POSITION_LABEL(pos)}
                     </span>
                     <div className="flex-1 h-px bg-white/[0.06]" />
                   </div>
@@ -597,8 +590,7 @@ export default function TeamPage() {
                     className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4"
                     variants={stagger}
                     initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, margin: "-30px" }}
+                    animate="show"
                   >
                     <AnimatePresence mode="popLayout">
                       {items.map(({ member, position }) => (
