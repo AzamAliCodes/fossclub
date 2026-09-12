@@ -86,7 +86,7 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
   const audioUrlRef = useRef("");
   const lastTickRef = useRef(0);
   const [selectedIndex, setSelectedIndex] = useState(defaultSelected);
-  const [isDragging, setIsDragging] = useState(false);
+  const isDraggingRef = useRef(false);
 
   const remPx =
     typeof window !== "undefined"
@@ -111,72 +111,6 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
     soundVolume,
   };
 
-  // Single rAF loop that eases the wheel position toward its target with
-  // frame-rate independent exponential smoothing, then lays every option out
-  // along the curve based on its distance from the current position.
-  const runFrame = useCallback((now: number) => {
-    const dt = Math.min((now - lastRef.current) / 1000, 0.05);
-    lastRef.current = now;
-    const cfg = cfgRef.current;
-    const tau = Math.max(cfg.smoothing, 1) / 1000;
-    const k = 1 - Math.exp(-dt / tau);
-
-    const target = targetRef.current;
-    const cur = posRef.current;
-    let next = cur + (target - cur) * k;
-    const settled = Math.abs(target - next) < 0.001;
-    if (settled) next = target;
-    posRef.current = next;
-
-    const els = itemRefs.current;
-    const n = cfg.count;
-    const mirror = cfg.side === "right" ? -1 : 1;
-    // Options sit on a circle whose radius keeps the arc length between two
-    // neighbors equal to one row height, so tilt controls how tightly it curls.
-    const tiltRad = (cfg.tilt * Math.PI) / 180;
-    const R = tiltRad > 0.0005 ? cfg.rowH / tiltRad : 0;
-    for (let i = 0; i < n; i++) {
-      const el = els[i];
-      if (!el) continue;
-      let d = i - next;
-      if (cfg.loop && n > 1) {
-        d = ((d % n) + n) % n;
-        if (d > n / 2) d -= n;
-      }
-      const dist = Math.abs(d);
-      let x = 0;
-      let y = d * cfg.rowH;
-      let rot = 0;
-      if (R > 0) {
-        const ang = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, d * tiltRad));
-        y = R * Math.sin(ang);
-        x = -mirror * R * (1 - Math.cos(ang)) * cfg.curve;
-        rot = (mirror * ang * 180) / Math.PI;
-      }
-      el.style.transform = `translate(${x.toFixed(2)}px, calc(${y.toFixed(2)}px - 50%)) rotate(${rot.toFixed(3)}deg)`;
-      el.style.opacity = String(Math.max(cfg.minOpacity, 1 - dist * cfg.fade));
-      el.style.filter = cfg.blur > 0 ? `blur(${(dist * cfg.blur).toFixed(2)}px)` : "none";
-      el.style.setProperty("--ow-p", Math.max(0, 1 - Math.min(dist, 1)).toFixed(4));
-
-      // Highlight bold white ONLY when strictly inside the fixed glass capsule
-      const inGlass = dist < 0.28;
-      const targetState = inGlass ? "true" : "false";
-      if (el.dataset.inGlass !== targetState) {
-        el.dataset.inGlass = targetState;
-      }
-    }
-
-    rafRef.current = settled ? null : requestAnimationFrame(runFrame);
-  }, []);
-
-  const startLoop = useCallback(() => {
-    if (rafRef.current != null) {
-      cancelAnimationFrame(rafRef.current);
-    }
-    lastRef.current = performance.now();
-    rafRef.current = requestAnimationFrame(runFrame);
-  }, [runFrame]);
-
   // Optional tick on selection change, throttled so fast scrolling can't spam it
   const playTick = useCallback(() => {
     const { soundUrl, soundVolume } = cfgRef.current;
@@ -199,30 +133,109 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
     }
   }, []);
 
+  // Single rAF loop that eases the wheel position toward its target with
+  // frame-rate independent exponential smoothing, then lays every option out
+  // along the curve based on its distance from the current position.
+  const runFrame = useCallback((now: number) => {
+    const dt = Math.min((now - lastRef.current) / 1000, 0.05);
+    lastRef.current = now;
+    const cfg = cfgRef.current;
+    
+    // Fast 35ms tau while actively dragging for zero-latency 1:1 tracking,
+    // smooth easing on release
+    const effectiveSmoothing = isDraggingRef.current ? 35 : cfg.smoothing;
+    const tau = Math.max(effectiveSmoothing, 1) / 1000;
+    const k = 1 - Math.exp(-dt / tau);
+
+    const target = targetRef.current;
+    const cur = posRef.current;
+    let next = cur + (target - cur) * k;
+    const settled = Math.abs(target - next) < 0.001;
+    if (settled) {
+      next = target;
+      if (!isDraggingRef.current) {
+        const idx = ((Math.round(target) % cfg.count) + cfg.count) % cfg.count;
+        if (idx !== selectedRef.current) {
+          selectedRef.current = idx;
+          setSelectedIndex(idx);
+          onChangeRef.current?.(idx, cfg.items[idx]);
+          playTick();
+        }
+      }
+    }
+    posRef.current = next;
+
+    const els = itemRefs.current;
+    const n = cfg.count;
+    const mirror = cfg.side === "right" ? -1 : 1;
+    const tiltRad = (cfg.tilt * Math.PI) / 180;
+    const R = tiltRad > 0.0005 ? cfg.rowH / tiltRad : 0;
+    for (let i = 0; i < n; i++) {
+      const el = els[i];
+      if (!el) continue;
+      let d = i - next;
+      if (cfg.loop && n > 1) {
+        d = ((d % n) + n) % n;
+        if (d > n / 2) d -= n;
+      }
+      const dist = Math.abs(d);
+      let x = 0;
+      let y = d * cfg.rowH;
+      let rot = 0;
+      if (R > 0) {
+        const ang = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, d * tiltRad));
+        y = R * Math.sin(ang);
+        x = -mirror * R * (1 - Math.cos(ang)) * cfg.curve;
+        rot = (mirror * ang * 180) / Math.PI;
+      }
+      el.style.transform = `translate3d(${x.toFixed(2)}px, calc(${y.toFixed(2)}px - 50%), 0) rotate(${rot.toFixed(3)}deg)`;
+      el.style.opacity = String(Math.max(cfg.minOpacity, 1 - dist * cfg.fade));
+      if (cfg.blur > 0) {
+        el.style.filter = `blur(${(dist * cfg.blur).toFixed(2)}px)`;
+      } else if (el.style.filter && el.style.filter !== "none") {
+        el.style.filter = "none";
+      }
+      el.style.setProperty("--ow-p", Math.max(0, 1 - Math.min(dist, 1)).toFixed(4));
+
+      // Highlight bold white ONLY when strictly inside the fixed glass capsule
+      const inGlass = dist < 0.28;
+      const targetState = inGlass ? "true" : "false";
+      if (el.dataset.inGlass !== targetState) {
+        el.dataset.inGlass = targetState;
+      }
+    }
+
+    rafRef.current = (settled && !isDraggingRef.current) ? null : requestAnimationFrame(runFrame);
+  }, [playTick]);
+
+  const startLoop = useCallback(() => {
+    if (rafRef.current != null) {
+      cancelAnimationFrame(rafRef.current);
+    }
+    lastRef.current = performance.now();
+    rafRef.current = requestAnimationFrame(runFrame);
+  }, [runFrame]);
+
   const applyTarget = useCallback(
     (value: number, snap: boolean) => {
       const cfg = cfgRef.current;
       if (!cfg.count) return;
       let v = value;
       if (!cfg.loop) v = Math.min(Math.max(v, 0), Math.max(cfg.count - 1, 0));
-      if (snap) v = Math.round(v);
-      targetRef.current = v;
-      const idx = ((Math.round(v) % cfg.count) + cfg.count) % cfg.count;
-      if (idx !== selectedRef.current) {
-        selectedRef.current = idx;
-        setSelectedIndex(idx);
-        onChangeRef.current?.(idx, cfg.items[idx]);
-        playTick();
+      if (snap) {
+        v = Math.round(v);
       }
+      targetRef.current = v;
       startLoop();
     },
-    [startLoop, playTick]
+    [startLoop]
   );
 
-  // Wheel / touchpad scrolling, registered manually so it can be non-passive
+  // Wheel, touchpad and mobile touch scrolling, registered non-passively
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
+
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const cfg = cfgRef.current;
@@ -232,42 +245,141 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
       if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
       wheelTimerRef.current = setTimeout(() => applyTarget(targetRef.current, true), 140);
     };
+
+    let touchStartY = 0;
+    let touchLastY = 0;
+    let touchLastTime = 0;
+    let touchVelocity = 0;
+    let touchStartTarget = 0;
+    let isTouching = false;
+    let touchMoved = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (!cfgRef.current.draggable || e.touches.length !== 1) return;
+      touchStartY = e.touches[0].clientY;
+      touchLastY = e.touches[0].clientY;
+      touchLastTime = performance.now();
+      touchVelocity = 0;
+      touchStartTarget = posRef.current;
+      targetRef.current = posRef.current;
+      isDraggingRef.current = true;
+      isTouching = true;
+      touchMoved = false;
+      startLoop();
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isTouching || e.touches.length !== 1) return;
+      const y = e.touches[0].clientY;
+      const now = performance.now();
+      const dt = now - touchLastTime;
+      if (dt > 8) {
+        touchVelocity = (y - touchLastY) / dt;
+        touchLastY = y;
+        touchLastTime = now;
+      }
+      const dy = y - touchStartY;
+      if (Math.abs(dy) > 2) {
+        touchMoved = true;
+        dragMovedRef.current = true;
+        if (e.cancelable) e.preventDefault();
+        const sensitivity = 1.45; // Responsive, sensitive touch scroll
+        const cfg = cfgRef.current;
+        let nextTarget = touchStartTarget - (dy * sensitivity) / cfg.rowH;
+        if (!cfg.loop) {
+          nextTarget = Math.min(Math.max(nextTarget, -0.5), cfg.count - 0.5);
+        }
+        targetRef.current = nextTarget;
+        posRef.current = nextTarget;
+        startLoop();
+      }
+    };
+
+    const onTouchEnd = () => {
+      if (!isTouching) return;
+      isTouching = false;
+      isDraggingRef.current = false;
+      if (touchMoved) {
+        const cfg = cfgRef.current;
+        let momentum = 0;
+        if (Math.abs(touchVelocity) > 0.2) {
+          const flickSteps = (-touchVelocity * 85) / cfg.rowH;
+          momentum = Math.max(-4, Math.min(4, flickSteps));
+        }
+        applyTarget(Math.round(targetRef.current + momentum), true);
+        setTimeout(() => {
+          dragMovedRef.current = false;
+        }, 100);
+      }
+    };
+
     el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+    el.addEventListener("touchcancel", onTouchEnd, { passive: true });
+
     return () => {
       el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+      el.removeEventListener("touchcancel", onTouchEnd);
       if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
     };
-  }, [applyTarget]);
+  }, [applyTarget, startLoop]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "touch") return; // Handled natively by touch listeners for mobile
     if (!cfgRef.current.draggable) return;
-    dragRef.current = { y: e.clientY, start: targetRef.current, id: e.pointerId };
+    isDraggingRef.current = true;
+    dragRef.current = { y: e.clientY, start: posRef.current, id: e.pointerId };
     dragMovedRef.current = false;
-    setIsDragging(true);
-  }, []);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {}
+    startLoop();
+  }, [startLoop]);
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.pointerType === "touch") return;
       const drag = dragRef.current;
       if (!drag) return;
       const dy = e.clientY - drag.y;
-      const isTouch = e.pointerType === "touch";
-      const threshold = isTouch ? 14 : 4;
-      if (!dragMovedRef.current && Math.abs(dy) > threshold) {
+      if (Math.abs(dy) > 2) {
         dragMovedRef.current = true;
-        rootRef.current?.setPointerCapture(drag.id);
+        const cfg = cfgRef.current;
+        let nextTarget = drag.start - (dy * 1.25) / cfg.rowH;
+        if (!cfg.loop) {
+          nextTarget = Math.min(Math.max(nextTarget, -0.5), cfg.count - 0.5);
+        }
+        targetRef.current = nextTarget;
+        posRef.current = nextTarget;
+        startLoop();
       }
-      if (dragMovedRef.current) applyTarget(drag.start - dy / cfgRef.current.rowH, false);
+    },
+    [startLoop]
+  );
+
+  const handlePointerEnd = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.pointerType === "touch") return;
+      if (!dragRef.current) return;
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {}
+      dragRef.current = null;
+      isDraggingRef.current = false;
+      if (dragMovedRef.current) {
+        applyTarget(Math.round(targetRef.current), true);
+        setTimeout(() => {
+          dragMovedRef.current = false;
+        }, 100);
+      }
     },
     [applyTarget]
   );
-
-  const handlePointerEnd = useCallback(() => {
-    if (!dragRef.current) return;
-    dragRef.current = null;
-    setIsDragging(false);
-    if (dragMovedRef.current) applyTarget(targetRef.current, true);
-  }, [applyTarget]);
 
   const handleItemClick = useCallback(
     (index: number) => {
@@ -315,9 +427,9 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
       role="listbox"
       tabIndex={0}
       aria-label="Option wheel"
-      className={`relative h-full w-full select-none overflow-hidden outline-none ${
-        isDragging ? "cursor-grabbing [touch-action:none]" : "cursor-grab [touch-action:pan-y]"
-      }${className ? ` ${className}` : ""}`}
+      className={`relative h-full w-full select-none overflow-hidden outline-none touch-none cursor-grab active:cursor-grabbing${
+        className ? ` ${className}` : ""
+      }`}
       style={
         {
           "--ow-text-color": textColor,
@@ -355,9 +467,14 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
             aria-selected={isCurrentActive}
             title={label}
             data-in-glass={itemRefs.current[index]?.dataset.inGlass ?? (isCurrentActive ? "true" : "false")}
-            className={`wheel-item absolute top-1/2 cursor-pointer whitespace-nowrap leading-none will-change-[transform,opacity,filter] [font-size:var(--ow-font-size)] max-w-[88%] truncate transition-[color,font-weight] duration-150 z-10 ${
+            className={`wheel-item absolute top-1/2 cursor-pointer whitespace-nowrap leading-none [font-size:var(--ow-font-size)] max-w-[88%] truncate z-10 ${
               side === "right" ? "right-[var(--ow-inset)] origin-right" : "left-[var(--ow-inset)] origin-left"
             } font-medium [color:color-mix(in_srgb,var(--ow-active-color)_calc(var(--ow-p,0)*100%),var(--ow-text-color))]`}
+            style={{
+              willChange: "transform, opacity",
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden",
+            }}
             onClick={() => handleItemClick(index)}
           >
             {label}

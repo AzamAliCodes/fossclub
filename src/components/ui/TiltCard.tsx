@@ -32,9 +32,19 @@ export default function TiltCard({
   const glareY = useTransform(mouseYSpring, [0, 1], [0, 100]);
 
   const [isHovered, setIsHovered] = useState(false);
+  const isTouchDevice = useRef(false);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      isTouchDevice.current =
+        window.matchMedia("(pointer: coarse)").matches ||
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0;
+    }
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
+    if (isTouchDevice.current || !ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     const xPct = (e.clientX - rect.left) / rect.width;
     const yPct = (e.clientY - rect.top) / rect.height;
@@ -43,6 +53,7 @@ export default function TiltCard({
   };
 
   const handleMouseLeave = () => {
+    if (isTouchDevice.current) return;
     x.set(0.5);
     y.set(0.5);
     setIsHovered(false);
@@ -52,14 +63,14 @@ export default function TiltCard({
     <motion.div
       ref={ref}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => !isTouchDevice.current && setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
       style={{
         rotateX,
         rotateY,
         transformStyle: "preserve-3d",
       }}
-      whileHover={{ scale }}
+      whileHover={isTouchDevice.current ? undefined : { scale }}
       className={`relative ${className}`}
     >
       {/* Glare effect */}

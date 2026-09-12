@@ -121,10 +121,10 @@ export default function FOSSTechnologyWheel() {
             spacing={isMobile ? 1.35 : 1.45}
             curve={1.15}
             tilt={isMobile ? 2.5 : 5}
-            blur={1.5}
+            blur={isMobile ? 0 : 1.2}
             fade={0.25}
             minOpacity={0.15}
-            smoothing={200}
+            smoothing={160}
             inset={isMobile ? 12 : 20}
             activeGlass={true}
           />

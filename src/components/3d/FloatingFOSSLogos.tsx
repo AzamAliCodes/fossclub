@@ -435,38 +435,28 @@ export default function FloatingFOSSLogos() {
       mouseY.set(y);
     };
 
-    // Scroll parallax reaction on both desktop and phone
-    const handleScroll = () => {
-      const scrollY = window.scrollY || document.documentElement.scrollTop;
-      const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
-      const progress = (scrollY / maxScroll) * 2 - 1;
-      mouseY.set(progress * 0.85);
-    };
+    const isMobileDevice = window.innerWidth < 768;
+    if (!isMobileDevice) {
+      // Scroll parallax reaction on desktop
+      const handleScroll = () => {
+        const scrollY = window.scrollY || document.documentElement.scrollTop;
+        const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+        const progress = (scrollY / maxScroll) * 2 - 1;
+        mouseY.set(progress * 0.85);
+      };
 
-    // Device gyroscope reaction for mobile phones
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      if (e.gamma != null && e.beta != null) {
-        const x = Math.min(Math.max(e.gamma / 25, -1), 1);
-        const y = Math.min(Math.max((e.beta - 45) / 25, -1), 1);
-        mouseX.set(x);
-        mouseY.set(y);
-      }
-    };
+      window.addEventListener("mousemove", handleMouseMove, { passive: true });
+      window.addEventListener("scroll", handleScroll, { passive: true });
 
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    if (typeof window !== "undefined" && "DeviceOrientationEvent" in window) {
-      window.addEventListener("deviceorientation", handleOrientation, { passive: true });
+      return () => {
+        window.removeEventListener("resize", checkMobile);
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("scroll", handleScroll);
+      };
     }
 
     return () => {
       window.removeEventListener("resize", checkMobile);
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("scroll", handleScroll);
-      if (typeof window !== "undefined" && "DeviceOrientationEvent" in window) {
-        window.removeEventListener("deviceorientation", handleOrientation);
-      }
     };
   }, [mouseX, mouseY]);
 
