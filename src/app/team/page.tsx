@@ -177,7 +177,7 @@ function LiquidGlassMemberCard({
 
 /* ─── Global In-Memory Cache for 0ms Instant Navigation ─────────────────── */
 let cachedTeamMembers: TeamMember[] | null = null;
-let cachedLatestYear: string = "2024-25";
+let cachedLatestYear: string = "2025-26";
 
 /* ─── Main Team Page ──────────────────────────────────────────────────────── */
 export default function TeamPage() {
@@ -210,7 +210,7 @@ export default function TeamPage() {
           setMembers(d.data);
 
           // Find the maximum academic year in DB
-          let maxStartYear = 2024;
+          let maxStartYear = 2025;
           d.data.forEach((m: TeamMember) => {
             m.statusHistory?.forEach((h) => {
               if (!h.year) return;
@@ -231,10 +231,10 @@ export default function TeamPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  /* Automatically generate all consecutive years from max year in db down to 2024-25 */
+  /* Automatically generate all consecutive years from max year in db down to 2025-26 */
   const availableYears = useMemo(() => {
-    let maxStartYear = 2024;
-    let minStartYear = 2024;
+    let maxStartYear = 2025;
+    let minStartYear = 2025;
 
     members.forEach((m) => {
       m.statusHistory?.forEach((h) => {
@@ -251,7 +251,7 @@ export default function TeamPage() {
     });
 
     const years: string[] = [];
-    for (let y = maxStartYear; y >= minStartYear; y--) {
+    for (let y = maxStartYear; y >= Math.max(minStartYear, 2025); y--) {
       const next = String((y + 1) % 100).padStart(2, "0");
       years.push(`${y}-${next}`);
     }
