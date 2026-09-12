@@ -23,15 +23,16 @@ interface LogoConfig {
 }
 
 const LOGO_ITEMS: LogoConfig[] = [
-  // 1. Linux Tux (Kernel)
+  // ── TOP FREE SPACE (Phone: top 8% to 18%) ──
+  // 1. Linux Tux (Kernel) — Top Left
   {
     id: "linux",
     name: "Linux",
     category: "Kernel",
     top: "8%",
     left: "6%",
-    mobileTop: "7%",
-    mobileLeft: "7%",
+    mobileTop: "8.5%",
+    mobileLeft: "6%",
     depth: 3,
     floatDelay: 0,
     floatDuration: 8.5,
@@ -39,15 +40,15 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 24,
     mobileVisible: true,
   },
-  // 2. Python (Language)
+  // 2. Python (Language) — Top Right
   {
     id: "python",
     name: "Python",
     category: "Language",
     top: "12%",
     left: "86%",
-    mobileTop: "11%",
-    mobileLeft: "81%",
+    mobileTop: "8.5%",
+    mobileLeft: "82%",
     depth: 3,
     floatDelay: 0.6,
     floatDuration: 9.0,
@@ -55,47 +56,15 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 25,
     mobileVisible: true,
   },
-  // 3. Rust (Systems)
-  {
-    id: "rust",
-    name: "Rust",
-    category: "Systems Lang",
-    top: "22%",
-    left: "12%",
-    mobileTop: "21%",
-    mobileLeft: "14%",
-    depth: 2,
-    floatDelay: 1.8,
-    floatDuration: 10.0,
-    accentColor: "#f97316",
-    size: 23,
-    mobileVisible: true,
-  },
-  // 4. Git (Version Control)
-  {
-    id: "git",
-    name: "Git",
-    category: "Version Control",
-    top: "25%",
-    left: "82%",
-    mobileTop: "26%",
-    mobileLeft: "79%",
-    depth: 2,
-    floatDelay: 1.2,
-    floatDuration: 9.5,
-    accentColor: "#f05032",
-    size: 23,
-    mobileVisible: true,
-  },
-  // 5. Docker (Containers)
+  // 3. Docker (Containers) — Sub-Top Left
   {
     id: "docker",
     name: "Docker",
     category: "Containers",
     top: "37%",
     left: "5%",
-    mobileTop: "38%",
-    mobileLeft: "8%",
+    mobileTop: "13.5%",
+    mobileLeft: "17%",
     depth: 3,
     floatDelay: 2.2,
     floatDuration: 9.8,
@@ -103,95 +72,65 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 25,
     mobileVisible: true,
   },
-  // 6. Ubuntu (Distro)
+  // 4. Git (Version Control) — Sub-Top Right
   {
-    id: "ubuntu",
-    name: "Ubuntu",
-    category: "Distro",
-    top: "40%",
-    left: "88%",
-    mobileTop: "43%",
-    mobileLeft: "83%",
-    depth: 3,
-    floatDelay: 1.0,
-    floatDuration: 8.8,
-    accentColor: "#e95420",
-    size: 24,
+    id: "git",
+    name: "Git",
+    category: "Version Control",
+    top: "25%",
+    left: "82%",
+    mobileTop: "13.5%",
+    mobileLeft: "71%",
+    depth: 2,
+    floatDelay: 1.2,
+    floatDuration: 9.5,
+    accentColor: "#f05032",
+    size: 23,
     mobileVisible: true,
   },
-  // 7. Neovim (Editor)
+  // 5. Rust (Systems) — Upper Flank Left
   {
-    id: "neovim",
-    name: "Neovim",
-    category: "Editor",
-    top: "52%",
-    left: "11%",
-    mobileTop: "54%",
-    mobileLeft: "12%",
+    id: "rust",
+    name: "Rust",
+    category: "Systems Lang",
+    top: "22%",
+    left: "12%",
+    mobileTop: "18%",
+    mobileLeft: "6%",
     depth: 2,
-    floatDelay: 2.5,
-    floatDuration: 10.5,
-    accentColor: "#4ade80",
+    floatDelay: 1.8,
+    floatDuration: 10.0,
+    accentColor: "#f97316",
+    size: 23,
+    mobileVisible: true,
+  },
+  // 6. Kubernetes (Cloud Native) — Upper Flank Right
+  {
+    id: "kubernetes",
+    name: "Kubernetes",
+    category: "Cloud Native",
+    top: "16%",
+    left: "19%",
+    mobileTop: "18%",
+    mobileLeft: "82%",
+    depth: 1,
+    floatDelay: 1.6,
+    floatDuration: 11.0,
+    accentColor: "#326ce5",
     size: 22,
     mobileVisible: true,
   },
-  // 8. Arch Linux (Distro)
-  {
-    id: "archlinux",
-    name: "Arch Linux",
-    category: "Rolling Distro",
-    top: "56%",
-    left: "85%",
-    mobileTop: "58%",
-    mobileLeft: "81%",
-    depth: 2,
-    floatDelay: 1.5,
-    floatDuration: 10.2,
-    accentColor: "#1793d1",
-    size: 24,
-    mobileVisible: true,
-  },
-  // 9. Go (Cloud Systems)
-  {
-    id: "go",
-    name: "Go",
-    category: "Cloud Systems",
-    top: "68%",
-    left: "6%",
-    mobileTop: "70%",
-    mobileLeft: "9%",
-    depth: 3,
-    floatDelay: 2.8,
-    floatDuration: 9.4,
-    accentColor: "#00add8",
-    size: 23,
-    mobileVisible: true,
-  },
-  // 10. Node.js (Runtime)
-  {
-    id: "nodedotjs",
-    name: "Node.js",
-    category: "Runtime",
-    top: "72%",
-    left: "86%",
-    mobileTop: "73%",
-    mobileLeft: "80%",
-    depth: 2,
-    floatDelay: 0.8,
-    floatDuration: 9.6,
-    accentColor: "#5fa04e",
-    size: 23,
-    mobileVisible: true,
-  },
-  // 11. PostgreSQL (Database)
+
+  // ── BOTTOM FREE SPACE (Phone: bottom 75% to 91%, below buttons) ──
+  // 7. PostgreSQL (Database) — Bottom Upper-Left
   {
     id: "postgresql",
     name: "PostgreSQL",
     category: "Database",
     top: "84%",
     left: "9%",
-    mobileTop: "85%",
-    mobileLeft: "11%",
+    mobileTop: "75%",
+    mobileLeft: "7%",
     depth: 3,
     floatDelay: 1.4,
     floatDuration: 9.0,
@@ -199,15 +138,79 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 24,
     mobileVisible: true,
   },
-  // 12. GNU Bash (Shell)
+  // 8. Node.js (Runtime) — Bottom Upper-Right
+  {
+    id: "nodedotjs",
+    name: "Node.js",
+    category: "Runtime",
+    top: "72%",
+    left: "86%",
+    mobileTop: "75%",
+    mobileLeft: "81%",
+    depth: 2,
+    floatDelay: 0.8,
+    floatDuration: 9.6,
+    accentColor: "#5fa04e",
+    size: 23,
+    mobileVisible: true,
+  },
+  // 9. Ubuntu (Distro) — Bottom Mid-Left
+  {
+    id: "ubuntu",
+    name: "Ubuntu",
+    category: "Distro",
+    top: "40%",
+    left: "88%",
+    mobileTop: "81%",
+    mobileLeft: "19%",
+    depth: 3,
+    floatDelay: 1.0,
+    floatDuration: 8.8,
+    accentColor: "#e95420",
+    size: 24,
+    mobileVisible: true,
+  },
+  // 10. Arch Linux (Rolling Distro) — Bottom Mid-Right
+  {
+    id: "archlinux",
+    name: "Arch Linux",
+    category: "Rolling Distro",
+    top: "56%",
+    left: "85%",
+    mobileTop: "81%",
+    mobileLeft: "69%",
+    depth: 2,
+    floatDelay: 1.5,
+    floatDuration: 10.2,
+    accentColor: "#1793d1",
+    size: 24,
+    mobileVisible: true,
+  },
+  // 11. Neovim (Editor) — Bottom Lower-Left
+  {
+    id: "neovim",
+    name: "Neovim",
+    category: "Editor",
+    top: "52%",
+    left: "11%",
+    mobileTop: "87%",
+    mobileLeft: "7%",
+    depth: 2,
+    floatDelay: 2.5,
+    floatDuration: 10.5,
+    accentColor: "#4ade80",
+    size: 22,
+    mobileVisible: true,
+  },
+  // 12. GNU Bash (Shell) — Bottom Lower-Right
   {
     id: "gnubash",
     name: "Bash",
     category: "Shell",
     top: "88%",
     left: "83%",
-    mobileTop: "89%",
-    mobileLeft: "82%",
+    mobileTop: "87%",
+    mobileLeft: "81%",
     depth: 3,
     floatDelay: 3.0,
     floatDuration: 10.8,
@@ -215,35 +218,41 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 23,
     mobileVisible: true,
   },
-  // 13. Kubernetes (Cloud Orchestration) - Desktop mid-depth
+  // 13. Go (Cloud Systems) — Bottom Center-Left
   {
-    id: "kubernetes",
-    name: "Kubernetes",
-    category: "Cloud Native",
-    top: "16%",
-    left: "19%",
-    depth: 1,
-    floatDelay: 1.6,
-    floatDuration: 11.0,
-    accentColor: "#326ce5",
-    size: 22,
-    mobileVisible: false,
+    id: "go",
+    name: "Go",
+    category: "Cloud Systems",
+    top: "68%",
+    left: "6%",
+    mobileTop: "89%",
+    mobileLeft: "32%",
+    depth: 3,
+    floatDelay: 2.8,
+    floatDuration: 9.4,
+    accentColor: "#00add8",
+    size: 23,
+    mobileVisible: true,
   },
-  // 14. Redis (In-Memory Cache) - Desktop mid-depth
+  // 14. Redis (Cache Store) — Bottom Center-Right
   {
     id: "redis",
     name: "Redis",
     category: "Cache Store",
     top: "19%",
     left: "76%",
+    mobileTop: "89%",
+    mobileLeft: "56%",
     depth: 1,
     floatDelay: 2.7,
     floatDuration: 10.2,
     accentColor: "#ef4444",
     size: 22,
-    mobileVisible: false,
+    mobileVisible: true,
   },
-  // 15. MySQL - Desktop mid-depth
+
+  // ── DESKTOP-ONLY MID-DEPTH LOGOS (Hidden on mobile to preserve central text clarity) ──
+  // 15. MySQL
   {
     id: "mysql",
     name: "MySQL",
@@ -257,7 +266,7 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 24,
     mobileVisible: false,
   },
-  // 16. Open Source Initiative (OSI) - Desktop mid-depth
+  // 16. Open Source Initiative (OSI)
   {
     id: "opensourceinitiative",
     name: "OSI",
@@ -271,7 +280,7 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 24,
     mobileVisible: false,
   },
-  // 17. NGINX (Web Server) - Desktop mid-depth
+  // 17. NGINX
   {
     id: "nginx",
     name: "NGINX",
@@ -285,7 +294,7 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 21,
     mobileVisible: false,
   },
-  // 18. GraphQL - Desktop mid-depth
+  // 18. GraphQL
   {
     id: "graphql",
     name: "GraphQL",
@@ -299,7 +308,7 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 21,
     mobileVisible: false,
   },
-  // 19. Debian - Desktop mid-depth
+  // 19. Debian
   {
     id: "debian",
     name: "Debian",
@@ -313,7 +322,7 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 23,
     mobileVisible: false,
   },
-  // 20. Firefox - Desktop mid-depth
+  // 20. Firefox
   {
     id: "firefox",
     name: "Firefox",
@@ -327,7 +336,7 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 23,
     mobileVisible: false,
   },
-  // 21. Blender - Desktop deep background
+  // 21. Blender
   {
     id: "blender",
     name: "Blender",
@@ -341,7 +350,7 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 21,
     mobileVisible: false,
   },
-  // 22. VLC Media Player - Desktop deep background
+  // 22. VLC Media Player
   {
     id: "vlcmediaplayer",
     name: "VLC",
@@ -482,7 +491,7 @@ export default function FloatingFOSSLogos() {
 
   return (
     <div
-      className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden select-none z-[1]"
+      className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden select-none z-[12]"
       style={{ perspective: "1000px" }}
       aria-hidden="true"
     >
@@ -494,10 +503,10 @@ export default function FloatingFOSSLogos() {
         const pY = item.depth === 3 ? plane3Y : item.depth === 2 ? plane2Y : plane1Y;
 
         const baseOpacity = isMobile
-          ? (item.depth === 3 ? 0.96 : 0.88)
+          ? (item.depth === 3 ? 0.98 : 0.90)
           : (item.depth === 3 ? 0.96 : item.depth === 2 ? 0.88 : 0.78);
         const baseScale = isMobile
-          ? (item.depth === 3 ? 1.02 : 0.95)
+          ? (item.depth === 3 ? 1.0 : 0.92)
           : (item.depth === 3 ? 1.08 : item.depth === 2 ? 0.98 : 0.90);
 
         const isHovered = activeHoverId === item.id;
@@ -505,6 +514,7 @@ export default function FloatingFOSSLogos() {
 
         const top = isMobile && item.mobileTop ? item.mobileTop : item.top;
         const left = isMobile && item.mobileLeft ? item.mobileLeft : item.left;
+        const isBottomLogo = isMobile && item.mobileTop && parseFloat(item.mobileTop) > 50;
 
         return (
           <motion.div
@@ -519,16 +529,16 @@ export default function FloatingFOSSLogos() {
               item.mobileVisible ? "flex" : "hidden md:flex"
             } items-center justify-center`}
           >
-            {/* Dynamic, wide organic zero-g floating motion across free space */}
+            {/* Dynamic, gentle organic zero-g floating motion tuned for free spaces */}
             <motion.div
               animate={{
-                x: isMobile ? drift.x.map((v) => Math.round(v * 0.85)) : drift.x,
-                y: isMobile ? drift.y.map((v) => Math.round(v * 0.85)) : drift.y,
-                rotateZ: drift.rot,
+                x: isMobile ? drift.x.map((v) => Math.round(v * 0.4)) : drift.x,
+                y: isMobile ? drift.y.map((v) => Math.round(v * 0.32)) : drift.y,
+                rotateZ: isMobile ? drift.rot.map((v) => Math.round(v * 0.6)) : drift.rot,
                 scale: drift.scale,
               }}
               transition={{
-                duration: item.floatDuration * (isMobile ? 1.0 : 1.25),
+                duration: item.floatDuration * (isMobile ? 1.05 : 1.25),
                 repeat: Infinity,
                 ease: "easeInOut",
                 delay: item.floatDelay,
@@ -539,7 +549,7 @@ export default function FloatingFOSSLogos() {
                 transition: { duration: 0.18 },
               }}
               whileTap={{
-                scale: 1.22,
+                scale: 1.2,
                 rotateZ: 0,
                 transition: { duration: 0.15 },
               }}
@@ -602,9 +612,11 @@ export default function FloatingFOSSLogos() {
                   <path d={pathData} />
                 </svg>
 
-                {/* Subtle micro tooltip on hover / mobile tap */}
+                {/* Subtle micro tooltip on hover / mobile tap (adaptive placement above or below) */}
                 <div
-                  className={`absolute -bottom-8 px-2.5 py-0.5 rounded-md bg-zinc-950/95 border text-[11px] font-mono tracking-wide whitespace-nowrap pointer-events-none shadow-2xl z-50 transition-all duration-200 ${
+                  className={`absolute ${
+                    isBottomLogo ? "-top-8" : "-bottom-8"
+                  } px-2.5 py-0.5 rounded-md bg-zinc-950/95 border text-[11px] font-mono tracking-wide whitespace-nowrap pointer-events-none shadow-2xl z-50 transition-all duration-200 ${
                     isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"
                   }`}
                   style={{
