@@ -491,7 +491,7 @@ export default function FloatingFOSSLogos() {
 
   return (
     <div
-      className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden select-none z-[12]"
+      className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden select-none z-[1]"
       style={{ perspective: "1000px" }}
       aria-hidden="true"
     >
@@ -503,11 +503,11 @@ export default function FloatingFOSSLogos() {
         const pY = item.depth === 3 ? plane3Y : item.depth === 2 ? plane2Y : plane1Y;
 
         const baseOpacity = isMobile
-          ? (item.depth === 3 ? 0.98 : 0.90)
-          : (item.depth === 3 ? 0.96 : item.depth === 2 ? 0.88 : 0.78);
+          ? (item.depth === 3 ? 0.85 : 0.75)
+          : (item.depth === 3 ? 0.88 : item.depth === 2 ? 0.76 : 0.65);
         const baseScale = isMobile
-          ? (item.depth === 3 ? 1.0 : 0.92)
-          : (item.depth === 3 ? 1.08 : item.depth === 2 ? 0.98 : 0.90);
+          ? (item.depth === 3 ? 0.95 : 0.88)
+          : (item.depth === 3 ? 1.05 : item.depth === 2 ? 0.95 : 0.85);
 
         const isHovered = activeHoverId === item.id;
         const drift = DRIFT_PATTERNS[idx % DRIFT_PATTERNS.length];
