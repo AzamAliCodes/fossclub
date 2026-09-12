@@ -23,16 +23,16 @@ interface LogoConfig {
 }
 
 const LOGO_ITEMS: LogoConfig[] = [
-  // ── TOP FREE SPACE (Phone: top 8% to 18%) ──
-  // 1. Linux Tux (Kernel) — Top Left
+  // ── TOP SECTION (Phone: 7% to 18%) ──
+  // 1. Linux Tux (Kernel) — Inward Top-Left
   {
     id: "linux",
     name: "Linux",
     category: "Kernel",
     top: "8%",
     left: "6%",
-    mobileTop: "8.5%",
-    mobileLeft: "6%",
+    mobileTop: "8%",
+    mobileLeft: "16%",
     depth: 3,
     floatDelay: 0,
     floatDuration: 8.5,
@@ -40,14 +40,14 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 24,
     mobileVisible: true,
   },
-  // 2. Python (Language) — Top Right
+  // 2. Python (Language) — Inward Top-Right
   {
     id: "python",
     name: "Python",
     category: "Language",
     top: "12%",
     left: "86%",
-    mobileTop: "8.5%",
+    mobileTop: "8%",
     mobileLeft: "82%",
     depth: 3,
     floatDelay: 0.6,
@@ -56,15 +56,15 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 25,
     mobileVisible: true,
   },
-  // 3. Docker (Containers) — Sub-Top Left
+  // 3. Docker (Containers) — DEAD CENTER TOP
   {
     id: "docker",
     name: "Docker",
     category: "Containers",
     top: "37%",
     left: "5%",
-    mobileTop: "13.5%",
-    mobileLeft: "17%",
+    mobileTop: "9%",
+    mobileLeft: "49%",
     depth: 3,
     floatDelay: 2.2,
     floatDuration: 9.8,
@@ -72,15 +72,15 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 25,
     mobileVisible: true,
   },
-  // 4. Git (Version Control) — Sub-Top Right
+  // 4. Git (Version Control) — Upper Mid-Left
   {
     id: "git",
     name: "Git",
     category: "Version Control",
     top: "25%",
     left: "82%",
-    mobileTop: "13.5%",
-    mobileLeft: "71%",
+    mobileTop: "16%",
+    mobileLeft: "28%",
     depth: 2,
     floatDelay: 1.2,
     floatDuration: 9.5,
@@ -88,15 +88,15 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 23,
     mobileVisible: true,
   },
-  // 5. Rust (Systems) — Upper Flank Left
+  // 5. Rust (Systems) — Upper Mid-Right
   {
     id: "rust",
     name: "Rust",
     category: "Systems Lang",
     top: "22%",
     left: "12%",
-    mobileTop: "18%",
-    mobileLeft: "6%",
+    mobileTop: "16%",
+    mobileLeft: "70%",
     depth: 2,
     floatDelay: 1.8,
     floatDuration: 10.0,
@@ -104,15 +104,17 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 23,
     mobileVisible: true,
   },
-  // 6. Kubernetes (Cloud Native) — Upper Flank Right
+
+  // ── MID-UPPER SECTION (Phone: 25% to 42%, behind title & subtitle) ──
+  // 6. Kubernetes (Cloud Native) — Mid-Upper Left
   {
     id: "kubernetes",
     name: "Kubernetes",
     category: "Cloud Native",
     top: "16%",
     left: "19%",
-    mobileTop: "18%",
-    mobileLeft: "82%",
+    mobileTop: "25%",
+    mobileLeft: "16%",
     depth: 1,
     floatDelay: 1.6,
     floatDuration: 11.0,
@@ -120,49 +122,15 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 22,
     mobileVisible: true,
   },
-
-  // ── BOTTOM FREE SPACE (Phone: bottom 75% to 91%, below buttons) ──
-  // 7. PostgreSQL (Database) — Bottom Upper-Left
-  {
-    id: "postgresql",
-    name: "PostgreSQL",
-    category: "Database",
-    top: "84%",
-    left: "9%",
-    mobileTop: "75%",
-    mobileLeft: "7%",
-    depth: 3,
-    floatDelay: 1.4,
-    floatDuration: 9.0,
-    accentColor: "#4169e1",
-    size: 24,
-    mobileVisible: true,
-  },
-  // 8. Node.js (Runtime) — Bottom Upper-Right
-  {
-    id: "nodedotjs",
-    name: "Node.js",
-    category: "Runtime",
-    top: "72%",
-    left: "86%",
-    mobileTop: "75%",
-    mobileLeft: "81%",
-    depth: 2,
-    floatDelay: 0.8,
-    floatDuration: 9.6,
-    accentColor: "#5fa04e",
-    size: 23,
-    mobileVisible: true,
-  },
-  // 9. Ubuntu (Distro) — Bottom Mid-Left
+  // 7. Ubuntu (Distro) — DEAD CENTER MID-UPPER
   {
     id: "ubuntu",
     name: "Ubuntu",
     category: "Distro",
     top: "40%",
     left: "88%",
-    mobileTop: "81%",
-    mobileLeft: "19%",
+    mobileTop: "33%",
+    mobileLeft: "50%",
     depth: 3,
     floatDelay: 1.0,
     floatDuration: 8.8,
@@ -170,15 +138,31 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 24,
     mobileVisible: true,
   },
-  // 10. Arch Linux (Rolling Distro) — Bottom Mid-Right
+  // 8. Open Source Initiative (OSI) — Mid-Upper Right
+  {
+    id: "opensourceinitiative",
+    name: "OSI",
+    category: "FOSS Standard",
+    top: "34%",
+    left: "90%",
+    mobileTop: "27%",
+    mobileLeft: "82%",
+    depth: 2,
+    floatDelay: 2.1,
+    floatDuration: 8.8,
+    accentColor: "#22c55e",
+    size: 24,
+    mobileVisible: true,
+  },
+  // 9. Arch Linux (Rolling Distro) — Sub-Header Mid-Left
   {
     id: "archlinux",
     name: "Arch Linux",
     category: "Rolling Distro",
     top: "56%",
     left: "85%",
-    mobileTop: "81%",
-    mobileLeft: "69%",
+    mobileTop: "39%",
+    mobileLeft: "20%",
     depth: 2,
     floatDelay: 1.5,
     floatDuration: 10.2,
@@ -186,15 +170,15 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 24,
     mobileVisible: true,
   },
-  // 11. Neovim (Editor) — Bottom Lower-Left
+  // 10. Neovim (Editor) — Sub-Header Mid-Right
   {
     id: "neovim",
     name: "Neovim",
     category: "Editor",
     top: "52%",
     left: "11%",
-    mobileTop: "87%",
-    mobileLeft: "7%",
+    mobileTop: "41%",
+    mobileLeft: "78%",
     depth: 2,
     floatDelay: 2.5,
     floatDuration: 10.5,
@@ -202,31 +186,17 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 22,
     mobileVisible: true,
   },
-  // 12. GNU Bash (Shell) — Bottom Lower-Right
-  {
-    id: "gnubash",
-    name: "Bash",
-    category: "Shell",
-    top: "88%",
-    left: "83%",
-    mobileTop: "87%",
-    mobileLeft: "81%",
-    depth: 3,
-    floatDelay: 3.0,
-    floatDuration: 10.8,
-    accentColor: "#4eaa25",
-    size: 23,
-    mobileVisible: true,
-  },
-  // 13. Go (Cloud Systems) — Bottom Center-Left
+
+  // ── MID-LOWER SECTION (Phone: 52% to 68%, behind description & buttons) ──
+  // 11. Go (Cloud Systems) — DEAD CENTER MID-LOWER
   {
     id: "go",
     name: "Go",
     category: "Cloud Systems",
     top: "68%",
     left: "6%",
-    mobileTop: "89%",
-    mobileLeft: "32%",
+    mobileTop: "52%",
+    mobileLeft: "50%",
     depth: 3,
     floatDelay: 2.8,
     floatDuration: 9.4,
@@ -234,15 +204,31 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 23,
     mobileVisible: true,
   },
-  // 14. Redis (Cache Store) — Bottom Center-Right
+  // 12. Node.js (Runtime) — Mid-Lower Left
+  {
+    id: "nodedotjs",
+    name: "Node.js",
+    category: "Runtime",
+    top: "72%",
+    left: "86%",
+    mobileTop: "58%",
+    mobileLeft: "18%",
+    depth: 2,
+    floatDelay: 0.8,
+    floatDuration: 9.6,
+    accentColor: "#5fa04e",
+    size: 23,
+    mobileVisible: true,
+  },
+  // 13. Redis (Cache Store) — Mid-Lower Right
   {
     id: "redis",
     name: "Redis",
     category: "Cache Store",
     top: "19%",
     left: "76%",
-    mobileTop: "89%",
-    mobileLeft: "56%",
+    mobileTop: "60%",
+    mobileLeft: "82%",
     depth: 1,
     floatDelay: 2.7,
     floatDuration: 10.2,
@@ -250,119 +236,151 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 22,
     mobileVisible: true,
   },
-
-  // ── DESKTOP-ONLY MID-DEPTH LOGOS (Hidden on mobile to preserve central text clarity) ──
-  // 15. MySQL
-  {
-    id: "mysql",
-    name: "MySQL",
-    category: "Database",
-    top: "32%",
-    left: "4%",
-    depth: 2,
-    floatDelay: 0.8,
-    floatDuration: 10.5,
-    accentColor: "#00a3c4",
-    size: 24,
-    mobileVisible: false,
-  },
-  // 16. Open Source Initiative (OSI)
-  {
-    id: "opensourceinitiative",
-    name: "OSI",
-    category: "FOSS Standard",
-    top: "34%",
-    left: "90%",
-    depth: 2,
-    floatDelay: 2.1,
-    floatDuration: 8.8,
-    accentColor: "#22c55e",
-    size: 24,
-    mobileVisible: false,
-  },
-  // 17. NGINX
-  {
-    id: "nginx",
-    name: "NGINX",
-    category: "Reverse Proxy",
-    top: "60%",
-    left: "17%",
-    depth: 1,
-    floatDelay: 2.2,
-    floatDuration: 11.8,
-    accentColor: "#00b846",
-    size: 21,
-    mobileVisible: false,
-  },
-  // 18. GraphQL
+  // 14. GraphQL — Mid-Lower Center-Left
   {
     id: "graphql",
     name: "GraphQL",
     category: "Query Lang",
     top: "63%",
     left: "74%",
+    mobileTop: "68%",
+    mobileLeft: "32%",
     depth: 1,
     floatDelay: 0.9,
     floatDuration: 10.6,
     accentColor: "#e10098",
     size: 21,
-    mobileVisible: false,
+    mobileVisible: true,
   },
-  // 19. Debian
+  // 15. NGINX — Mid-Lower Center-Right
+  {
+    id: "nginx",
+    name: "NGINX",
+    category: "Reverse Proxy",
+    top: "60%",
+    left: "17%",
+    mobileTop: "68%",
+    mobileLeft: "68%",
+    depth: 1,
+    floatDelay: 2.2,
+    floatDuration: 11.8,
+    accentColor: "#00b846",
+    size: 21,
+    mobileVisible: true,
+  },
+
+  // ── BOTTOM SECTION (Phone: 76% to 94%, below buttons & footer transition) ──
+  // 16. PostgreSQL (Database) — Bottom Upper-Left
+  {
+    id: "postgresql",
+    name: "PostgreSQL",
+    category: "Database",
+    top: "84%",
+    left: "9%",
+    mobileTop: "76%",
+    mobileLeft: "18%",
+    depth: 3,
+    floatDelay: 1.4,
+    floatDuration: 9.0,
+    accentColor: "#4169e1",
+    size: 24,
+    mobileVisible: true,
+  },
+  // 17. MySQL — Bottom Upper-Right
+  {
+    id: "mysql",
+    name: "MySQL",
+    category: "Database",
+    top: "32%",
+    left: "4%",
+    mobileTop: "77%",
+    mobileLeft: "80%",
+    depth: 2,
+    floatDelay: 0.8,
+    floatDuration: 10.5,
+    accentColor: "#00a3c4",
+    size: 24,
+    mobileVisible: true,
+  },
+  // 18. GNU Bash (Shell) — DEAD CENTER BOTTOM
+  {
+    id: "gnubash",
+    name: "Bash",
+    category: "Shell",
+    top: "88%",
+    left: "83%",
+    mobileTop: "84%",
+    mobileLeft: "50%",
+    depth: 3,
+    floatDelay: 3.0,
+    floatDuration: 10.8,
+    accentColor: "#4eaa25",
+    size: 23,
+    mobileVisible: true,
+  },
+  // 19. Debian — Bottom Lower-Left
   {
     id: "debian",
     name: "Debian",
     category: "Universal OS",
     top: "47%",
     left: "16%",
+    mobileTop: "89%",
+    mobileLeft: "22%",
     depth: 2,
     floatDelay: 1.5,
     floatDuration: 8.2,
     accentColor: "#d70a53",
     size: 23,
-    mobileVisible: false,
+    mobileVisible: true,
   },
-  // 20. Firefox
+  // 20. Firefox — Bottom Lower-Right
   {
     id: "firefox",
     name: "Firefox",
     category: "Open Web",
     top: "79%",
     left: "79%",
+    mobileTop: "89%",
+    mobileLeft: "76%",
     depth: 2,
     floatDelay: 1.4,
     floatDuration: 10.4,
     accentColor: "#ff7139",
     size: 23,
-    mobileVisible: false,
+    mobileVisible: true,
   },
-  // 21. Blender
+  // 21. Blender — Deep Bottom Center-Left
   {
     id: "blender",
     name: "Blender",
     category: "3D Pipeline",
     top: "85%",
     left: "22%",
+    mobileTop: "94%",
+    mobileLeft: "36%",
     depth: 1,
     floatDelay: 2.6,
     floatDuration: 12.2,
     accentColor: "#ea7600",
     size: 21,
-    mobileVisible: false,
+    mobileVisible: true,
   },
-  // 22. VLC Media Player
+  // 22. VLC Media Player — Deep Bottom Center-Right
   {
     id: "vlcmediaplayer",
     name: "VLC",
     category: "Open Media",
     top: "87%",
     left: "69%",
+    mobileTop: "94%",
+    mobileLeft: "64%",
     depth: 1,
     floatDelay: 0.7,
     floatDuration: 10.9,
     accentColor: "#ff8800",
     size: 21,
-    mobileVisible: false,
+    mobileVisible: true,
   },
 ];
 
@@ -526,6 +544,8 @@ export default function FloatingFOSSLogos() {
               y: pY,
             }}
             className={`absolute ${
+              isMobile ? "-translate-x-1/2 -translate-y-1/2" : ""
+            } ${
               item.mobileVisible ? "flex" : "hidden md:flex"
             } items-center justify-center`}
           >

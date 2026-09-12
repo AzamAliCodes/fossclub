@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { resetDatabaseToInitial } from "@/lib/db";
 import { getSessionFromRequest } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const session = getSessionFromRequest(req);
   if (!session) {
