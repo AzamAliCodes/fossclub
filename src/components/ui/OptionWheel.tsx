@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useCallback, useEffect, type CSSProperties } from "react";
+import { playClickSound } from "@/lib/sound";
 
 type Side = "left" | "right";
 
@@ -87,6 +88,10 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
   const lastTickRef = useRef(0);
   const [selectedIndex, setSelectedIndex] = useState(defaultSelected);
   const isDraggingRef = useRef(false);
+  const wheelActiveRef = useRef(false);
+  const tickItemRef = useRef(Math.round(defaultSelected));
+  const tickNowRef = useRef(0);
+  const styleCacheRef = useRef<({ t: string; o: string; f: string; g: string } | undefined)[]>([]);
 
   const remPx =
     typeof window !== "undefined"
@@ -140,10 +145,11 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
     const dt = Math.min((now - lastRef.current) / 1000, 0.05);
     lastRef.current = now;
     const cfg = cfgRef.current;
-    
-    // Fast 35ms tau while actively dragging for zero-latency 1:1 tracking,
-    // smooth easing on release
-    const effectiveSmoothing = isDraggingRef.current ? 35 : cfg.smoothing;
+
+    // Instant 35ms tau while dragging/wheeling for zero-latency 1:1 tracking,
+    // smooth easing back to rest
+    const motionActive = isDraggingRef.current || wheelActiveRef.current;
+    const effectiveSmoothing = motionActive ? 35 : cfg.smoothing;
     const tau = Math.max(effectiveSmoothing, 1) / 1000;
     const k = 1 - Math.exp(-dt / tau);
 
@@ -153,7 +159,7 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
     const settled = Math.abs(target - next) < 0.001;
     if (settled) {
       next = target;
-      if (!isDraggingRef.current) {
+      if (!motionActive) {
         const idx = ((Math.round(target) % cfg.count) + cfg.count) % cfg.count;
         if (idx !== selectedRef.current) {
           selectedRef.current = idx;
@@ -165,11 +171,26 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
     }
     posRef.current = next;
 
+    // Tick each time the wheel crosses onto a new item while scrolling
+    const rounded = Math.round(next);
+    const wrappedIdx = ((rounded % cfg.count) + cfg.count) % cfg.count;
+    if (wrappedIdx !== tickItemRef.current) {
+      tickItemRef.current = wrappedIdx;
+      const nowTick = performance.now();
+      if (nowTick - tickNowRef.current > 70) {
+        tickNowRef.current = nowTick;
+        playClickSound();
+      }
+    }
+
     const els = itemRefs.current;
     const n = cfg.count;
     const mirror = cfg.side === "right" ? -1 : 1;
     const tiltRad = (cfg.tilt * Math.PI) / 180;
     const R = tiltRad > 0.0005 ? cfg.rowH / tiltRad : 0;
+    const applyBlur = cfg.blur > 0;
+    const cache = styleCacheRef.current;
+
     for (let i = 0; i < n; i++) {
       const el = els[i];
       if (!el) continue;
@@ -188,14 +209,45 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
         x = -mirror * R * (1 - Math.cos(ang)) * cfg.curve;
         rot = (mirror * ang * 180) / Math.PI;
       }
-      el.style.transform = `translate3d(${x.toFixed(2)}px, calc(${y.toFixed(2)}px - 50%), 0) rotate(${rot.toFixed(3)}deg)`;
-      el.style.opacity = String(Math.max(cfg.minOpacity, 1 - dist * cfg.fade));
-      if (cfg.blur > 0) {
-        el.style.filter = `blur(${(dist * cfg.blur).toFixed(2)}px)`;
-      } else if (el.style.filter && el.style.filter !== "none") {
+
+      // Write styles only when the value actually changes (cached per item).
+      // Avoids pointless string allocs, layout churn and per-frame filter resets.
+      let entry = cache[i];
+      if (!entry) {
+        entry = { t: "", o: "", f: "", g: "" };
+        cache[i] = entry;
+      }
+
+      const t = `translate3d(${x.toFixed(2)}px, calc(${y.toFixed(2)}px - 50%), 0) rotate(${rot.toFixed(3)}deg)`;
+      if (entry.t !== t) {
+        entry.t = t;
+        el.style.transform = t;
+      }
+
+      const o = String(Math.max(cfg.minOpacity, 1 - dist * cfg.fade));
+      if (entry.o !== o) {
+        entry.o = o;
+        el.style.opacity = o;
+      }
+
+      if (applyBlur) {
+        const f = `blur(${(dist * cfg.blur).toFixed(2)}px)`;
+        if (entry.f !== f) {
+          entry.f = f;
+          el.style.filter = f;
+        }
+      } else if (entry.f !== "") {
+        entry.f = "";
         el.style.filter = "none";
       }
-      el.style.setProperty("--ow-p", Math.max(0, 1 - Math.min(dist, 1)).toFixed(4));
+
+      // Promote only near-active items to their own GPU layer; keep far items
+      // cheap so a long list doesn't spawn dozens of compositing layers.
+      const wantLayer = dist < 2 ? "transform" : "";
+      if (entry.g !== wantLayer) {
+        entry.g = wantLayer;
+        el.style.willChange = wantLayer || "auto";
+      }
 
       // Highlight bold white ONLY when strictly inside the fixed glass capsule
       const inGlass = dist < 0.28;
@@ -205,7 +257,9 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
       }
     }
 
-    rafRef.current = (settled && !isDraggingRef.current) ? null : requestAnimationFrame(runFrame);
+    if (cache.length > n) cache.length = n;
+
+    rafRef.current = (settled && !motionActive) ? null : requestAnimationFrame(runFrame);
   }, [playTick]);
 
   const startLoop = useCallback(() => {
@@ -448,7 +502,8 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
       {activeGlass && (
         <div
           aria-hidden="true"
-          className="absolute top-1/2 -translate-y-1/2 left-2 sm:left-3 right-2 sm:right-3 h-[44px] sm:h-[52px] rounded-xl sm:rounded-2xl liquid-glass-card !border-white/25 !bg-white/[0.08] backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1.5px_rgba(255,255,255,0.35)] pointer-events-none z-0"
+          className="absolute top-1/2 left-2 sm:left-3 right-2 sm:right-3 h-[44px] sm:h-[52px] rounded-xl sm:rounded-2xl liquid-glass-card !border-white/25 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1.5px_rgba(255,255,255,0.35)] pointer-events-none z-0"
+          style={{ transform: "translateY(-50%)" }}
         >
           {/* Subtle top specular accent highlight */}
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
@@ -469,9 +524,8 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({
             data-in-glass={itemRefs.current[index]?.dataset.inGlass ?? (isCurrentActive ? "true" : "false")}
             className={`wheel-item absolute top-1/2 cursor-pointer whitespace-nowrap leading-none [font-size:var(--ow-font-size)] max-w-[88%] truncate z-10 ${
               side === "right" ? "right-[var(--ow-inset)] origin-right" : "left-[var(--ow-inset)] origin-left"
-            } font-medium [color:color-mix(in_srgb,var(--ow-active-color)_calc(var(--ow-p,0)*100%),var(--ow-text-color))]`}
+            } font-medium [color:var(--ow-text-color)]`}
             style={{
-              willChange: "transform, opacity",
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
             }}

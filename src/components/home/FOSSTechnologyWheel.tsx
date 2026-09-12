@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { OptionWheel } from "@/components/ui/OptionWheel";
 import TiltCard from "@/components/ui/TiltCard";
 import {
@@ -18,6 +18,29 @@ import { formatDate } from "@/lib/utils";
 import { playClickSound } from "@/lib/sound";
 
 let cachedWheelEvents: ClubEvent[] | null = null;
+
+const POSTER_FALLBACK = "https://ik.imagekit.io/SRMFOSSKTR/Logo/fossclub-horizontal-logo.png";
+
+function WheelPoster({ src, alt }: { src: string; alt: string }) {
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [src]);
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      onLoad={() => setLoaded(true)}
+      className={`relative z-10 w-full h-full object-cover object-center transition-[opacity,transform,filter] duration-250 ease-out ${
+        loaded ? "opacity-100 blur-0 scale-100" : "opacity-0 blur-[6px] scale-[1.03]"
+      } group-hover/poster:scale-105`}
+    />
+  );
+}
 
 export default function FOSSTechnologyWheel() {
   const [eventsList, setEventsList] = useState<ClubEvent[]>(() => cachedWheelEvents || initialEvents);
@@ -51,6 +74,20 @@ export default function FOSSTechnologyWheel() {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return filtered.length > 0 ? filtered : eventsList;
   }, [eventsList]);
+
+  // Preload the current + neighboring posters so scrolling the 3D wheel
+  // reveals them instantly instead of waiting for a lazy fetch.
+  useEffect(() => {
+    pastEvents.forEach((e, i) => {
+      if (Math.abs(i - selectedIndex) <= 1) {
+        const url = e?.posterUrl || POSTER_FALLBACK;
+        try {
+          const img = new Image();
+          img.src = url;
+        } catch {}
+      }
+    });
+  }, [pastEvents, selectedIndex]);
 
   // Strictly real event names — no random hardcoded titles or template text
   const wheelItems = useMemo(
@@ -133,15 +170,13 @@ export default function FOSSTechnologyWheel() {
         {/* Right Column: Dynamic Event Card & Square Poster Preview (Liquid Glass Transparent Card) */}
         <div className="lg:col-span-7 xl:col-span-7 flex flex-col">
           <TiltCard maxTilt={4} scale={1.012} className="h-full w-full flex flex-col">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeEvent?._id || activeEvent?.title}
-                initial={{ opacity: 0, y: 12, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -12, scale: 0.98 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="liquid-glass-card p-3.5 sm:p-4 md:p-5 rounded-2xl border border-white/20 relative overflow-hidden shadow-2xl flex flex-col justify-center flex-1 h-full group"
-              >
+            <motion.div
+              key={activeEvent?._id || activeEvent?.title}
+              initial={{ opacity: 0, y: 6, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="liquid-glass-card p-3.5 sm:p-4 md:p-5 rounded-2xl border border-white/20 relative overflow-hidden shadow-2xl flex flex-col justify-center flex-1 h-full group"
+            >
                 {/* Specular Catch-light */}
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none z-20" />
 
@@ -170,15 +205,12 @@ export default function FOSSTechnologyWheel() {
                     />
 
                     {/* High-res Square Poster Preview */}
-                    <img
+                    <WheelPoster
                       src={
                         activeEvent?.posterUrl ||
                         "https://ik.imagekit.io/SRMFOSSKTR/Logo/fossclub-horizontal-logo.png"
                       }
                       alt={activeEvent?.title || "Event Poster"}
-                      loading="lazy"
-                      decoding="async"
-                      className="relative z-10 w-full h-full object-cover object-center group-hover/poster:scale-105 transition-transform duration-500 opacity-95 group-hover/poster:opacity-100"
                     />
 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none z-20" />
@@ -205,16 +237,8 @@ export default function FOSSTechnologyWheel() {
                     <div className="space-y-1.5 sm:space-y-2">
                       {/* Header: Core Initiatives styled Status Pill & Archive Tag */}
                       <div className="flex items-center justify-between gap-2">
-                        <span
-                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-mono font-extrabold tracking-[0.2em] uppercase border backdrop-blur-md"
-                          style={{
-                            color: "#22c55e",
-                            backgroundColor: "rgba(34, 197, 94, 0.12)",
-                            borderColor: "rgba(34, 197, 94, 0.35)",
-                            boxShadow: "0 0 12px rgba(34, 197, 94, 0.18)",
-                          }}
-                        >
-                          <Archive className="w-3 h-3 text-[#22c55e]" />
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-mono font-semibold tracking-[0.2em] uppercase border backdrop-blur-md bg-white/[0.06] border-white/20 text-[#a1a1aa]">
+                          <Archive className="w-3 h-3 text-[#a1a1aa]" />
                           PAST EVENT
                         </span>
                         <span className="text-[10px] font-mono text-zinc-500 truncate">
@@ -280,7 +304,6 @@ export default function FOSSTechnologyWheel() {
                   </div>
                 </div>
               </motion.div>
-            </AnimatePresence>
           </TiltCard>
         </div>
 
