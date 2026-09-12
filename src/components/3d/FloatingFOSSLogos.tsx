@@ -23,8 +23,8 @@ interface LogoConfig {
 }
 
 const LOGO_ITEMS: LogoConfig[] = [
-  // ── TOP SECTION (Phone: 7% to 18%) ──
-  // 1. Linux Tux (Kernel) — Inward Top-Left
+  // ── TOP ZONE (Phone: 8% to 15%) ──
+  // 1. Linux Tux (Kernel) — Top Left
   {
     id: "linux",
     name: "Linux",
@@ -32,7 +32,7 @@ const LOGO_ITEMS: LogoConfig[] = [
     top: "8%",
     left: "6%",
     mobileTop: "8%",
-    mobileLeft: "16%",
+    mobileLeft: "15%",
     depth: 3,
     floatDelay: 0,
     floatDuration: 8.5,
@@ -40,7 +40,7 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 24,
     mobileVisible: true,
   },
-  // 2. Python (Language) — Inward Top-Right
+  // 2. Python (Language) — Top Right
   {
     id: "python",
     name: "Python",
@@ -56,15 +56,15 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 25,
     mobileVisible: true,
   },
-  // 3. Docker (Containers) — DEAD CENTER TOP
+  // 3. Docker (Containers) — Sub-Top Left
   {
     id: "docker",
     name: "Docker",
     category: "Containers",
     top: "37%",
     left: "5%",
-    mobileTop: "9%",
-    mobileLeft: "49%",
+    mobileTop: "15%",
+    mobileLeft: "26%",
     depth: 3,
     floatDelay: 2.2,
     floatDuration: 9.8,
@@ -72,15 +72,15 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 25,
     mobileVisible: true,
   },
-  // 4. Git (Version Control) — Upper Mid-Left
+  // 4. Git (Version Control) — Sub-Top Right
   {
     id: "git",
     name: "Git",
     category: "Version Control",
     top: "25%",
     left: "82%",
-    mobileTop: "16%",
-    mobileLeft: "28%",
+    mobileTop: "15%",
+    mobileLeft: "74%",
     depth: 2,
     floatDelay: 1.2,
     floatDuration: 9.5,
@@ -88,196 +88,172 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 23,
     mobileVisible: true,
   },
-  // 5. Rust (Systems) — Upper Mid-Right
+
+  // ── REVERTED MIDDLE ZONE (Hidden on phone to keep middle clean and uncluttered) ──
+  // 5. Rust
   {
     id: "rust",
     name: "Rust",
     category: "Systems Lang",
     top: "22%",
     left: "12%",
-    mobileTop: "16%",
-    mobileLeft: "70%",
     depth: 2,
     floatDelay: 1.8,
     floatDuration: 10.0,
     accentColor: "#f97316",
     size: 23,
-    mobileVisible: true,
+    mobileVisible: false,
   },
-
-  // ── MID-UPPER SECTION (Phone: 25% to 42%, behind title & subtitle) ──
-  // 6. Kubernetes (Cloud Native) — Mid-Upper Left
+  // 6. Kubernetes
   {
     id: "kubernetes",
     name: "Kubernetes",
     category: "Cloud Native",
     top: "16%",
     left: "19%",
-    mobileTop: "25%",
-    mobileLeft: "16%",
     depth: 1,
     floatDelay: 1.6,
     floatDuration: 11.0,
     accentColor: "#326ce5",
     size: 22,
-    mobileVisible: true,
+    mobileVisible: false,
   },
-  // 7. Ubuntu (Distro) — DEAD CENTER MID-UPPER
+  // 7. Ubuntu
   {
     id: "ubuntu",
     name: "Ubuntu",
     category: "Distro",
     top: "40%",
     left: "88%",
-    mobileTop: "33%",
-    mobileLeft: "50%",
     depth: 3,
     floatDelay: 1.0,
     floatDuration: 8.8,
     accentColor: "#e95420",
     size: 24,
-    mobileVisible: true,
+    mobileVisible: false,
   },
-  // 8. Open Source Initiative (OSI) — Mid-Upper Right
+  // 8. Open Source Initiative (OSI)
   {
     id: "opensourceinitiative",
     name: "OSI",
     category: "FOSS Standard",
     top: "34%",
     left: "90%",
-    mobileTop: "27%",
-    mobileLeft: "82%",
     depth: 2,
     floatDelay: 2.1,
     floatDuration: 8.8,
     accentColor: "#22c55e",
     size: 24,
-    mobileVisible: true,
+    mobileVisible: false,
   },
-  // 9. Arch Linux (Rolling Distro) — Sub-Header Mid-Left
+  // 9. Arch Linux
   {
     id: "archlinux",
     name: "Arch Linux",
     category: "Rolling Distro",
     top: "56%",
     left: "85%",
-    mobileTop: "39%",
-    mobileLeft: "20%",
     depth: 2,
     floatDelay: 1.5,
     floatDuration: 10.2,
     accentColor: "#1793d1",
     size: 24,
-    mobileVisible: true,
+    mobileVisible: false,
   },
-  // 10. Neovim (Editor) — Sub-Header Mid-Right
+  // 10. Neovim
   {
     id: "neovim",
     name: "Neovim",
     category: "Editor",
     top: "52%",
     left: "11%",
-    mobileTop: "41%",
-    mobileLeft: "78%",
     depth: 2,
     floatDelay: 2.5,
     floatDuration: 10.5,
     accentColor: "#4ade80",
     size: 22,
-    mobileVisible: true,
+    mobileVisible: false,
   },
-
-  // ── MID-LOWER SECTION (Phone: 52% to 68%, behind description & buttons) ──
-  // 11. Go (Cloud Systems) — DEAD CENTER MID-LOWER
+  // 11. Go
   {
     id: "go",
     name: "Go",
     category: "Cloud Systems",
     top: "68%",
     left: "6%",
-    mobileTop: "52%",
-    mobileLeft: "50%",
     depth: 3,
     floatDelay: 2.8,
     floatDuration: 9.4,
     accentColor: "#00add8",
     size: 23,
-    mobileVisible: true,
+    mobileVisible: false,
   },
-  // 12. Node.js (Runtime) — Mid-Lower Left
+  // 12. Node.js
   {
     id: "nodedotjs",
     name: "Node.js",
     category: "Runtime",
     top: "72%",
     left: "86%",
-    mobileTop: "58%",
-    mobileLeft: "18%",
     depth: 2,
     floatDelay: 0.8,
     floatDuration: 9.6,
     accentColor: "#5fa04e",
     size: 23,
-    mobileVisible: true,
+    mobileVisible: false,
   },
-  // 13. Redis (Cache Store) — Mid-Lower Right
+  // 13. Redis
   {
     id: "redis",
     name: "Redis",
     category: "Cache Store",
     top: "19%",
     left: "76%",
-    mobileTop: "60%",
-    mobileLeft: "82%",
     depth: 1,
     floatDelay: 2.7,
     floatDuration: 10.2,
     accentColor: "#ef4444",
     size: 22,
-    mobileVisible: true,
+    mobileVisible: false,
   },
-  // 14. GraphQL — Mid-Lower Center-Left
+  // 14. GraphQL
   {
     id: "graphql",
     name: "GraphQL",
     category: "Query Lang",
     top: "63%",
     left: "74%",
-    mobileTop: "68%",
-    mobileLeft: "32%",
     depth: 1,
     floatDelay: 0.9,
     floatDuration: 10.6,
     accentColor: "#e10098",
     size: 21,
-    mobileVisible: true,
+    mobileVisible: false,
   },
-  // 15. NGINX — Mid-Lower Center-Right
+  // 15. NGINX
   {
     id: "nginx",
     name: "NGINX",
     category: "Reverse Proxy",
     top: "60%",
     left: "17%",
-    mobileTop: "68%",
-    mobileLeft: "68%",
     depth: 1,
     floatDelay: 2.2,
     floatDuration: 11.8,
     accentColor: "#00b846",
     size: 21,
-    mobileVisible: true,
+    mobileVisible: false,
   },
 
-  // ── BOTTOM SECTION (Phone: 76% to 94%, below buttons & footer transition) ──
-  // 16. PostgreSQL (Database) — Bottom Upper-Left
+  // ── BOTTOM ZONE (Phone: 80% to 89%) ──
+  // 16. PostgreSQL (Database) — Bottom Left
   {
     id: "postgresql",
     name: "PostgreSQL",
     category: "Database",
     top: "84%",
     left: "9%",
-    mobileTop: "76%",
+    mobileTop: "80%",
     mobileLeft: "18%",
     depth: 3,
     floatDelay: 1.4,
@@ -286,14 +262,14 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 24,
     mobileVisible: true,
   },
-  // 17. MySQL — Bottom Upper-Right
+  // 17. MySQL — Bottom Right
   {
     id: "mysql",
     name: "MySQL",
     category: "Database",
     top: "32%",
     left: "4%",
-    mobileTop: "77%",
+    mobileTop: "80%",
     mobileLeft: "80%",
     depth: 2,
     floatDelay: 0.8,
@@ -302,15 +278,15 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 24,
     mobileVisible: true,
   },
-  // 18. GNU Bash (Shell) — DEAD CENTER BOTTOM
+  // 18. GNU Bash (Shell) — Bottom Mid-Left
   {
     id: "gnubash",
     name: "Bash",
     category: "Shell",
     top: "88%",
     left: "83%",
-    mobileTop: "84%",
-    mobileLeft: "50%",
+    mobileTop: "88%",
+    mobileLeft: "26%",
     depth: 3,
     floatDelay: 3.0,
     floatDuration: 10.8,
@@ -318,15 +294,15 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 23,
     mobileVisible: true,
   },
-  // 19. Debian — Bottom Lower-Left
+  // 19. Debian — Bottom Mid-Right
   {
     id: "debian",
     name: "Debian",
     category: "Universal OS",
     top: "47%",
     left: "16%",
-    mobileTop: "89%",
-    mobileLeft: "22%",
+    mobileTop: "88%",
+    mobileLeft: "74%",
     depth: 2,
     floatDelay: 1.5,
     floatDuration: 8.2,
@@ -334,53 +310,47 @@ const LOGO_ITEMS: LogoConfig[] = [
     size: 23,
     mobileVisible: true,
   },
-  // 20. Firefox — Bottom Lower-Right
+  // 20. Firefox
   {
     id: "firefox",
     name: "Firefox",
     category: "Open Web",
     top: "79%",
     left: "79%",
-    mobileTop: "89%",
-    mobileLeft: "76%",
     depth: 2,
     floatDelay: 1.4,
     floatDuration: 10.4,
     accentColor: "#ff7139",
     size: 23,
-    mobileVisible: true,
+    mobileVisible: false,
   },
-  // 21. Blender — Deep Bottom Center-Left
+  // 21. Blender
   {
     id: "blender",
     name: "Blender",
     category: "3D Pipeline",
     top: "85%",
     left: "22%",
-    mobileTop: "94%",
-    mobileLeft: "36%",
     depth: 1,
     floatDelay: 2.6,
     floatDuration: 12.2,
     accentColor: "#ea7600",
     size: 21,
-    mobileVisible: true,
+    mobileVisible: false,
   },
-  // 22. VLC Media Player — Deep Bottom Center-Right
+  // 22. VLC Media Player
   {
     id: "vlcmediaplayer",
     name: "VLC",
     category: "Open Media",
     top: "87%",
     left: "69%",
-    mobileTop: "94%",
-    mobileLeft: "64%",
     depth: 1,
     floatDelay: 0.7,
     floatDuration: 10.9,
     accentColor: "#ff8800",
     size: 21,
-    mobileVisible: true,
+    mobileVisible: false,
   },
 ];
 

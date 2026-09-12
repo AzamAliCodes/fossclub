@@ -102,7 +102,7 @@ export default function HomePage() {
     <div className="w-full flex flex-col relative z-10 bg-transparent">
       
       {/* ── HERO SECTION: DEVELOPER HERO + 3D FLOATING FOSS LOGOS ── */}
-      <div className="relative min-h-screen w-full flex flex-col items-center justify-center px-3 sm:px-6 overflow-hidden pt-24 sm:pt-28 pb-16">
+      <div className="relative min-h-[100svh] sm:min-h-screen w-full flex flex-col items-center justify-center px-4 sm:px-6 overflow-hidden pt-20 sm:pt-28 pb-10 sm:pb-16">
         
         {/* Perspective Grid Background */}
         <div className="absolute inset-0 opacity-40 pointer-events-none">
@@ -115,12 +115,12 @@ export default function HomePage() {
           variants={stagger}
           initial="hidden"
           animate="show"
-          className="w-full max-w-5xl mx-auto flex flex-col items-center text-center relative z-10 will-change-transform pt-2 sm:pt-4"
+          className="w-full max-w-5xl mx-auto flex flex-col items-center text-center relative z-10 will-change-transform my-auto py-2 sm:py-4"
         >
           {/* Eyebrow Badge */}
           <motion.div
             variants={up}
-            className="inline-flex items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border border-white/20 bg-white/[0.06] backdrop-blur-xl text-[9px] xs:text-[10px] sm:text-xs font-mono text-white font-extrabold mb-5 sm:mb-6 shadow-[0_0_24px_rgba(34,197,94,0.18),inset_0_1px_0_rgba(255,255,255,0.25)] tracking-wider uppercase max-w-full text-center"
+            className="inline-flex items-center px-3.5 sm:px-4 py-1.5 rounded-full border border-white/20 bg-white/[0.08] backdrop-blur-xl text-[10.5px] xs:text-xs sm:text-xs font-mono text-white font-extrabold mb-5 sm:mb-6 shadow-[0_0_24px_rgba(34,197,94,0.22),inset_0_1px_0_rgba(255,255,255,0.3)] tracking-wider uppercase max-w-full text-center"
           >
             <span className="font-extrabold text-white">
               <span className="text-[#22c55e] font-black text-xs sm:text-sm drop-shadow-[0_0_8px_rgba(34,197,94,0.8)]">F</span>REE AND{" "}
@@ -133,7 +133,7 @@ export default function HomePage() {
           {/* Main Massive Title */}
           <motion.h1
             variants={up}
-            className="text-[2.6rem] xs:text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight text-[#fafafa] leading-[1.05] sm:leading-[0.95] select-none font-sans"
+            className="text-[3.35rem] xs:text-[3.8rem] sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight text-[#fafafa] leading-[0.98] sm:leading-[0.95] select-none font-sans"
           >
             FOSS CLUB <span className="text-[#22c55e]">SRM</span>
           </motion.h1>
@@ -141,7 +141,7 @@ export default function HomePage() {
           {/* Dynamic Sub-headline with Rotating Text */}
           <motion.div
             variants={up}
-            className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-sm sm:text-xl md:text-2xl font-mono text-[#a1a1aa] text-center"
+            className="mt-5 sm:mt-6 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 text-base sm:text-xl md:text-2xl font-mono text-[#d4d4d8] text-center leading-snug"
           >
             <span>Building the future of</span>
             <span className="text-[#22c55e] font-semibold border-b border-[#22c55e]/30 pb-0.5">
@@ -161,7 +161,7 @@ export default function HomePage() {
           {/* Lead Paragraph */}
           <motion.p
             variants={up}
-            className="mt-4 sm:mt-6 text-xs sm:text-base text-[#a1a1aa] max-w-2xl mx-auto leading-relaxed font-sans px-2"
+            className="mt-5 sm:mt-6 text-sm sm:text-base text-[#a1a1aa] max-w-2xl mx-auto leading-relaxed font-sans px-1"
           >
             A student-driven open-source community at SRMIST, building real-world projects, contributing to global open-source, and creating spaces for students to learn, collaborate, and build across Technical, Corporate, and Creative domains.
           </motion.p>
@@ -169,13 +169,13 @@ export default function HomePage() {
           {/* Action Buttons: 1. Meet Our Team (Solid White), 2. Upcoming Events (Solid FOSS Green), 3. Explore Recruitments (Solid Obsidian Terminal) */}
           <motion.div
             variants={up}
-            className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 relative z-20 font-mono w-full sm:w-auto max-w-xs sm:max-w-none px-4 sm:px-0"
+            className="mt-8 sm:mt-9 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3.5 sm:gap-4 relative z-20 font-mono w-full sm:w-auto max-w-sm sm:max-w-none px-2 sm:px-0"
           >
             {/* 1. Meet Our Team (Solid White) */}
             <Link
               href="/team"
               onClick={() => { try { playClickSound(); } catch {} }}
-              className="w-full sm:w-auto justify-center px-6 py-3 rounded-xl bg-[#fafafa] hover:bg-zinc-200 text-zinc-950 font-bold text-xs sm:text-sm transition-all duration-200 flex items-center gap-2 shadow-[0_4px_20px_rgba(255,255,255,0.15)] active:scale-98 group"
+              className="w-full sm:w-auto justify-center px-6 py-3.5 rounded-xl bg-[#fafafa] hover:bg-zinc-200 text-zinc-950 font-bold text-sm transition-all duration-200 flex items-center gap-2 shadow-[0_4px_20px_rgba(255,255,255,0.15)] active:scale-98 group"
             >
               <Users className="w-4 h-4 text-zinc-700 group-hover:text-black transition-colors" />
               <span>Meet Our Team</span>
@@ -186,7 +186,7 @@ export default function HomePage() {
             <Link
               href="/events"
               onClick={() => { try { playClickSound(); } catch {} }}
-              className="w-full sm:w-auto justify-center px-6 py-3 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-black font-bold text-xs sm:text-sm transition-all duration-200 flex items-center gap-2 shadow-[0_4px_24px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] active:scale-98 group"
+              className="w-full sm:w-auto justify-center px-6 py-3.5 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-black font-bold text-sm transition-all duration-200 flex items-center gap-2 shadow-[0_4px_24px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] active:scale-98 group"
             >
               <Calendar className="w-4 h-4 text-black group-hover:scale-110 transition-transform" />
               <span>Upcoming Events</span>
@@ -196,7 +196,7 @@ export default function HomePage() {
             <Link
               href="/recruitments"
               onClick={() => { try { playClickSound(); } catch {} }}
-              className="w-full sm:w-auto justify-center px-6 py-3 rounded-xl bg-[#0e0e12] hover:bg-[#18181e] text-[#fafafa] hover:text-white font-semibold text-xs sm:text-sm border border-[#27272a] hover:border-[#22c55e]/60 transition-all duration-200 flex items-center gap-2.5 shadow-[0_4px_20px_rgba(0,0,0,0.6)] active:scale-98 group"
+              className="w-full sm:w-auto justify-center px-6 py-3.5 rounded-xl bg-[#0e0e12] hover:bg-[#18181e] text-[#fafafa] hover:text-white font-semibold text-sm border border-[#27272a] hover:border-[#22c55e]/60 transition-all duration-200 flex items-center gap-2.5 shadow-[0_4px_20px_rgba(0,0,0,0.6)] active:scale-98 group"
             >
               <UserPlus className="w-4 h-4 text-[#22c55e] group-hover:scale-110 transition-transform shrink-0" />
               <span>Explore Recruitments</span>
@@ -208,7 +208,7 @@ export default function HomePage() {
         {/* Scroll indicator */}
         <motion.div
           style={{ opacity: indicatorOpacity }}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none"
+          className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none"
         >
           <span className="text-[9px] text-[#71717a] font-mono tracking-[0.3em] uppercase">Scroll</span>
           <div className="w-4 h-7 rounded-full border border-white/15 flex items-start justify-center pt-1">
