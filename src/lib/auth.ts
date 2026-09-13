@@ -20,7 +20,7 @@ export function createToken(username: string): string {
       role: "admin",
     },
     JWT_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: "6h" }
   );
 }
 

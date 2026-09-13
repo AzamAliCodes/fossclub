@@ -59,7 +59,7 @@ export function CMSLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) => vo
           </div>
           <div>
             <h1 className="text-xl font-bold text-[#fafafa] tracking-tight">FOSS Club SRM CMS</h1>
-            <p className="text-xs text-[#22c55e] font-mono">Restricted Root / Maintainer Portal</p>
+            <p className="text-xs text-[#22c55e] font-mono">Maintainer Portal</p>
           </div>
         </div>
 
@@ -84,14 +84,14 @@ export function CMSLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) => vo
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-3.5 py-2.5 bg-black border border-[#222226] rounded-lg text-[#fafafa] focus:outline-none focus:border-[#22c55e] transition-colors"
-              placeholder="admin"
+              placeholder=""
             />
           </div>
 
           <div>
             <label className="block text-[#a1a1aa] mb-1.5 flex items-center gap-1.5">
               <Lock className="w-3.5 h-3.5 text-[#22c55e]" />
-              <span>Admin Passphrase</span>
+              <span>Admin Password</span>
             </label>
             <input
               type="password"
@@ -109,7 +109,7 @@ export function CMSLogin({ onLoginSuccess }: { onLoginSuccess: (user: any) => vo
               disabled={loading}
               className="w-full py-2.5 rounded-lg bg-[#22c55e] hover:bg-[#16a34a] text-black font-bold text-xs flex items-center justify-center space-x-2 transition-colors disabled:opacity-50"
             >
-              <span>{loading ? "Authenticating..." : "Authenticate Session"}</span>
+              <span>{loading ? "Authenticating..." : "Login"}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

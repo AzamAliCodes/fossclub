@@ -30,6 +30,23 @@ export default function CMSPage() {
 
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("foss_cms_token") : null;
+
+    // Client-side expiry check: decode JWT payload and verify exp claim
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        if (payload.exp && Date.now() / 1000 > payload.exp) {
+          localStorage.removeItem("foss_cms_token");
+          setCheckingAuth(false);
+          return;
+        }
+      } catch {
+        localStorage.removeItem("foss_cms_token");
+        setCheckingAuth(false);
+        return;
+      }
+    }
+
     const headers: Record<string, string> = {};
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
@@ -38,6 +55,9 @@ export default function CMSPage() {
       .then((data) => {
         if (data.authenticated && data.user) {
           setSession(data.user);
+        } else {
+          // Server rejected token (e.g. expired) — clear it
+          localStorage.removeItem("foss_cms_token");
         }
       })
       .catch(() => {})
