@@ -42,6 +42,7 @@ export const siteConfig = {
     github: "https://github.com/fossclubsrm",
     instagram: "https://www.instagram.com/fossclubsrm",
     linkedin: "https://linkedin.com/company/foss-club-srm",
+    whatsapp: "https://chat.whatsapp.com/Cb9D0dZey1ZCVB0C7gpXUh",
   },
   keywords: [
     "FOSS Club SRM",

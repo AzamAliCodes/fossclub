@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Mail } from "lucide-react";
 import { playClickSound } from "@/lib/sound";
+import { siteConfig } from "@/lib/siteConfig";
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -28,28 +29,41 @@ const InstagramIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const WhatsappIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9l-5.05.9" />
+    <path d="M9 10a.5.5 0 0 0 1 0v-1a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
+  </svg>
+);
+
 const socialLinks = [
   {
     icon: InstagramIcon,
-    href: "https://www.instagram.com/fossclubsrm",
+    href: siteConfig.social.instagram,
     label: "Instagram",
     hoverStyle: "hover:text-[#fb7185] hover:border-[#fb7185]/60 hover:shadow-[0_0_24px_rgba(251,113,133,0.45)] hover:bg-[#fb7185]/10",
   },
   {
     icon: LinkedinIcon,
-    href: "https://linkedin.com/company/foss-club-srm",
+    href: siteConfig.social.linkedin,
     label: "LinkedIn",
     hoverStyle: "hover:text-[#38bdf8] hover:border-[#38bdf8]/60 hover:shadow-[0_0_24px_rgba(56,189,248,0.45)] hover:bg-[#38bdf8]/10",
   },
   {
     icon: GithubIcon,
-    href: "https://github.com/fossclubsrm",
+    href: siteConfig.social.github,
     label: "GitHub",
     hoverStyle: "hover:text-white hover:border-white/60 hover:shadow-[0_0_24px_rgba(255,255,255,0.35)] hover:bg-white/10",
   },
   {
+    icon: WhatsappIcon,
+    href: siteConfig.social.whatsapp,
+    label: "WhatsApp",
+    hoverStyle: "hover:text-[#25d366] hover:border-[#25d366]/60 hover:shadow-[0_0_24px_rgba(37,211,102,0.45)] hover:bg-[#25d366]/10",
+  },
+  {
     icon: Mail,
-    href: "mailto:fossclubsrmktr@gmail.com",
+    href: `mailto:${siteConfig.email}`,
     label: "Email",
     hoverStyle: "hover:text-[#22c55e] hover:border-[#22c55e]/60 hover:shadow-[0_0_24px_rgba(34,197,94,0.45)] hover:bg-[#22c55e]/10",
   },

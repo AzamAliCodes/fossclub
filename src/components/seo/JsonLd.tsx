@@ -40,6 +40,7 @@ export function OrganizationJsonLd() {
       siteConfig.social.github,
       siteConfig.social.instagram,
       siteConfig.social.linkedin,
+      siteConfig.social.whatsapp,
     ],
   };
 

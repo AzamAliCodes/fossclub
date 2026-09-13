@@ -249,5 +249,6 @@ We welcome contributions from developers, designers, and tech enthusiasts!
 - **GitHub**: [github.com/fossclubsrm](https://github.com/fossclubsrm)
 - **Instagram**: [@fossclubsrm](https://www.instagram.com/fossclubsrm)
 - **LinkedIn**: [FOSS Club SRM](https://linkedin.com/company/foss-club-srm)
+- **WhatsApp**: [Join Chat](https://chat.whatsapp.com/Cb9D0dZey1ZCVB0C7gpXUh)
 - **Email**: [fossclubsrmktr@gmail.com](mailto:fossclubsrmktr@gmail.com)
 - **FOSS United Chapter**: [fossunited.org/c/srm-ktr](https://fossunited.org/c/srm-ktr)

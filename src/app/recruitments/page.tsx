@@ -11,6 +11,13 @@ import MagneticButton from "@/components/ui/MagneticButton";
 import TerminalApplyModal from "@/components/ui/TerminalApplyModal";
 import { playClickSound } from "@/lib/sound";
 
+const WhatsappIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9l-5.05.9" />
+    <path d="M9 10a.5.5 0 0 0 1 0v-1a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
+  </svg>
+);
+
 let cachedRecruitmentConfig: RecruitmentConfig | null = null;
 
 export default function RecruitmentsPage() {
@@ -23,6 +30,7 @@ export default function RecruitmentsPage() {
     { icon: Instagram, label: "Instagram", handle: "@fossclubsrm", href: siteConfig.social.instagram },
     { icon: Linkedin, label: "LinkedIn", handle: "FOSS Club SRM", href: siteConfig.social.linkedin },
     { icon: Github, label: "GitHub", handle: "fossclubsrm", href: siteConfig.social.github },
+    { icon: WhatsappIcon, label: "WhatsApp", handle: "FOSS Club SRM", href: siteConfig.social.whatsapp },
     { icon: Mail, label: "Email", handle: siteConfig.email, href: `mailto:${siteConfig.email}` },
   ];
 
