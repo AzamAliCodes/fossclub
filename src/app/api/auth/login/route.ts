@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createToken, getAdminCredentials, COOKIE_NAME } from "@/lib/auth";
+import { createToken, getAdminCredentials, COOKIE_NAME, CMS_SESSION_TTL_SECONDS } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +14,14 @@ export async function POST(req: NextRequest) {
         !req.headers.get("host")?.includes("localhost") && 
         !req.headers.get("host")?.includes("127.0.0.1");
 
+      const expiresAt = Date.now() + CMS_SESSION_TTL_SECONDS * 1000;
+
       const res = NextResponse.json({
         success: true,
         user: { username, role: "admin" },
         token,
+        expiresAt,
+        expiresIn: CMS_SESSION_TTL_SECONDS,
       });
 
       res.cookies.set({
@@ -27,7 +31,7 @@ export async function POST(req: NextRequest) {
         secure: isSecure,
         sameSite: "lax",
         path: "/",
-        maxAge: 60 * 60 * 24 * 7,
+        maxAge: CMS_SESSION_TTL_SECONDS,
       });
 
       return res;

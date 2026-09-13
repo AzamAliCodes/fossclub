@@ -12,6 +12,7 @@ import { playClickSound, playSuccessSound } from "@/lib/sound";
 import { formatDate } from "@/lib/utils";
 import { useGlassToast } from "@/components/ui/GlassToast";
 import { GlassDatePicker } from "@/components/ui/GlassDatePicker";
+import { notifySessionExpired } from "@/lib/authClient";
 
 export function CMSEventsManager() {
   const toast = useGlassToast();
@@ -95,6 +96,10 @@ export function CMSEventsManager() {
         headers: getAuthHeaders(),
         body: JSON.stringify({ ...event, active: nextActive }),
       });
+      if (res.status === 401) {
+        notifySessionExpired();
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         setEvents((prev) =>
@@ -120,6 +125,10 @@ export function CMSEventsManager() {
             method: "DELETE",
             headers: getAuthHeaders(),
           });
+          if (res.status === 401) {
+            notifySessionExpired();
+            return;
+          }
           const data = await res.json();
           if (data.success) {
             setEvents((prev) => prev.filter((e) => e._id !== id));
@@ -160,6 +169,7 @@ export function CMSEventsManager() {
       if (res.status === 401) {
         setSaveStatus("Session expired. Please re-login.");
         toast.error("Session Expired", "Please log in again to save changes.");
+        notifySessionExpired();
         return;
       }
 
@@ -204,6 +214,10 @@ export function CMSEventsManager() {
         headers,
         body: formData,
       });
+      if (res.status === 401) {
+        notifySessionExpired();
+        return;
+      }
       const data = await res.json();
       if (data.success && data.url) {
         setEditingEvent({ ...editingEvent, posterUrl: data.url });

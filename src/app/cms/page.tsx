@@ -13,9 +13,17 @@ import {
 } from "lucide-react";
 import { playClickSound } from "@/lib/sound";
 
+import { 
+  verifyClientSession, 
+  getSessionExpiry, 
+  isSessionExpired, 
+  clearClientSession,
+  logoutClientSession 
+} from "@/lib/authClient";
+
 export default function CMSPage() {
   const [session, setSession] = useState<{ username: string; role: string } | null>(null);
-  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(false);
   const [activeTab, setActiveTab] = useState<"team" | "events" | "recruitment">("team");
 
   useEffect(() => {
@@ -28,32 +36,81 @@ export default function CMSPage() {
     }
   }, []);
 
-  useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("foss_cms_token") : null;
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    fetch("/api/auth/me", { headers })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.authenticated && data.user) {
-          setSession(data.user);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setCheckingAuth(false));
-  }, []);
-
   const handleLogout = async () => {
     playClickSound();
-    try {
-      localStorage.removeItem("foss_cms_token");
-      await fetch("/api/auth/logout", { method: "POST" });
-      setSession(null);
-    } catch {
-      setSession(null);
-    }
+    await logoutClientSession();
+    setSession(null);
   };
+
+  const handleAutoLogout = async () => {
+    await logoutClientSession();
+    setSession(null);
+  };
+
+  useEffect(() => {
+    // 1. Every page load checks the ticket: past expiry -> throw it away and land on login
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("foss_cms_token");
+      if (!token || isSessionExpired()) {
+        clearClientSession();
+        setSession(null);
+        return;
+      }
+
+      setCheckingAuth(true);
+      verifyClientSession()
+        .then((user) => {
+          setSession(user);
+        })
+        .finally(() => setCheckingAuth(false));
+    }
+  }, []);
+
+  // 2. Auto-logout on expiry while session is active
+  useEffect(() => {
+    if (!session) return;
+
+    const checkAndAutoLogout = () => {
+      if (isSessionExpired()) {
+        handleAutoLogout();
+      }
+    };
+
+    // Schedule auto-logout timer for exact expiry
+    const expiryMs = getSessionExpiry();
+    let timer: NodeJS.Timeout | null = null;
+    if (expiryMs) {
+      const delay = Math.max(0, expiryMs - Date.now());
+      timer = setTimeout(() => {
+        handleAutoLogout();
+      }, delay);
+    }
+
+    // Interval check every 10 seconds
+    const interval = setInterval(checkAndAutoLogout, 10000);
+
+    // Check on window focus and tab visibility change
+    const onVisibilityOrFocus = () => {
+      checkAndAutoLogout();
+    };
+
+    // Custom event dispatched on 401 API responses
+    const onAuthExpired = () => {
+      handleAutoLogout();
+    };
+
+    window.addEventListener("focus", onVisibilityOrFocus);
+    document.addEventListener("visibilitychange", onVisibilityOrFocus);
+    window.addEventListener("cms-session-expired", onAuthExpired);
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      clearInterval(interval);
+      window.removeEventListener("focus", onVisibilityOrFocus);
+      document.removeEventListener("visibilitychange", onVisibilityOrFocus);
+      window.removeEventListener("cms-session-expired", onAuthExpired);
+    };
+  }, [session]);
 
   if (checkingAuth) {
     return (
