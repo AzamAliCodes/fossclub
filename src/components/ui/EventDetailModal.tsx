@@ -55,7 +55,7 @@ export default function EventDetailModal({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.16, ease: "easeOut" }}
-      className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-5 md:p-6 bg-black/85 backdrop-blur-md overflow-hidden overscroll-none select-none"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-5 md:p-6 bg-black/90 backdrop-blur-none sm:backdrop-blur-md overflow-hidden overscroll-none select-none"
       onClick={onClose}
       onWheel={(e) => e.stopPropagation()}
     >
@@ -65,7 +65,7 @@ export default function EventDetailModal({
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
         transition={{ type: "spring", damping: 26, stiffness: 380 }}
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-[#090d16]/95 border border-white/20 shadow-[0_25px_60px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(255,255,255,0.2)] flex flex-col md:flex-row text-[#fafafa] transform-gpu will-change-transform select-text"
+        className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-[#090d16]/95 border border-white/20 shadow-[0_25px_60px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(255,255,255,0.2)] flex flex-col md:flex-row text-[#fafafa] transform-gpu select-text"
       >
         {/* Close Button */}
         <button
