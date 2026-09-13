@@ -6,20 +6,32 @@ import { CMSLogin } from "@/components/cms/CMSLogin";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+import { verifyClientSession, isSessionExpired } from "@/lib/authClient";
+
 export default function CMSEventsRoutePage() {
   const [session, setSession] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
 
   useEffect(() => {
-    fetch("/api/auth/me")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.authenticated) setSession(data.user);
-      })
-      .finally(() => setLoading(false));
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("foss_cms_token");
+      if (!token || isSessionExpired()) {
+        setSession(null);
+        return;
+      }
+
+      setLoading(true);
+      verifyClientSession()
+        .then((u) => setSession(u))
+        .finally(() => setLoading(false));
+    }
+
+    const onExpired = () => setSession(null);
+    window.addEventListener("cms-session-expired", onExpired);
+    return () => window.removeEventListener("cms-session-expired", onExpired);
   }, []);
 
-  if (loading) return <div className="p-12 text-center text-gray-500 font-mono text-xs">Authenticating...</div>;
+  if (loading) return null;
   if (!session) return <CMSLogin onLoginSuccess={(u) => setSession(u)} />;
 
   return (

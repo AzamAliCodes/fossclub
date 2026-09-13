@@ -10,6 +10,7 @@ import {
 import { playClickSound, playSuccessSound } from "@/lib/sound";
 import { useGlassToast } from "@/components/ui/GlassToast";
 import { GlassSelect } from "@/components/ui/GlassSelect";
+import { notifySessionExpired } from "@/lib/authClient";
 
 const DOMAINS: DomainType[] = ["Technical", "Corporate", "Creative"];
 const DOMAIN_PRIORITY_ORDER: DomainType[] = ["Technical", "Corporate", "Creative"];
@@ -57,6 +58,10 @@ export function CMSTeamManager() {
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const res = await fetch(`/api/team?t=${Date.now()}`, { headers, cache: "no-store" });
+      if (res.status === 401) {
+        notifySessionExpired();
+        return;
+      }
       const data = await res.json();
       if (data.data) setMembers(data.data);
     } catch (err) {
@@ -124,6 +129,10 @@ export function CMSTeamManager() {
           if (token) headers["Authorization"] = `Bearer ${token}`;
 
           const res = await fetch(`/api/team/${id}`, { method: "DELETE", headers });
+          if (res.status === 401) {
+            notifySessionExpired();
+            return;
+          }
           const data = await res.json();
           if (data.success) {
             setMembers((prev) => prev.filter((m) => m._id !== id));
@@ -166,6 +175,10 @@ export function CMSTeamManager() {
         headers,
         body: JSON.stringify(editingMember),
       });
+      if (res.status === 401) {
+        notifySessionExpired();
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         playSuccessSound();

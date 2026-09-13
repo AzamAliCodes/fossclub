@@ -6,6 +6,12 @@ import { CMSUserSession } from "@/types";
 const JWT_SECRET = process.env.CMS_JWT_SECRET || "foss_club_srm_secret_dev_key_change_in_prod";
 const COOKIE_NAME = "foss_cms_session";
 
+// Enforce session TTL <= 6 hours server-side (default 2 hours, strictly capped at 6h)
+export const CMS_SESSION_TTL_SECONDS = Math.min(
+  Number(process.env.CMS_SESSION_TTL_SECONDS) || 2 * 60 * 60,
+  6 * 60 * 60
+);
+
 export function getAdminCredentials() {
   return {
     username: process.env.CMS_ADMIN_USER || "admin",
@@ -20,7 +26,7 @@ export function createToken(username: string): string {
       role: "admin",
     },
     JWT_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: CMS_SESSION_TTL_SECONDS }
   );
 }
 

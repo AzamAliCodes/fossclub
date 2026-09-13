@@ -20,6 +20,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { playClickSound, playSuccessSound } from "@/lib/sound";
 import { useGlassToast } from "@/components/ui/GlassToast";
+import { notifySessionExpired } from "@/lib/authClient";
 
 export function CMSRecruitmentManager() {
   const toast = useGlassToast();
@@ -71,6 +72,11 @@ export function CMSRecruitmentManager() {
           posterUrl: config.posterUrl,
         }),
       });
+
+      if (res.status === 401) {
+        notifySessionExpired();
+        return;
+      }
 
       const data = await res.json();
       if (data.success) {
