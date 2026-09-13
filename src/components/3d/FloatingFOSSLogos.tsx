@@ -464,6 +464,7 @@ export default function FloatingFOSSLogos() {
 
   return (
     <div
+      id="foss-floating-logos"
       className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden select-none z-[1]"
       style={{ perspective: "1000px" }}
       aria-hidden="true"

@@ -67,18 +67,23 @@ export default function FOSSTechnologyWheel() {
       .catch(() => {});
   }, []);
 
-  // Filter strictly past events (newest first, older events at the end)
-  const pastEvents = useMemo(() => {
-    const filtered = eventsList
+  // Combine upcoming events (soonest first) before past events (newest first).
+  // Fallback to the raw list when the combined list is empty.
+  const wheelEvents = useMemo(() => {
+    const upcoming = eventsList
+      .filter((e) => e.active)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const past = eventsList
       .filter((e) => !e.active)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    return filtered.length > 0 ? filtered : eventsList;
+    const combined = [...upcoming, ...past];
+    return combined.length > 0 ? combined : eventsList;
   }, [eventsList]);
 
   // Preload the current + neighboring posters so scrolling the 3D wheel
   // reveals them instantly instead of waiting for a lazy fetch.
   useEffect(() => {
-    pastEvents.forEach((e, i) => {
+    wheelEvents.forEach((e, i) => {
       if (Math.abs(i - selectedIndex) <= 1) {
         const url = e?.posterUrl || POSTER_FALLBACK;
         try {
@@ -87,15 +92,16 @@ export default function FOSSTechnologyWheel() {
         } catch {}
       }
     });
-  }, [pastEvents, selectedIndex]);
+  }, [wheelEvents, selectedIndex]);
 
   // Strictly real event names — no random hardcoded titles or template text
   const wheelItems = useMemo(
-    () => pastEvents.map((e) => e.title.trim()),
-    [pastEvents]
+    () => wheelEvents.map((e) => e.title.trim()),
+    [wheelEvents]
   );
 
-  const activeEvent = pastEvents[selectedIndex] || pastEvents[0];
+  const activeEvent = wheelEvents[selectedIndex] || wheelEvents[0];
+  const isUpcoming = !!activeEvent?.active;
 
   const handleEventChange = (index: number) => {
     try {
@@ -104,7 +110,7 @@ export default function FOSSTechnologyWheel() {
     setSelectedIndex(index);
   };
 
-  if (pastEvents.length === 0) {
+  if (wheelEvents.length === 0) {
     return null;
   }
 
@@ -114,10 +120,10 @@ export default function FOSSTechnologyWheel() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-4 sm:mb-6 gap-3 border-b border-white/[0.08] pb-4 sm:pb-5">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black text-[#fafafa] tracking-tight">
-            Past <span className="text-[#22c55e]">Events</span>
+            Our <span className="text-[#22c55e]">Events</span>
           </h2>
           <p className="text-xs sm:text-sm text-[#a1a1aa] mt-1 max-w-xl">
-            Scroll, drag, or tap the 3D wheel to explore the hackathons, kernel deep-dives, installfests, and workshops organized at SRMIST.
+            Scroll, drag, or tap the 3D wheel to explore our upcoming and past events — hackathons, kernel deep-dives, installfests, and workshops organized at SRMIST.
           </p>
         </div>
 
@@ -237,9 +243,17 @@ export default function FOSSTechnologyWheel() {
                     <div className="space-y-1.5 sm:space-y-2">
                       {/* Header: Core Initiatives styled Status Pill & Archive Tag */}
                       <div className="flex items-center justify-between gap-2">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-mono font-semibold tracking-[0.2em] uppercase border backdrop-blur-md bg-white/[0.06] border-white/20 text-[#a1a1aa]">
-                          <Archive className="w-3 h-3 text-[#a1a1aa]" />
-                          PAST EVENT
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-mono font-semibold tracking-[0.2em] uppercase border backdrop-blur-md ${
+                          isUpcoming
+                            ? "bg-[#0c2317] border-[#14532d] text-[#22c55e] shadow-[0_0_16px_rgba(34,197,94,0.25)]"
+                            : "bg-white/[0.06] border-white/20 text-[#a1a1aa]"
+                        }`}>
+                          {isUpcoming ? (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+                          ) : (
+                            <Archive className="w-3 h-3 text-[#a1a1aa]" />
+                          )}
+                          {isUpcoming ? "UPCOMING EVENT" : "PAST EVENT"}
                         </span>
                         <span className="text-[10px] font-mono text-zinc-500 truncate">
                           FOSS SRM Archive
