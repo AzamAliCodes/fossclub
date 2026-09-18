@@ -67,7 +67,7 @@ export const RECRUITMENT_FAQS: RecruitmentFaqInfo[] = [
   },
   {
     question: "What is the relation between FOSS Club SRM and FOSS United?",
-    answer: "FOSS Club SRM is the official university student chapter under FOSS United (a registered non-profit organization promoting free and open source software in India founded by Zerodha and Frappe). Members get direct access to community grants, national meetups, and conferences.",
+    answer: "FOSS United is a registered non-profit organization dedicated to promoting free and open-source software in India, founded by Kailash Nadh (CTO, Zerodha) and Rushabh Mehta (Founder, Frappe).",
   },
   {
     question: "Can I apply for multiple domains?",

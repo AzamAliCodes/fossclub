@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getEventById, saveEvent, deleteEvent } from "@/lib/db";
 import { getSessionFromRequest } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -13,13 +14,18 @@ export async function GET(
     if (!event) {
       return NextResponse.json({ success: false, error: "Event not found" }, { status: 404 });
     }
-    return NextResponse.json({ success: true, data: event });
+    return NextResponse.json(
+      { success: true, data: event },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    );
   } catch (error) {
     return NextResponse.json({ success: false, error: "Server error" }, { status: 500 });
   }
 }
-
-import { revalidatePath } from "next/cache";
 
 export async function PUT(
   req: NextRequest,
@@ -39,6 +45,7 @@ export async function PUT(
 
     try {
       revalidatePath("/events");
+      revalidatePath("/api/events");
       revalidatePath("/");
     } catch {}
 
@@ -66,6 +73,13 @@ export async function DELETE(
     if (!ok) {
       return NextResponse.json({ success: false, error: "Event not found or deletion failed" }, { status: 404 });
     }
+
+    try {
+      revalidatePath("/events");
+      revalidatePath("/api/events");
+      revalidatePath("/");
+    } catch {}
+
     return NextResponse.json({ success: true, message: "Event deleted" });
   } catch (error) {
     return NextResponse.json({ success: false, error: "Failed to delete event" }, { status: 500 });
