@@ -69,3 +69,7 @@ next-env.d.ts
 *.njsproj
 *.sln
 *.sw?
+
+agent.md 
+prompt.md
+start.md
