@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/lib/siteConfig";
-import { initialEvents } from "@/lib/initialData";
-import { EventsJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
   title: "FOSS Club SRM",
@@ -40,10 +38,5 @@ export default function EventsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <>
-      <EventsJsonLd events={initialEvents} />
-      {children}
-    </>
-  );
+  return children;
 }

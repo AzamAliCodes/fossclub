@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getEvents, saveEvent } from "@/lib/db";
 import { getSessionFromRequest } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest) {
       { success: true, data: events },
       {
         headers: {
-          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
         },
       }
     );
@@ -31,8 +32,6 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-
-import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
   const session = getSessionFromRequest(req);
@@ -53,6 +52,7 @@ export async function POST(req: NextRequest) {
 
     try {
       revalidatePath("/events");
+      revalidatePath("/api/events");
       revalidatePath("/");
     } catch {}
 
