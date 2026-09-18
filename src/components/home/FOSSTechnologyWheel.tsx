@@ -32,11 +32,11 @@ function WheelPoster({ src, alt }: { src: string; alt: string }) {
     <img
       src={src}
       alt={alt}
-      loading="lazy"
+      loading="eager"
       decoding="async"
       onLoad={() => setLoaded(true)}
-      className={`relative z-10 w-full h-full object-cover object-center transition-[opacity,transform,filter] duration-250 ease-out ${
-        loaded ? "opacity-100 blur-0 scale-100" : "opacity-0 blur-[6px] scale-[1.03]"
+      className={`relative z-10 w-full h-full object-cover object-center transition-opacity duration-200 ease-out ${
+        loaded ? "opacity-100 scale-100" : "opacity-0 scale-100"
       } group-hover/poster:scale-105`}
     />
   );
@@ -164,7 +164,7 @@ export default function FOSSTechnologyWheel() {
             spacing={isMobile ? 1.35 : 1.45}
             curve={1.15}
             tilt={isMobile ? 2.5 : 5}
-            blur={isMobile ? 0 : 1.2}
+            blur={0}
             fade={0.25}
             minOpacity={0.15}
             smoothing={160}
@@ -199,17 +199,6 @@ export default function FOSSTechnologyWheel() {
                     className="relative w-[200px] h-[200px] xs:w-[220px] xs:h-[220px] sm:w-[240px] sm:h-[240px] md:w-[260px] md:h-[260px] lg:w-[265px] lg:h-[265px] xl:w-[285px] xl:h-[285px] aspect-square shrink-0 self-center rounded-xl sm:rounded-2xl overflow-hidden bg-white/[0.04] border border-white/20 hover:border-[#22c55e]/60 shadow-[0_8px_32px_rgba(0,0,0,0.5)] group/poster cursor-pointer transition-all duration-300 block select-none backdrop-blur-md"
                     title="View all events on the Events page"
                   >
-                    {/* Blurred ambient glow backdrop from image */}
-                    <div
-                      className="absolute inset-0 bg-cover bg-center blur-lg opacity-35 scale-110 pointer-events-none"
-                      style={{
-                        backgroundImage: `url(${
-                          activeEvent?.posterUrl ||
-                          "https://ik.imagekit.io/SRMFOSSKTR/Logo/fossclub-horizontal-logo.png"
-                        })`,
-                      }}
-                    />
-
                     {/* High-res Square Poster Preview */}
                     <WheelPoster
                       src={
