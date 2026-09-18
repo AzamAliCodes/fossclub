@@ -21,7 +21,10 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: "FOSS Club SRM",
+  title: {
+    template: "%s | " + siteConfig.shortName,
+    default: siteConfig.name,
+  },
   description: siteConfig.description,
   keywords: siteConfig.keywords,
   authors: siteConfig.authors,

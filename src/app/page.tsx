@@ -140,7 +140,7 @@ export default function HomePage() {
             variants={up}
             className="text-[3.35rem] xs:text-[3.8rem] sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight text-[#fafafa] leading-[0.98] sm:leading-[0.95] select-none font-sans"
           >
-            FOSS CLUB <span className="text-[#22c55e]">SRM</span>
+            FOSS CLUB <span className="text-[#22c55e]">SRM KTR</span>
           </motion.h1>
 
           {/* Dynamic Sub-headline with Rotating Text */}
@@ -168,7 +168,7 @@ export default function HomePage() {
             variants={up}
             className="mt-5 sm:mt-6 text-sm sm:text-base text-[#a1a1aa] max-w-2xl mx-auto leading-relaxed font-sans px-1"
           >
-            A student-driven open-source community at SRMIST, building real-world projects, contributing to global open-source, and creating spaces for students to learn, collaborate, and build across Technical, Corporate, and Creative domains.
+            A student-driven open-source community at SRMIST Kattankulathur, building real-world projects, contributing to global open-source, and creating spaces for students to learn, collaborate, and build across Technical, Corporate, and Creative domains.
           </motion.p>
 
           {/* Action Buttons: 1. Meet Our Team (Solid White), 2. Upcoming Events (Solid FOSS Green), 3. Explore Recruitments (Solid Obsidian Terminal) */}

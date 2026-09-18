@@ -20,11 +20,12 @@ export function getSiteUrl(): string {
 }
 
 export const siteConfig = {
-  name: "FOSS Club SRM",
-  shortName: "FOSS SRM",
+  name: "FOSS Club SRM KTR | SRMIST Kattankulathur",
+  shortName: "FOSS Club SRM KTR",
   fullName: "Free and Open Source Software Club — SRMIST Kattankulathur",
   description:
-    "Official FOSS United student chapter at SRM Institute of Science and Technology (SRMIST), Kattankulathur. Empowering developers through open source software, hackathons, Linux workshops, Git sprints, and community projects in Chennai.",
+    "The official Free and Open Source Software (FOSS) Club at SRM Institute of Science and Technology (SRMIST), Kattankulathur (KTR). Empowering developers through open source software, hackathons, Linux workshops, Git sprints, and community projects in Chennai.",
+  alternateName: ["FOSS Club SRM Kattankulathur", "FOSS Club SRM KTR"],
   tagline: "Build in Public. Contribute to Free & Open Source Software.",
   url: getSiteUrl(),
   email: "fossclubsrmktr@gmail.com",
@@ -46,9 +47,13 @@ export const siteConfig = {
   },
   keywords: [
     "FOSS Club SRM",
+    "foss club srm ktr",
+    "foss ktr",
+    "foss srm",
+    "open source club srm",
     "FOSS Club SRMIST",
     "FOSS United SRM",
-    "SRMIST Kattankulathur",
+    "srmist kattankulathur",
     "SRM Open Source Club",
     "Open Source Software India",
     "SRMIST Hackathons",
