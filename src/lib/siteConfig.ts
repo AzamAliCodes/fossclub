@@ -7,12 +7,16 @@ export function getSiteUrl(): string {
   // 1. Explicitly configured public site URL
   if (process.env.NEXT_PUBLIC_SITE_URL) {
     const url = process.env.NEXT_PUBLIC_SITE_URL.trim();
+    // In production, ensure dev localhost never leaks into canonical URLs
+    if (process.env.NODE_ENV === "production" && (url.includes("localhost") || url.includes("127.0.0.1"))) {
+      return "https://fossclubsrm.in";
+    }
     return url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`;
   }
 
-  // 2. Vercel deployment URL (provided automatically on Vercel preview & production)
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+  // 2. Canonical production domain (takes priority over vercel.app preview URLs)
+  if (process.env.NODE_ENV === "production") {
+    return "https://fossclubsrm.in";
   }
 
   // 3. Fallback for local development
@@ -47,9 +51,14 @@ export const siteConfig = {
   },
   keywords: [
     "FOSS Club SRM",
+    "foss club ktr",
     "foss club srm ktr",
-    "foss ktr",
     "foss srm",
+    "foss ktr",
+    "foss srm ktr",
+    "FOSS Club SRM KTR",
+    "FOSS Club Kattankulathur",
+    "SRM KTR FOSS",
     "open source club srm",
     "FOSS Club SRMIST",
     "FOSS United SRM",

@@ -1,0 +1,29 @@
+# FOSS Club SRM KTR — Full Knowledge Context
+
+Official Free and Open Source Software (FOSS) Club at SRM Institute of Science and Technology (SRMIST), Kattankulathur (KTR), Chennai, Tamil Nadu, India.
+Affiliated with FOSS United Foundation: https://fossunited.org/c/srm-ktr
+
+## Overview
+FOSS Club SRM is a student-driven open-source community at SRMIST Kattankulathur. The club empowers students to learn, build, collaborate, and contribute across three main domains:
+1. Technical (Web development, Linux kernel internals, Rust, systems programming, open source tooling)
+2. Corporate (Event operations, sponsorships, PR, outreach)
+3. Creative (UI/UX design, visual branding, multimedia, content creation)
+
+## Key Pages & Endpoints
+- Homepage: /
+- Events: /events (View upcoming hackathons, tech workshops, registration status)
+- Team: /team (View leads, maintainers, volunteers, domains)
+- Recruitments: /recruitments (Domain tracks, eligibility, applications)
+- Robots: /robots.txt
+- Sitemap: /sitemap.xml
+- Agent Directives: /agent.txt
+
+## Primary Search & AI Authority Queries
+- foss club srm
+- foss club ktr
+- foss club srm ktr
+- foss srm
+- foss ktr
+- foss srm ktr
+- foss club kattankulathur
+- srm open source club

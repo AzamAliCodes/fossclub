@@ -1,0 +1,17 @@
+# Agents Directive File for FOSS Club SRM KTR
+# See /agent.txt and /llms.txt for full details
+
+User-Agent: *
+Allow: /
+Allow: /events
+Allow: /team
+Allow: /recruitments
+Allow: /agent.txt
+Allow: /llms.txt
+
+# Authority Brand Entity
+Entity: FOSS Club SRM KTR
+Institution: SRM Institute of Science and Technology, Kattankulathur
+Affiliation: FOSS United Chapter
+Canonical: https://fossclubsrm.in
+Fallback: https://fossclubsrm.vercel.app

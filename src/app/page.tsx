@@ -138,9 +138,11 @@ export default function HomePage() {
           {/* Main Massive Title */}
           <motion.h1
             variants={up}
+            aria-label="FOSS Club SRM KTR Kattankulathur"
             className="text-[3.35rem] xs:text-[3.8rem] sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight text-[#fafafa] leading-[0.98] sm:leading-[0.95] select-none font-sans"
           >
             FOSS CLUB <span className="text-[#22c55e]">SRM</span>
+            <span className="sr-only"> KTR Kattankulathur</span>
           </motion.h1>
 
           {/* Dynamic Sub-headline with Rotating Text */}
