@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "FOSS Club SRM",
+    title: siteConfig.name,
     description: siteConfig.description,
     url: siteConfig.url,
     siteName: siteConfig.name,
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "FOSS Club SRM",
+    title: siteConfig.name,
     description: siteConfig.description,
     images: ["/images/logo.png"],
     creator: "@fossunited",

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { GlassToastProvider } from "@/components/ui/GlassToast";
 
 export const metadata: Metadata = {
-  title: "FOSS Club SRM",
+  title: "CMS Maintainer Portal",
   description: "FOSS Club SRM Content Management Portal",
   robots: {
     index: false,
